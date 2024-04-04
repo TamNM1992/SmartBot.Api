@@ -33,7 +33,7 @@ namespace SmartBot.Services.ClassConfigFacebook
                     Message = "Success",
                     Data = new CommentGroupDataDto()
                     {
-                        DelayTimeLoad = 3000,
+                        DelayTimeLoad = 5000,
                         DelayAction = 1000,
                         CommentBox = new ClassFB()
                         {
