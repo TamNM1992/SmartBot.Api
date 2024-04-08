@@ -29,5 +29,6 @@ namespace SmartBot.Api.Controllers
             var item = _commentService.GetDataCommentGroup();
             return item;
         }
+
     }
 }
