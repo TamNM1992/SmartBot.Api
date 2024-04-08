@@ -49,6 +49,17 @@ namespace SmartBot.Services.ClassConfigFacebook
                         {
                             ClassName = "x9f619 x1n2onr6 x1ja2u2z x78zum5 x2lah0s x1qughib x6s0dn4 xozqiw3 x1q0g3np xcud41i x139jcc6 x4cne27 xifccgj",
                             Index = 0,
+                        },
+                        ActionBar = new Dictionary<string, ClassFB>()
+                        {
+                            {
+                                "Like", 
+                                new ClassFB()
+                                {
+                                    ClassName = "x9f619 x1n2onr6 x1ja2u2z x78zum5 xdt5ytf x193iq5w xeuugli x1r8uery x1iyjqo2 xs83m0k xg83lxy x1h0ha7o x10b6aqq x1yrsyyn",
+                                    Index = 0,
+                                }
+                            }
                         }
                     },
 

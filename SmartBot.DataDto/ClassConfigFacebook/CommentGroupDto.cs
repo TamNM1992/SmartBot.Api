@@ -14,5 +14,6 @@ namespace SmartBot.DataDto.ClassConfigFacebook
         public ClassFB CommentBox { get; set; }
         public ClassFB ButtonImg { get; set; }
         public ClassFB ButtonSubmit {  get; set; }
+        public Dictionary<string, ClassFB> ActionBar { get; set; }
     }
 }

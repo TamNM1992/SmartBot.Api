@@ -59,6 +59,32 @@ namespace SmartBot.Services.Comment
                         Image="",
                         Create_time="3/24/2024 9:14:46 AM"
                         },
+                        new CommentGroupData()
+                        {
+                        STT=2,
+                        ResponseID="Comment vào bài đăng của bà Nhung",
+                        ContentID="Local02",
+                        Type="Comment",
+                        Status="0",
+                        UserID="",
+                        Link="https://www.facebook.com/permalink.php?story_fbid=pfbid0U5zj3mxrKoMT8Mmfh72cUw3FeqyajewmCj4XA2CSSNxBYMeXNDZU3LBzADdcJWFRl&id=100001847272721",
+                        Content="Hoạt động ý nghĩa quá, tiếc là tôi không sinh ra sớm hơn để đi theo",
+                        Image="",
+                        Create_time="3/24/2024 9:14:46 AM"
+                        },
+                        new CommentGroupData()
+                        {
+                        STT=2,
+                        ResponseID="Comment vào bài đăng của Thùy Anh",
+                        ContentID="Local02",
+                        Type="Comment",
+                        Status="0",
+                        UserID="",
+                        Link="https://www.facebook.com/thuyanhpear/posts/pfbid02Y7VA1rgqkL1ch5Sav7UEgCekSsvUWWDsNXp16F4n333LtBu2NwwRzLhj7pfeUPZ3l",
+                        Content="EM quá kinh nghiệm, Cty chúng tôi còn chưa tồn tại lâu bằng kinh nghiệm của em",
+                        Image="",
+                        Create_time="3/24/2024 9:14:46 AM"
+                        },
                     },
 
                 };
