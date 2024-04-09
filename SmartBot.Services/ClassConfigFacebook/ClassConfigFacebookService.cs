@@ -315,7 +315,7 @@ namespace SmartBot.Services.ClassConfigFacebook
                     {
                         DelayPreLoad = 2000,
                         DelayWaitingForAction = 1000,
-                        DelayWaitingForWriteText = 1000,
+                        DelayWaitingForWriteText = 300,
                         Content="",
                         ButtonComment = new ClassFB()
                         {
@@ -355,8 +355,8 @@ namespace SmartBot.Services.ClassConfigFacebook
                         PathImg="",
                         ButtonImg = new ClassFB()
                         {
-                            ClassName = "x9f619 x1n2onr6 x1ja2u2z x78zum5 xdt5ytf x193iq5w xeuugli x1r8uery x1iyjqo2 xs83m0k xg83lxy x1h0ha7o x10b6aqq x1yrsyyn",
-                            Index = 1,
+                            ClassName = "x1rg5ohu x1mnrxsn x1w0mnb",
+                            Index = 7,
                         },
                         ButtonSubmit = new ClassFB()
                         {
