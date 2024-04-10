@@ -70,7 +70,42 @@ namespace SmartBot.Services.Group
                 return response;
             }
         }
-
+        public ResponseBase GetProvince()
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var data = new List<Province>()
+                {
+                    new Province()
+                    {
+                        Name = "Hà Nội",
+                        Districts = new List<string>
+                        {
+                            "Hai Bà Trưng",
+                            "Hoàng Mai",
+                            "Thanh Xuân",
+                            "Sóc Sơn",
+                            "Đông Anh",
+                            "Gia Lâm",
+                            "Nam Từ Liêm",
+                            "Thanh Trì",
+                            "Bắc Từ Liêm",
+                            "Mê Linh",
+                            "Hà Đông",
+                        }
+                    }
+                };
+                response.Data = data;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
 
     }
 }

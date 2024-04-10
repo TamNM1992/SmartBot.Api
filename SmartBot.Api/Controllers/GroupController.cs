@@ -29,5 +29,11 @@ namespace SmartBot.Api.Controllers
             var item = _GroupService.GetDataGroupPost();
             return item;
         }
+        [HttpGet("province")]
+        public ResponseBase GetProvince()
+        {
+            var item = _GroupService.GetProvince();
+            return item;
+        }
     }
 }
