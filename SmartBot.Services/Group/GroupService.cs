@@ -106,6 +106,55 @@ namespace SmartBot.Services.Group
                 return response;
             }
         }
+        public ResponseBase GetTypeByKey(string key)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var data = new List<string>()
+                {
+                    "Nhà bếp",
+                    "Sức khỏe",
+                    "Sản phẩm",
+                    "Nấu ăn",
+                    "Dịch vụ",
+                    "Mua sắm",
+                    "Quán ăn",
+                    "Thức ăn nhanh",
+                    "Thực phẩm",
+                    "Cửa hàng",
+                    "Nhà hàng",
+                    "Ẩm thực",
+                    "đồ ăn",
+                };
+                response.Data = data;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+        public ResponseBase GetGroupByTypeAndLocation(string type, string location, string profile)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var data = new List<GroupDataDto>()
+                {
+                };
+                response.Data = data;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
 
     }
 }

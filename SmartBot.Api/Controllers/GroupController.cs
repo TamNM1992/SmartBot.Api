@@ -35,5 +35,17 @@ namespace SmartBot.Api.Controllers
             var item = _GroupService.GetProvince();
             return item;
         }
+        [HttpGet("type-result")]
+        public ResponseBase GetTypeByKey(string key)
+        {
+            var item = _GroupService.GetTypeByKey(key);
+            return item;
+        }
+        [HttpGet("group-by-type")]
+        public ResponseBase GetGroupByTypeAndLocation(string type, string location, string profile)
+        {
+            var item = _GroupService.GetGroupByTypeAndLocation(type, location,profile);
+            return item;
+        }
     }
 }

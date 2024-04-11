@@ -9,6 +9,8 @@ namespace SmartBot.Services.Group
     {
         public ResponseBase GetDataGroupPost();
         public ResponseBase GetProvince();
+        public ResponseBase GetTypeByKey(string key);
+        public ResponseBase GetGroupByTypeAndLocation(string type, string location, string profile);
 
     }
 }
