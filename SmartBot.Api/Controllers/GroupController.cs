@@ -47,5 +47,11 @@ namespace SmartBot.Api.Controllers
             var item = _GroupService.GetGroupByTypeAndLocation(type, location,profile);
             return item;
         }
+        [HttpGet("search-config")]
+        public ResponseBase GetSearchConfig()
+        {
+            var item = _GroupService.GetSearchConfig();
+            return item;
+        }
     }
 }

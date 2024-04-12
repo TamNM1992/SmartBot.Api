@@ -155,6 +155,28 @@ namespace SmartBot.Services.Group
                 return response;
             }
         }
+        public ResponseBase GetSearchConfig()
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var data = new SearchConfigData()
+                {
+                    ClassResult ="x1yztbdb",
+                    ClassCheckJoin ="x9f619 x1n2onr6 x1ja2u2z x78zum5 xdt5ytf x193iq5w xeuugli x1r8uery x1iyjqo2 xs83m0k x150jy0e x1e558r4 xjkvuk6 x1iorvi4",
+                    ClassInfo ="xu06os2 x1ok221b",
+                    ClassButtonJoin ="x6s0dn4 x78zum5 x1q0g3np",
+                };
+                response.Data = data;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
 
     }
 }
