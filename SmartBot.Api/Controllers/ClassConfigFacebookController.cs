@@ -29,5 +29,17 @@ namespace SmartBot.Api.Controllers
             var item = _classConfigFacebookService.GetCommentGroup();
             return item;
         }
+        [HttpGet("comment-config")]
+        public ResponseBase GetCommentConfig()
+        {
+            var item = _classConfigFacebookService.GetCommentConfig();
+            return item;
+        }
+        [HttpGet("img-config")]
+        public ResponseBase GetUpImgConfig()
+        {
+            var item = _classConfigFacebookService.GetUpImgConfig();
+            return item;
+        }
     }
 }
