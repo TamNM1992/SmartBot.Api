@@ -84,15 +84,15 @@ namespace SmartBot.Services.Group
                         {
                             "Hai Bà Trưng",
                             "Hoàng Mai",
-                            "Thanh Xuân",
-                            "Sóc Sơn",
-                            "Đông Anh",
-                            "Gia Lâm",
-                            "Nam Từ Liêm",
-                            "Thanh Trì",
-                            "Bắc Từ Liêm",
-                            "Mê Linh",
-                            "Hà Đông",
+                            //"Thanh Xuân",
+                            //"Sóc Sơn",
+                            //"Đông Anh",
+                            //"Gia Lâm",
+                            //"Nam Từ Liêm",
+                            //"Thanh Trì",
+                            //"Bắc Từ Liêm",
+                            //"Mê Linh",
+                            //"Hà Đông",
                         }
                     }
                 };
