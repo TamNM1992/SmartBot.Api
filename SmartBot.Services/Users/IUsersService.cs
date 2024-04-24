@@ -2,6 +2,7 @@
 
 
 using SmartBot.DataDto.Base;
+using SmartBot.DataDto.User;
 
 namespace SmartBot.Services.Users
 {
@@ -9,6 +10,7 @@ namespace SmartBot.Services.Users
     {
         public ResponseBase CheckUserByAccount(string email, string password);
         public ResponseBase CheckUserByToken(string token);
+        public ResponseBase Register(UserDto data);
 
     }
 }

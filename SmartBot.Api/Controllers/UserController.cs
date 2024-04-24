@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SmartBot.DataDto.Base;
+using SmartBot.DataDto.User;
 using SmartBot.Services;
 using SmartBot.Services.Users;
 
@@ -33,6 +34,12 @@ namespace SmartBot.Api.Controllers
         public ResponseBase CheckUserByToken(string token)
         {
             var item = _userService.CheckUserByToken(token);
+            return item;
+        }
+        [HttpPost("register")]
+        public ResponseBase Register(UserDto data)
+        {
+            var item = _userService.Register(data);
             return item;
         }
     }

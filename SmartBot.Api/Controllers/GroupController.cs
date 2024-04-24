@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SmartBot.DataDto.Base;
+using SmartBot.DataDto.Group;
 using SmartBot.Services;
 using SmartBot.Services.ClassConfigFacebook;
 using SmartBot.Services.Group;
@@ -51,6 +52,12 @@ namespace SmartBot.Api.Controllers
         public ResponseBase GetSearchConfig()
         {
             var item = _GroupService.GetSearchConfig();
+            return item;
+        }
+        [HttpPost("group-fb")]
+        public ResponseBase InsertGroup(InsertGroupDto data)
+        {
+            var item = _GroupService.InsertGroup(data);
             return item;
         }
     }

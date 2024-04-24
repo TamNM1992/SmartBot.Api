@@ -1,5 +1,7 @@
 ﻿
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
@@ -12,13 +14,12 @@ namespace SmartBot.Services.Users
     {
         private IMapper _mapper;
         private readonly ICommonUoW _commonUoW;
-
-        public UserService( IMapper mapper, ICommonUoW commonUoW)
+        private readonly ICommonRepository<User> _userRepository;
+        public UserService( IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository)
         {
-            //  mình gọi thằng authority trong pipeline ra, gắn nó vào thằng _authorityRepository để dùng
-
             _mapper = mapper;
             _commonUoW = commonUoW;
+            _userRepository = userRepository;
         }
         public ResponseBase CheckUserByAccount(string email, string password)
         {
@@ -66,6 +67,39 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
+        public ResponseBase Register(UserDto data)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var olduser = _userRepository.FindAll(x => x.Email==data.Email);
+                if (olduser!=null && olduser.Any())
+                {
+                    response.Message ="username existing";
+                    return response;
+                }
+                var user = new User
+                {
+                    Email = data.Email,
+                    Password = data.Password,
+                    HardwareId = data.HardwareId,
+                    Status=1,
+                    DateCreated= DateTime.Now,
+                    DateUpdate= DateTime.Now,
+                };
+                _commonUoW.BeginTransaction();
+                _userRepository.Insert(user);
+                _commonUoW.Commit();
 
+                response.Data=user.Id;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
     }
 }

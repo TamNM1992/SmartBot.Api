@@ -25,10 +25,10 @@ namespace SmartBot.DataDto.Group
         public int Id { get; set; }
         public string Name { get; set; }
         public string Url { get; set; }
-        public string? Type { get; set; }
+        public string Type { get; set; }
 
-        public int? NumMember { get; set; }
-        public int? NumPostPerDay { get; set; }
+        public int NumMember { get; set; }
+        public int NumPostPerDay { get; set; }
         public string? Description { get; set; }
         public bool IsSendRequest { get; set; }
     }
