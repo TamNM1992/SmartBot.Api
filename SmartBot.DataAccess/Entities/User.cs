@@ -7,7 +7,7 @@ public partial class User
 {
     public int Id { get; set; }
 
-    public string Email { get; set; } = null!;
+    public string UserName { get; set; } = null!;
 
     public string Password { get; set; } = null!;
 
@@ -17,9 +17,9 @@ public partial class User
 
     public DateTime? DateUpdate { get; set; }
 
-    public string? HardwareId { get; set; }
-
     public string? License { get; set; }
 
-    public virtual ICollection<ImagePath> ImagePaths { get; set; } = new List<ImagePath>();
+    public virtual ICollection<UserClient> UserClients { get; set; } = new List<UserClient>();
+
+    public virtual ICollection<UsersAccountFb> UsersAccountFbs { get; set; } = new List<UsersAccountFb>();
 }

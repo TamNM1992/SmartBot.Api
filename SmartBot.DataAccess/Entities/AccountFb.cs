@@ -19,11 +19,13 @@ public partial class AccountFb
 
     public byte Status { get; set; }
 
-    public virtual ICollection<CommentFb> CommentFbs { get; set; } = new List<CommentFb>();
+    public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
+
+    public virtual ICollection<ContentFb> ContentFbs { get; set; } = new List<ContentFb>();
 
     public virtual ICollection<FaceBookGroup> FaceBookGroups { get; set; } = new List<FaceBookGroup>();
 
     public virtual ICollection<FaceBookPage> FaceBookPages { get; set; } = new List<FaceBookPage>();
 
-    public virtual ICollection<PostFb> PostFbs { get; set; } = new List<PostFb>();
+    public virtual ICollection<UsersAccountFb> UsersAccountFbs { get; set; } = new List<UsersAccountFb>();
 }

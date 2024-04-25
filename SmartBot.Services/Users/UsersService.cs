@@ -72,7 +72,7 @@ namespace SmartBot.Services.Users
             ResponseBase response = new ResponseBase();
             try
             {
-                var olduser = _userRepository.FindAll(x => x.Email==data.Email);
+                var olduser = _userRepository.FindAll(x => x.UserName==data.Email);
                 if (olduser!=null && olduser.Any())
                 {
                     response.Message ="username existing";
@@ -80,9 +80,8 @@ namespace SmartBot.Services.Users
                 }
                 var user = new User
                 {
-                    Email = data.Email,
+                    UserName = data.Email,
                     Password = data.Password,
-                    HardwareId = data.HardwareId,
                     Status=1,
                     DateCreated= DateTime.Now,
                     DateUpdate= DateTime.Now,
