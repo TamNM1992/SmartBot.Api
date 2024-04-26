@@ -8,7 +8,7 @@ namespace SmartBot.Services.Users
 {
     public interface IUserService
     {
-        public ResponseBase CheckUserByAccount(string email, string password);
+        public ResponseBase CheckUserByAccount(string userName, string password, string hardwareId);
         public ResponseBase CheckUserByToken(string token);
         public ResponseBase Register(UserDto data);
 

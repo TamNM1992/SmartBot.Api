@@ -86,9 +86,9 @@ namespace SmartBot.Services.Group
             ResponseBase response = new ResponseBase();
             try
             {
-                var data = new List<Province>()
+                var data = new List<ProvinceDto>()
                 {
-                    new Province()
+                    new ProvinceDto()
                     {
                         Name = "Hà Nội",
                         Districts = new List<string>
@@ -106,7 +106,7 @@ namespace SmartBot.Services.Group
                             //"Hà Đông",
                         }
                     },
-                    new Province()
+                    new ProvinceDto()
                     {
                         Name = "Tp Hồ Chí Minh",
                         Districts = new List<string>

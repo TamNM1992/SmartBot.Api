@@ -1,12 +1,19 @@
 ﻿
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
+using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 
 namespace SmartBot.Services.Users
 {
@@ -14,18 +21,82 @@ namespace SmartBot.Services.Users
     {
         private IMapper _mapper;
         private readonly ICommonUoW _commonUoW;
+        private readonly ICommonRepository<ClientCustomer> _clientCustomerRepository;
         private readonly ICommonRepository<User> _userRepository;
-        public UserService( IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository)
+        private readonly ICommonRepository<UserClient> _userClientRepository;
+
+        public UserService( IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<ClientCustomer> clientCustomerRepository,
+            ICommonRepository<UserClient> userClientRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
             _userRepository = userRepository;
+            _clientCustomerRepository=clientCustomerRepository;
+            _userClientRepository=userClientRepository;
         }
-        public ResponseBase CheckUserByAccount(string email, string password)
+        public ResponseBase CheckUserByAccount(string userName, string password, string hardwareId)
         {
             ResponseBase response = new ResponseBase();
             try
             {
+                var user = _userRepository.FindAll(x=>x.UserName==userName && password==password).SingleOrDefault();
+                if (user == null)
+                {
+                    return new ResponseBase()
+                    {
+                        Code= 500,
+                        Message = "UserName or pass word wrong",
+                        Data = new LoginDto(),
+
+                    };
+                }
+                var idClient = 0;
+                var client = _clientCustomerRepository.FindAll(x=>x.HardwareId==hardwareId).FirstOrDefault();
+                if (client == null)
+                {
+                    var newClient = new ClientCustomer()
+                    {
+                        HardwareId = hardwareId,
+                        DateUpdate = DateTime.Now,
+                    };
+                    _commonUoW.BeginTransaction();
+                    _clientCustomerRepository.Insert(newClient);
+                    _commonUoW.Commit();
+                    idClient = newClient.Id;
+                }
+                else
+                {
+                    idClient = client.Id;
+                }
+                var userclient = _userClientRepository.FindAll(x=>x.IdUser==user.Id && x.IdClient ==idClient).FirstOrDefault();
+                string token = "";
+                if (userclient == null)
+                {
+                    var newuserclient = new UserClient()
+                    {
+                        IdUser = user.Id,
+                        IdClient = idClient,
+                        DateUpdate= DateTime.Now,
+                        Status=1,
+                        Token = Token.GenerateSecurityToken(userName,"7"),
+                    };
+                    token = newuserclient.Token;
+                    _commonUoW.BeginTransaction();
+                    _userClientRepository.Insert(newuserclient);
+                    _commonUoW.Commit();
+                }
+                else
+                {
+                    userclient.DateUpdate = DateTime.Now;
+                    userclient.Token = Token.GenerateSecurityToken(userName, "7");
+
+                    _commonUoW.BeginTransaction();
+                    _userClientRepository.Update(userclient);
+                    _commonUoW.Commit();
+                    token = userclient.Token;
+
+                }
+
                 return new ResponseBase()
                 {
                     Code= 0,
@@ -33,7 +104,7 @@ namespace SmartBot.Services.Users
                     Data = new LoginDto()
                     {
                         Status = "success",
-                        Token =  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4iLCJod0lEIjoiNTIyOS04MDA0LTE3NUMtRkEzQi02Njg2LTJEQjMtQzY0Qi1GMkFEIiwiZXhwIjoxNjk2NTg2OTIxLCJpYXQiOjE2OTU5ODIxMjF9.f1Dyw0n9q6uuzyotkQZiYFfxTDvgXoEwZmE2LJUJ4dQ"
+                        Token =  token
                     },
 
                 };
@@ -101,4 +172,5 @@ namespace SmartBot.Services.Users
             }
         }
     }
+    
 }

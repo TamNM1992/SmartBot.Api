@@ -25,9 +25,9 @@ namespace SmartBot.Api.Controllers
         }
 
         [HttpGet("login-account")]
-        public ResponseBase CheckUserByAccount(string email, string password)
+        public ResponseBase CheckUserByAccount(string userName, string password, string hardwareId)
         {
-            var item = _userService.CheckUserByAccount(email, password);
+            var item = _userService.CheckUserByAccount(userName, password, hardwareId);
             return item;
         }
         [HttpGet("check-token")]
