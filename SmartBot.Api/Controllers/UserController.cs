@@ -36,6 +36,12 @@ namespace SmartBot.Api.Controllers
             var item = _userService.CheckUserByToken(token);
             return item;
         }
+        [HttpGet("check-license")]
+        public ResponseBase CheckLicenseUser(string userName, string license)
+        {
+            var item = _userService.CheckLicenseUser(userName, license);
+            return item;
+        }
         [HttpPost("register")]
         public ResponseBase Register(UserDto data)
         {

@@ -9,6 +9,6 @@ namespace SmartBot.DataDto.User
     public class LoginDto
     {
         public string Token { get; set; }
-        public string Status {  get; set; }
+        public int Status {  get; set; }
     }
 }

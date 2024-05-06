@@ -18,6 +18,7 @@ public partial class User
     public DateTime? DateUpdate { get; set; }
 
     public string? License { get; set; }
+    public DateTime ExpiryDate { get; set; }
 
     public virtual ICollection<UserClient> UserClients { get; set; } = new List<UserClient>();
 

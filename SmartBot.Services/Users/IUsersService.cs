@@ -11,6 +11,8 @@ namespace SmartBot.Services.Users
         public ResponseBase CheckUserByAccount(string userName, string password, string hardwareId);
         public ResponseBase CheckUserByToken(string token);
         public ResponseBase Register(UserDto data);
+        public ResponseBase CheckLicenseUser(string userName, string license);
+
 
     }
 }

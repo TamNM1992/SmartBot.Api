@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
+using NhaDat24h.Common.Enums;
 using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
@@ -39,63 +40,112 @@ namespace SmartBot.Services.Users
             ResponseBase response = new ResponseBase();
             try
             {
-                var user = _userRepository.FindAll(x=>x.UserName==userName && password==password).SingleOrDefault();
-                if (user == null)
-                {
-                    return new ResponseBase()
-                    {
-                        Code= 500,
-                        Message = "UserName or pass word wrong",
-                        Data = new LoginDto(),
+                //var user = _userRepository.FindAll(x=>x.UserName==userName).SingleOrDefault();
+                //if (user == null)
+                //{
+                //    return new ResponseBase()
+                //    {
+                //        Code= 99,
+                //        Message = StatusLogin.UserNotExisting.ToString(),
+                //        Data = new LoginDto()
+                //        {
+                //            Status=(int)StatusLogin.UserNotExisting,
+                //            Token=""
+                //        },
 
-                    };
-                }
-                var idClient = 0;
-                var client = _clientCustomerRepository.FindAll(x=>x.HardwareId==hardwareId).FirstOrDefault();
-                if (client == null)
-                {
-                    var newClient = new ClientCustomer()
-                    {
-                        HardwareId = hardwareId,
-                        DateUpdate = DateTime.Now,
-                    };
-                    _commonUoW.BeginTransaction();
-                    _clientCustomerRepository.Insert(newClient);
-                    _commonUoW.Commit();
-                    idClient = newClient.Id;
-                }
-                else
-                {
-                    idClient = client.Id;
-                }
-                var userclient = _userClientRepository.FindAll(x=>x.IdUser==user.Id && x.IdClient ==idClient).FirstOrDefault();
-                string token = "";
-                if (userclient == null)
-                {
-                    var newuserclient = new UserClient()
-                    {
-                        IdUser = user.Id,
-                        IdClient = idClient,
-                        DateUpdate= DateTime.Now,
-                        Status=1,
-                        Token = Token.GenerateSecurityToken(userName,"7"),
-                    };
-                    token = newuserclient.Token;
-                    _commonUoW.BeginTransaction();
-                    _userClientRepository.Insert(newuserclient);
-                    _commonUoW.Commit();
-                }
-                else
-                {
-                    userclient.DateUpdate = DateTime.Now;
-                    userclient.Token = Token.GenerateSecurityToken(userName, "7");
+                //    };
+                //}
+                //else
+                //{
+                //    if (user.Password!=password)
+                //    {
+                //        return new ResponseBase()
+                //        {
+                //            Code= 98,
+                //            Message = StatusLogin.PasswordWrong.ToString(),
+                //            Data = new LoginDto()
+                //            {
+                //                Status=(int)StatusLogin.PasswordWrong,
+                //                Token=""
+                //            },
 
-                    _commonUoW.BeginTransaction();
-                    _userClientRepository.Update(userclient);
-                    _commonUoW.Commit();
-                    token = userclient.Token;
+                //        };
+                //    }
+                //    if(user.License.IsNullOrEmpty())
+                //    {
+                //        return new ResponseBase()
+                //        {
+                //            Code= 97,
+                //            Message = "Tài khoản chưa được kích hoạt, vui lòng nhập license",
+                //            Data = new LoginDto()
+                //            {
+                //                Status= (int)StatusLogin.NoLicense,
+                //                Token=""
+                //            }
 
-                }
+                //        };
+                //    }    
+                //    if(user.ExpiryDate< DateTime.Now)
+                //    {
+                //        return new ResponseBase()
+                //        {
+                //            Code= 96,
+                //            Message = "Tài khoản đã hết hạn dùng",
+                //            Data = new LoginDto()
+                //            {
+                //                Status= (int)StatusLogin.LicenseExpires,
+                //                Token=""
+                //            }
+
+                //        };
+                //    }    
+                //}
+                //var idClient = 0;
+                //var client = _clientCustomerRepository.FindAll(x=>x.HardwareId==hardwareId).FirstOrDefault();
+                //if (client == null)
+                //{
+                //    var newClient = new ClientCustomer()
+                //    {
+                //        HardwareId = hardwareId,
+                //        DateUpdate = DateTime.Now,
+                //    };
+                //    _commonUoW.BeginTransaction();
+                //    _clientCustomerRepository.Insert(newClient);
+                //    _commonUoW.Commit();
+                //    idClient = newClient.Id;
+                //}
+                //else
+                //{
+                //    idClient = client.Id;
+                //}
+                //var userclient = _userClientRepository.FindAll(x=>x.IdUser==user.Id && x.IdClient ==idClient).FirstOrDefault();
+                //string token = "";
+                //if (userclient == null)
+                //{
+                //    var newuserclient = new UserClient()
+                //    {
+                //        IdUser = user.Id,
+                //        IdClient = idClient,
+                //        DateUpdate= DateTime.Now,
+                //        Status=1,
+                //        Token = Token.GenerateSecurityToken(userName,"7"),
+                //    };
+                //    token = newuserclient.Token;
+                //    _commonUoW.BeginTransaction();
+                //    _userClientRepository.Insert(newuserclient);
+                //    _commonUoW.Commit();
+                //}
+                //else
+                //{
+                //    userclient.DateUpdate = DateTime.Now;
+                //    userclient.Token = Token.GenerateSecurityToken(userName, "7");
+
+                //    _commonUoW.BeginTransaction();
+                //    _userClientRepository.Update(userclient);
+                //    _commonUoW.Commit();
+                //    token = userclient.Token;
+
+                //}
 
                 return new ResponseBase()
                 {
@@ -103,8 +153,9 @@ namespace SmartBot.Services.Users
                     Message = "Success",
                     Data = new LoginDto()
                     {
-                        Status = "success",
-                        Token =  token
+                        Status= (int)StatusLogin.Success,
+                        //Token =  token
+                        Token = Token.GenerateSecurityToken(userName, "7")
                     },
 
                 };
@@ -127,7 +178,43 @@ namespace SmartBot.Services.Users
                     Message = "Success",
                     Data = new LoginDto()
                     {
-                        Status = "success",
+                        Status = (int)StatusLogin.Success,
+                    },
+                };
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+        public ResponseBase CheckLicenseUser(string userName, string license)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                //var user = _userRepository.FindAll(x=>x.UserName == userName).FirstOrDefault();
+                //if(license!=user.License)
+                //{
+                //    return new ResponseBase()
+                //    {
+                //        Code= 99,
+                //        Message = "fail",
+                //        Data = new LoginDto()
+                //        {
+                //            Status = (int)StatusLogin.NoLicense,
+                //            Token=""
+                //        },
+                //    };
+                //}    
+                return new ResponseBase()
+                {
+                    Code= 0,
+                    Message = "Success",
+                    Data = new LoginDto()
+                    {
+                        Status = (int)StatusLogin.Success,
                     },
                 };
             }
