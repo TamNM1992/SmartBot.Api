@@ -42,6 +42,12 @@ namespace SmartBot.Api.Controllers
             var item = _userService.CheckLicenseUser(userName, license);
             return item;
         }
+        [HttpGet("list-account")]
+        public ResponseBase GetAccountEverLogin(int idUser)
+        {
+            var item = _userService.GetAccountEverLogin(idUser);
+            return item;
+        }
         [HttpPost("register")]
         public ResponseBase Register(UserDto data)
         {

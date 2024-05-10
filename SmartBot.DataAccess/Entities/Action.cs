@@ -11,7 +11,7 @@ public partial class Action
 
     public int IdAccountFb { get; set; }
 
-    public string Link { get; set; } = null!;
+    public string? Link { get; set; }
 
     public byte Style { get; set; }
 
@@ -20,6 +20,8 @@ public partial class Action
     public int? IdContent { get; set; }
 
     public DateTime DateUpdate { get; set; }
+
+    public virtual ICollection<ActionType> ActionTypes { get; set; } = new List<ActionType>();
 
     public virtual AccountFb IdAccountFbNavigation { get; set; } = null!;
 

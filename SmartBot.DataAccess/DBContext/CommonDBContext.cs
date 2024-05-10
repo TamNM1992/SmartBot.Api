@@ -14,6 +14,7 @@ namespace SmartBot.DataAccess.DBContext
         public virtual DbSet<AccountFb> AccountFbs { get; set; }
 
         public virtual DbSet<Action> Actions { get; set; }
+    public virtual DbSet<ActionType> ActionTypes { get; set; }
 
         public virtual DbSet<ClassDatum> ClassData { get; set; }
 
@@ -45,6 +46,7 @@ namespace SmartBot.DataAccess.DBContext
 
         public virtual DbSet<Topic> Topics { get; set; }
 
+    public virtual DbSet<TypeAction> TypeActions { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
         public virtual DbSet<UserClient> UserClients { get; set; }
@@ -89,11 +91,26 @@ namespace SmartBot.DataAccess.DBContext
                     .HasForeignKey(d => d.IdContent)
                     .HasConstraintName("FK_Action_ContentFB");
 
-                entity.HasOne(d => d.IdScriptNavigation).WithMany(p => p.Actions)
-                    .HasForeignKey(d => d.IdScript)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ActionLike_Script");
-            });
+            entity.HasOne(d => d.IdScriptNavigation).WithMany(p => p.Actions)
+                .HasForeignKey(d => d.IdScript)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ActionLike_Script");
+        });
+
+        modelBuilder.Entity<ActionType>(entity =>
+        {
+            entity.ToTable("ActionType");
+
+            entity.HasOne(d => d.IdActionNavigation).WithMany(p => p.ActionTypes)
+                .HasForeignKey(d => d.IdAction)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ActionType_Action");
+
+            entity.HasOne(d => d.IdTypeNavigation).WithMany(p => p.ActionTypes)
+                .HasForeignKey(d => d.IdType)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ActionType_TypeAction");
+        });
 
             modelBuilder.Entity<ClassDatum>(entity =>
             {
@@ -275,6 +292,8 @@ namespace SmartBot.DataAccess.DBContext
                 entity.ToTable("Script");
 
                 entity.Property(e => e.DateUpdate).HasColumnType("datetime");
+                entity.Property(e => e.Name).HasMaxLength(500);
+
             });
 
             modelBuilder.Entity<Topic>(entity =>
@@ -287,16 +306,23 @@ namespace SmartBot.DataAccess.DBContext
                     .HasColumnName("Topic");
             });
 
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.Property(e => e.DateCreated).HasColumnType("datetime");
-                entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-                entity.Property(e => e.License)
-                    .HasMaxLength(100)
-                    .IsFixedLength();
-                entity.Property(e => e.Password).HasMaxLength(20);
-                entity.Property(e => e.UserName).HasMaxLength(100);
-            });
+        modelBuilder.Entity<TypeAction>(entity =>
+        {
+            entity.ToTable("TypeAction");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Name).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.Property(e => e.DateCreated).HasColumnType("datetime");
+            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
+            entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
+            entity.Property(e => e.License).HasMaxLength(100);
+            entity.Property(e => e.Password).HasMaxLength(20);
+            entity.Property(e => e.UserName).HasMaxLength(100);
+        });
 
             modelBuilder.Entity<UserClient>(entity =>
             {
@@ -304,7 +330,7 @@ namespace SmartBot.DataAccess.DBContext
 
                 entity.Property(e => e.DateUpdate).HasColumnType("datetime");
                 entity.Property(e => e.Token)
-                    .HasMaxLength(100)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.HasOne(d => d.IdClientNavigation).WithMany(p => p.UserClients)

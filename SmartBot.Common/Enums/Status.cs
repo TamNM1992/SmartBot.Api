@@ -4,7 +4,9 @@ namespace NhaDat24h.Common.Enums
 {
 	public enum StatusLogin
 	{
-		[Description("Success")]
+        [Description("Fail")]
+        Fail = 99,
+        [Description("Success")]
 		Success = 1,
 		[Description("No license")]
 		NoLicense = 2,
@@ -13,6 +15,8 @@ namespace NhaDat24h.Common.Enums
         [Description("User not existing")]
         UserNotExisting = 4,
         [Description("Password wrong")]
-        PasswordWrong = 5
+        PasswordWrong = 5,
+        [Description("Token expired")]
+        TokenExpired = 6
     }
 }

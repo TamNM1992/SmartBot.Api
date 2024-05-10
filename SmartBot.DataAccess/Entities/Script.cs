@@ -6,7 +6,7 @@ namespace SmartBot.DataAccess.Entities;
 public partial class Script
 {
     public int Id { get; set; }
-
+    public string Name { get; set; }
     public int IdUserClient { get; set; }
 
     public DateTime DateUpdate { get; set; }
