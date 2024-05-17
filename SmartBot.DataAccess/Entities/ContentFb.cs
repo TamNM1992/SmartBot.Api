@@ -15,9 +15,13 @@ public partial class ContentFb
 
     public byte? Type { get; set; }
 
+    public bool? Img { get; set; }
+
     public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
 
     public virtual ICollection<ContentTopic> ContentTopics { get; set; } = new List<ContentTopic>();
 
     public virtual AccountFb IdFaceBookNavigation { get; set; } = null!;
+
+    public virtual ICollection<ImagePath> ImagePaths { get; set; } = new List<ImagePath>();
 }

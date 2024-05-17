@@ -9,11 +9,11 @@ public partial class ContentTopic
 
     public int IdTopic { get; set; }
 
-    public int IdComment { get; set; }
+    public int IdContent { get; set; }
 
     public int LevelCompatible { get; set; }
 
-    public virtual ContentFb IdCommentNavigation { get; set; } = null!;
+    public virtual ContentFb IdContentNavigation { get; set; } = null!;
 
     public virtual Topic IdTopicNavigation { get; set; } = null!;
 }

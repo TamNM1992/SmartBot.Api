@@ -23,5 +23,5 @@ public partial class GroupFb
 
     public virtual ICollection<FaceBookGroup> FaceBookGroups { get; set; } = new List<FaceBookGroup>();
 
-    public virtual ICollection<PostGroup> PostGroups { get; set; } = new List<PostGroup>();
+    public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 }

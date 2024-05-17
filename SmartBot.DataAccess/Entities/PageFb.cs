@@ -30,4 +30,6 @@ public partial class PageFb
     public DateTime? DateUpdate { get; set; }
 
     public virtual ICollection<FaceBookPage> FaceBookPages { get; set; } = new List<FaceBookPage>();
+
+    public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 }

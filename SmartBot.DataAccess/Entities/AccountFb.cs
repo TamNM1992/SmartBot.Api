@@ -27,5 +27,7 @@ public partial class AccountFb
 
     public virtual ICollection<FaceBookPage> FaceBookPages { get; set; } = new List<FaceBookPage>();
 
+    public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
+
     public virtual ICollection<UsersAccountFb> UsersAccountFbs { get; set; } = new List<UsersAccountFb>();
 }

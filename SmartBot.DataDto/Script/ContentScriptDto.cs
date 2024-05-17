@@ -10,6 +10,12 @@ namespace SmartBot.DataDto.Script
     {
         public int Id { get; set; }
         public string Detail { get; set; } = null!;
-        public List<string>? ListImgPath { get; set; }
+        public List<string> ListTopic { get; set; } = null!;
+        public ImgDto? Img { get; set; }
+    }
+    public class ImgDto
+    {
+        public int Id { get; set; }
+        public string Path { get; set; }
     }
 }
