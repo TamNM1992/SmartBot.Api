@@ -82,9 +82,6 @@ namespace SmartBot.DataAccess.DBContext
 
             entity.Property(e => e.DateUpdate).HasColumnType("datetime");
             entity.Property(e => e.IdAccountFb).HasColumnName("IdAccountFB");
-            entity.Property(e => e.Link)
-                .HasMaxLength(1000)
-                .IsUnicode(false);
 
             entity.HasOne(d => d.IdAccountFbNavigation).WithMany(p => p.Actions)
                 .HasForeignKey(d => d.IdAccountFb)
@@ -154,8 +151,6 @@ namespace SmartBot.DataAccess.DBContext
             entity.HasKey(e => e.Id).HasName("PK_CommentTopic");
 
             entity.ToTable("ContentTopic");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
 
             entity.HasOne(d => d.IdContentNavigation).WithMany(p => p.ContentTopics)
                 .HasForeignKey(d => d.IdContent)

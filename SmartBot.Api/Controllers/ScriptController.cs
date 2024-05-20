@@ -60,5 +60,11 @@ namespace SmartBot.Api.Controllers
             var item = _ScriptService.UpdateContent(param);
             return item;
         }
+        [HttpGet("post-target")]
+        public ResponseBase GetPostTarget(int idTarget, int typeTarget)
+        {
+            var item = _ScriptService.GetPostTarget(idTarget, typeTarget);
+            return item;
+        }
     }
 }

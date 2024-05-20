@@ -12,6 +12,7 @@ namespace SmartBot.Services.Scripts
         public ResponseBase GetTargetByActionDetail(int idUser, int idAccountFB, int typeAction);
         public ResponseBase GetContentById(int idContent, string hardwareId);
         public ResponseBase UpdateContent(UpdateContentParam param);
+        public ResponseBase GetPostTarget(int idTarget, int typeTarget);
 
     }
 }

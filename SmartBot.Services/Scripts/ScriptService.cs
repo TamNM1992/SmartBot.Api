@@ -11,6 +11,7 @@ using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.Script;
 using System.Data;
+using System.Net;
 using Action = SmartBot.DataAccess.Entities.Action;
 
 namespace SmartBot.Services.Scripts
@@ -30,6 +31,7 @@ namespace SmartBot.Services.Scripts
         private readonly ICommonRepository<ContentFb> _contentRepository;
         private readonly ICommonRepository<AccountFb> _accountRepository;
         private readonly ICommonRepository<ClientCustomer> _clientRepository;
+        private readonly ICommonRepository<User> _userRepository;
         private readonly ICommonRepository<UserClient> _userClientRepository;
         private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
         private readonly ICommonRepository<GroupFb> _groupRepository;
@@ -50,7 +52,8 @@ namespace SmartBot.Services.Scripts
             ICommonRepository<Topic> topicRepository,ICommonRepository<ImagePath> imgRepository,
             ICommonRepository<GroupFb> groupRepository, ICommonRepository<FaceBookGroup> fbgroupRepository,
             ICommonRepository<Post> postRepository, ICommonRepository<PostComment> postCommentRepository,
-            ICommonRepository<FaceBookPage> fbpageRepository, ICommonRepository<ContentTopic> contentTopicRepository)
+            ICommonRepository<FaceBookPage> fbpageRepository, ICommonRepository<ContentTopic> contentTopicRepository,
+            ICommonRepository<User> userRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
@@ -71,6 +74,77 @@ namespace SmartBot.Services.Scripts
             _postCommentRepository = postCommentRepository;
             _fbpageRepository = fbpageRepository;
             _contentTopicRepository = contentTopicRepository;
+            _userRepository = userRepository;
+        }
+        public ResponseBase CreateScript(ScriptDto param)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var user = _userRepository.GetById(param.IdUser);
+                if(user == null)
+                {
+                    response.Message = "User not existing";
+                    response.Code = 99;
+                    return response;
+                }
+                var client = _clientRepository.FindAll(x=>x.HardwareId==param.HardwareId).SingleOrDefault();
+                var clientid = 0;
+                if(client == null)
+                {
+                    var newclient = new ClientCustomer()
+                    {
+                        HardwareId = param.HardwareId,
+                        DateUpdate = DateTime.UtcNow,
+                    };
+                    _commonUoW.BeginTransaction();
+                    _clientRepository.Insert(newclient);
+                    _commonUoW.Commit();
+                    clientid=newclient.Id;
+                }
+                else
+                {
+                    clientid = client.Id;
+                }    
+                var userclient = _userClientRepository.FindAll(x=>x.IdUser==user.Id && x.IdClient==clientid).SingleOrDefault();
+                var userclientId = 0;
+                if(userclient == null)
+                {
+                    var newUserClient = new UserClient()
+                    {
+                        IdUser = user.Id,
+                        IdClient = clientid,
+                    };
+                    _commonUoW.BeginTransaction();
+                    _userClientRepository.Insert(newUserClient);
+                    _commonUoW.Commit();
+                    userclientId=newUserClient.Id;
+                }    
+                else
+                {
+                    userclientId=userclient.Id;
+                }
+                var script = new Script()
+                {
+                    Name = param.Name,
+                    IdUserClient = userclientId,
+                    DateUpdate= DateTime.UtcNow,
+                    Status = 0,
+                };
+
+                _commonUoW.BeginTransaction();
+                _scriptRepository.Insert(script);
+                _commonUoW.Commit();
+                var idScript = script.Id;
+
+                response.Data = "Success";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                return response;
+            }
         }
         public ResponseBase GetScriptByUserClient(int idUser, string hardwareId)
         {
@@ -104,7 +178,6 @@ namespace SmartBot.Services.Scripts
                             FbPassword = y.IdAccountFbNavigation.FbPassword,
                             FbProfileLink = y.IdAccountFbNavigation.FbProfileLink,
                         },
-                        Link = y.Link,
                         Style = y.Style,
                         ListType = y.ActionTypes.Select(z=>z.IdType).ToList(),
                         SequenceNumber = y.SequenceNumber,
@@ -282,6 +355,32 @@ namespace SmartBot.Services.Scripts
                     Img =img,
                 };
 
+                response.Data = data;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                return response;
+            }
+        }
+        public ResponseBase GetPostTarget(int idTarget,int typeTarget)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var data = new List<PostInTargetDto>();
+                var post = _postRepository.FindAll(x => ((typeTarget==1) ? x.IdAccount==idTarget : (typeTarget==2) ? x.IdPage==idTarget : x.IdGroup==idTarget));
+                if(post != null && post.Any())
+                {
+                    data = post.Select(x=> new PostInTargetDto
+                    {
+                        Id =x.Id,
+                        Content = x.Content,
+                        Url = x.Url,
+                        Type = typeTarget,
+                    }).ToList();
+                }    
                 response.Data = data;
                 return response;
             }

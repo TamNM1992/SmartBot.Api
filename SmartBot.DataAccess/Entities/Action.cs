@@ -11,8 +11,6 @@ public partial class Action
 
     public int IdAccountFb { get; set; }
 
-    public string? Link { get; set; }
-
     public byte Style { get; set; }
 
     public int SequenceNumber { get; set; }
@@ -20,6 +18,10 @@ public partial class Action
     public int? IdContent { get; set; }
 
     public DateTime DateUpdate { get; set; }
+
+    public int IdTarget { get; set; }
+
+    public byte TypeTarget { get; set; }
 
     public virtual ICollection<ActionType> ActionTypes { get; set; } = new List<ActionType>();
 
