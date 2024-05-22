@@ -22,7 +22,6 @@ namespace SmartBot.Services.Scripts
         private readonly ICommonUoW _commonUoW;
         private readonly ICommonRepository<Script> _scriptRepository;
         private readonly ICommonRepository<Action> _actionRepository;
-        private readonly ICommonRepository<TypeAction> _typeRepository;
         private readonly ICommonRepository<ActionType> _actionTypeRepository;
         private readonly ICommonRepository<Topic> _topicRepository;
         private readonly ICommonRepository<ContentTopic> _contentTopicRepository;
@@ -47,7 +46,7 @@ namespace SmartBot.Services.Scripts
         public ScriptService( IMapper mapper, ICommonUoW commonUoW, ICommonRepository<Script> scriptRepository, 
             ICommonRepository<Action> actionRepository,ICommonRepository<ContentFb> contentRepository,
             ICommonRepository<AccountFb> accountRepository, ICommonRepository<ClientCustomer> clientRepository,
-            ICommonRepository<UserClient> userClientRepository, ICommonRepository<TypeAction> typeRepository, 
+            ICommonRepository<UserClient> userClientRepository,  
             ICommonRepository<ActionType> actionTypeRepository,ICommonRepository<UsersAccountFb> userAccountRepository, 
             ICommonRepository<Topic> topicRepository,ICommonRepository<ImagePath> imgRepository,
             ICommonRepository<GroupFb> groupRepository, ICommonRepository<FaceBookGroup> fbgroupRepository,
@@ -63,7 +62,6 @@ namespace SmartBot.Services.Scripts
             _accountRepository = accountRepository;
             _clientRepository = clientRepository;
             _userClientRepository = userClientRepository;
-            _typeRepository = typeRepository;
             _actionTypeRepository = actionTypeRepository;
             _userAccountRepository = userAccountRepository;
             _topicRepository = topicRepository;
@@ -88,6 +86,12 @@ namespace SmartBot.Services.Scripts
                     response.Code = 99;
                     return response;
                 }
+                if(param.ListAction == null && !param.ListAction.Any())
+                {
+                    response.Message = "No action, invalid";
+                    response.Code = 98;
+                    return response;
+                }    
                 var client = _clientRepository.FindAll(x=>x.HardwareId==param.HardwareId).SingleOrDefault();
                 var clientid = 0;
                 if(client == null)
@@ -131,11 +135,25 @@ namespace SmartBot.Services.Scripts
                     DateUpdate= DateTime.UtcNow,
                     Status = 0,
                 };
-
+                
                 _commonUoW.BeginTransaction();
                 _scriptRepository.Insert(script);
                 _commonUoW.Commit();
                 var idScript = script.Id;
+                var listAction = param.ListAction.Select(x => new Action
+                {
+                    IdScript = idScript,
+                    IdAccountFb = x.IdAccountFb,
+                    Style = x.Style,
+                    SequenceNumber = x.SequenceNumber,
+                    IdContent = x.IdContent,
+                    IdTarget = x.IdTarget,
+                    TypeTarget = x.TypeTarget,
+                    DateUpdate = DateTime.UtcNow,
+                });
+                _commonUoW.BeginTransaction();
+                _actionRepository.InsertMultiple(listAction);
+                _commonUoW.Commit();
 
                 response.Data = "Success";
                 return response;
@@ -155,8 +173,7 @@ namespace SmartBot.Services.Scripts
                 var userClient = _userClientRepository.FindAll(x=>x.IdUser == idUser&&x.IdClient == client.Id).SingleOrDefault();
                 var script = _scriptRepository.FindAll(x => x.IdUserClient == userClient.Id)
                                               .Include(x => x.Actions).ThenInclude(x => x.IdAccountFbNavigation)
-                                              .Include(x => x.Actions).ThenInclude(x => x.IdContentNavigation)
-                                              .Include(x => x.Actions).ThenInclude(x => x.ActionTypes);
+                                              .Include(x => x.Actions).ThenInclude(x => x.IdContentNavigation);
 
                 if (script==null)
                 {
@@ -179,7 +196,7 @@ namespace SmartBot.Services.Scripts
                             FbProfileLink = y.IdAccountFbNavigation.FbProfileLink,
                         },
                         Style = y.Style,
-                        ListType = y.ActionTypes.Select(z=>z.IdType).ToList(),
+                        
                         SequenceNumber = y.SequenceNumber,
                         Content = new ContentDataDto()
                         {
@@ -381,6 +398,31 @@ namespace SmartBot.Services.Scripts
                         Type = typeTarget,
                     }).ToList();
                 }    
+                response.Data = data;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                return response;
+            }
+        }
+        public ResponseBase GetPostById(int idPost)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var post = _postRepository.GetById(idPost);
+                if(post == null)
+                {
+                    response.Message = "Not existing";
+                    return response;
+                }
+                var data = new PostDetailDto
+                {
+                    Id=post.Id,
+                    Content=post.Content,
+                };
                 response.Data = data;
                 return response;
             }

@@ -13,13 +13,13 @@ namespace SmartBot.Common.Enums
         PostStep = 0,
         [Description("Account")]
         Account = 1,
-        [Description("Post")]
-        Post = 2,
         [Description("Page")]
-        Page = 3,
+        Page = 2,
         [Description("Group")]
-        Group = 4,
+        Group = 3,
         [Description("Comment")]
-        Comment = 5,
+        Comment = 4,
+        [Description("Post")]
+        Post = 5,
     }
 }

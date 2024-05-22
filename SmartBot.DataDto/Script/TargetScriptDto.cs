@@ -49,4 +49,9 @@ namespace SmartBot.DataDto.Script
         public int Id { get; set; }
         public string Detail {  get; set; }
     }
+    public class  PostDetailDto
+    {
+        public int Id { get; set; }
+        public string Content { get; set; }
+    }
 }

@@ -23,8 +23,6 @@ public partial class Action
 
     public byte TypeTarget { get; set; }
 
-    public virtual ICollection<ActionType> ActionTypes { get; set; } = new List<ActionType>();
-
     public virtual AccountFb IdAccountFbNavigation { get; set; } = null!;
 
     public virtual ContentFb? IdContentNavigation { get; set; }

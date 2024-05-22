@@ -23,7 +23,12 @@ namespace SmartBot.Api.Controllers
             _client = client;
             _ScriptService = ScriptService;
         }
-
+        [HttpPost("script")]
+        public ResponseBase CreateScript(ScriptDto param)
+        {
+            var item = _ScriptService.CreateScript(param);
+            return item;
+        }
         [HttpGet("list-script")]
         public ResponseBase GetScriptByUserClient(int idUser, string hardwareId)
         {
@@ -52,6 +57,12 @@ namespace SmartBot.Api.Controllers
         public ResponseBase GetContentById(int idContent, string hardwareId)
         {
             var item = _ScriptService.GetContentById(idContent, hardwareId);
+            return item;
+        }
+        [HttpGet("post-detail")]
+        public ResponseBase GetPostById(int idPost)
+        {
+            var item = _ScriptService.GetPostById(idPost);
             return item;
         }
         [HttpPut("content")]

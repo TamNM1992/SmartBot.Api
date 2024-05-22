@@ -49,8 +49,6 @@ namespace SmartBot.DataAccess.DBContext
 
     public virtual DbSet<Topic> Topics { get; set; }
 
-    public virtual DbSet<TypeAction> TypeActions { get; set; }
-
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserClient> UserClients { get; set; }
@@ -102,15 +100,7 @@ namespace SmartBot.DataAccess.DBContext
         {
             entity.ToTable("ActionType");
 
-            entity.HasOne(d => d.IdActionNavigation).WithMany(p => p.ActionTypes)
-                .HasForeignKey(d => d.IdAction)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ActionType_Action");
-
-            entity.HasOne(d => d.IdTypeNavigation).WithMany(p => p.ActionTypes)
-                .HasForeignKey(d => d.IdType)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ActionType_TypeAction");
+            entity.Property(e => e.TypeName).HasMaxLength(50);
         });
 
         modelBuilder.Entity<ClassDatum>(entity =>
@@ -326,14 +316,6 @@ namespace SmartBot.DataAccess.DBContext
             entity.Property(e => e.Topic1)
                 .HasMaxLength(50)
                 .HasColumnName("Topic");
-        });
-
-        modelBuilder.Entity<TypeAction>(entity =>
-        {
-            entity.ToTable("TypeAction");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Name).HasMaxLength(100);
         });
 
         modelBuilder.Entity<User>(entity =>
