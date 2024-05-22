@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace SmartBot.DataDto.Group
 {
-    public class Province
+    public class ProvinceDto
     {
         public string Name { get; set; }
         public List<string> Districts { get; set; }
     }
-    public class District
+    public class DistrictDto
     {
         public string Name { get; set; }
     }

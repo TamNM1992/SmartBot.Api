@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SmartBot.DataDto.Base;
+using SmartBot.DataDto.User;
 using SmartBot.Services;
 using SmartBot.Services.Users;
 
@@ -24,15 +25,33 @@ namespace SmartBot.Api.Controllers
         }
 
         [HttpGet("login-account")]
-        public ResponseBase CheckUserByAccount(string email, string password)
+        public ResponseBase CheckUserByAccount(string userName, string password, string hardwareId)
         {
-            var item = _userService.CheckUserByAccount(email, password);
+            var item = _userService.CheckUserByAccount(userName, password, hardwareId);
             return item;
         }
         [HttpGet("check-token")]
         public ResponseBase CheckUserByToken(string token)
         {
             var item = _userService.CheckUserByToken(token);
+            return item;
+        }
+        [HttpGet("check-license")]
+        public ResponseBase CheckLicenseUser(string userName, string license)
+        {
+            var item = _userService.CheckLicenseUser(userName, license);
+            return item;
+        }
+        [HttpGet("list-account")]
+        public ResponseBase GetAccountEverLogin(int idUser)
+        {
+            var item = _userService.GetAccountEverLogin(idUser);
+            return item;
+        }
+        [HttpPost("register")]
+        public ResponseBase Register(UserDto data)
+        {
+            var item = _userService.Register(data);
             return item;
         }
     }

@@ -14,7 +14,7 @@ namespace SmartBot.Common.Configuration
 			ApiUrlBase = GetConfigValue("Appconfig:ApiUrlBase", "");
             ApiAir= GetConfigValue("Appconfig:ApiAir", "");
             ItemPerPage = GetConfigValue("Appconfig:ItemPerPage", 50);
-			SqlConnection = GetConfigValue("ConnectionStrings:NhaDat24hSqlConn", "No connection");
+			SqlConnection = GetConfigValue("ConnectionStrings:SmartbotSql", "No connection");
 			GoogleClientId = GetConfigValue("Google:ClientId", "No value");
 			GoogleClientSecret = GetConfigValue("Google:ClientSecret", "No value");
 			FacebookClientId = GetConfigValue("Facebook:ClientId", "No value");

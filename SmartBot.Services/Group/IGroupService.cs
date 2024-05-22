@@ -2,6 +2,7 @@
 
 
 using SmartBot.DataDto.Base;
+using SmartBot.DataDto.Group;
 
 namespace SmartBot.Services.Group
 {
@@ -12,6 +13,7 @@ namespace SmartBot.Services.Group
         public ResponseBase GetTypeByKey(string key);
         public ResponseBase GetGroupByTypeAndLocation(string type, string location, string profile);
         public ResponseBase GetSearchConfig();
+        public ResponseBase InsertGroup(InsertGroupDto data);
 
     }
 }
