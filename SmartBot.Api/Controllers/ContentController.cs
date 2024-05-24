@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SmartBot.DataDto.Base;
+using SmartBot.DataDto.Contents;
 using SmartBot.Services;
 using SmartBot.Services.ClassConfigFacebook;
 using SmartBot.Services.Comment;
@@ -24,12 +25,23 @@ namespace SmartBot.Api.Controllers
             _contentService = contentService;
         }
 
+        [HttpPost("content")]
+        public ResponseBase InsertDefaultContent(CreateNewContentParam param)
+        {
+            var item = _contentService.InsertDefaultContent(param);
+            return item;
+        }
         [HttpGet("list-content")]
         public ResponseBase GetListContentByType(int idUser, string hwId, byte type)
         {
             var item = _contentService.GetListContentByType( idUser,  hwId,  type);
             return item;
         }
-
+        [HttpGet("content-by-id")]
+        public ResponseBase GetContentById(int idContent, string hwId)
+        {
+            var item = _contentService.GetContentById(idContent, hwId);
+            return item;
+        }
     }
 }

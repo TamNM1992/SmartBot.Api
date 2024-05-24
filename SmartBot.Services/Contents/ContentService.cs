@@ -18,12 +18,16 @@ namespace SmartBot.Services.Content
         private readonly ICommonRepository<AccountFb> _accFbRepository;
         private readonly ICommonRepository<UsersAccountFb> _userAccfbRepository;
         private readonly ICommonRepository<ClientCustomer> _clientRepository;
+        private readonly ICommonRepository<UserClient> _userclientRepository;
+        private readonly ICommonRepository<ImagePath> _imgRepository;
+
 
 
 
         public ContentService( IMapper mapper, ICommonUoW commonUoW, ICommonRepository<ContentFb> contentRepository,
             ICommonRepository<AccountFb> accFbRepository, ICommonRepository<UsersAccountFb> userAccfbRepository,
-            ICommonRepository<ClientCustomer> clientRepository)
+            ICommonRepository<ClientCustomer> clientRepository, ICommonRepository<UserClient> userclientRepository,
+            ICommonRepository<ImagePath> imgRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
@@ -31,6 +35,8 @@ namespace SmartBot.Services.Content
             _accFbRepository = accFbRepository;
             _userAccfbRepository= userAccfbRepository;
             _clientRepository = clientRepository;
+            _userclientRepository=userclientRepository;
+            _imgRepository=imgRepository;
         }
         public ResponseBase GetListContentByType(int idUser, string hwId,byte type)
         {
@@ -70,7 +76,86 @@ namespace SmartBot.Services.Content
                 return response;
             }
         }
+        public ResponseBase InsertDefaultContent(CreateNewContentParam param)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var fbuser = _userAccfbRepository.FindAll(x=>x.IdUser==param.IdUser).FirstOrDefault();
+                if(fbuser==null)
+                {
+                    response.Message = "Chưa có tài khoản FB nào, hãy đăng nhập 1 tài khoản FB trước";
+                    return response;
+                }
+                var clientId = _clientRepository.FindAll(x=>x.HardwareId==param.HwId).SingleOrDefault().Id;
 
+                var newContent = new ContentFb
+                {
+                    IdFaceBook = fbuser.IdAccountFb,
+                    Detail = param.Detail,
+                    DateUpdate = DateTime.Now,
+                    Type = param.TypeContent,
+                    Img = (param.ImgPath!=null && param.ImgPath.Any()) ? true : false,
+                };
+                _commonUoW.BeginTransaction();
+                _contentRepository.Insert(newContent);
+                _commonUoW.Commit();
+                if(newContent.Img==true)
+                {
+                    var newimg = new ImagePath
+                    {
+                        IdClient = clientId,
+                        IdContent = newContent.Id,
+                        Path = param.ImgPath,
+                    };
+                    _commonUoW.BeginTransaction();
+                    _imgRepository.Insert(newimg);
+                    _commonUoW.Commit();
+                }    
+
+                response.Data = "Success";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+        public ResponseBase GetContentById(int idContent, string hwId)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var data = new ContentDto();
+                var client = _clientRepository.FindAll(x=>x.HardwareId == hwId).SingleOrDefault();
+                var content = _contentRepository.GetById(idContent);
+                data.Id = content.Id;
+                data.Detail = content.Detail;
+                if(content.Img==true)
+                {
+                    var listimg = _imgRepository.FindAll(x => x.IdContent == idContent&&x.IdClient==client.Id);
+                    if (listimg!=null && listimg.Any())
+                    {
+                        data.ListImg = _imgRepository.FindAll(x => x.IdContent == idContent&&x.IdClient==client.Id)
+                                                    .Select(x => new ImgDto
+                                                    {
+                                                        Id = x.Id,
+                                                        Path = x.Path,
+                                                    }).ToList();
+                    }
+                }    
+                response.Data = data;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
 
     }
 }
