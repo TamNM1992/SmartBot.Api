@@ -9,6 +9,7 @@ using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
+using SmartBot.DataDto.Img;
 using SmartBot.DataDto.Script;
 using System.Data;
 using System.Net;
