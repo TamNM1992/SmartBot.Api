@@ -11,4 +11,9 @@ namespace SmartBot.DataDto.Group
         public string FbUser {  get; set; }
         public List<GroupDataDto> Groups { get; set; }
     }
+    public class UpdateGroupDto
+    {
+        public string FbUser { get; set; }
+        public Dictionary<string,string> Groups { get; set; }
+    }
 }
