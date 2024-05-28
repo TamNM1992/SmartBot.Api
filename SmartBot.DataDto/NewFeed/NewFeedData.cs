@@ -19,4 +19,5 @@ namespace SmartBot.DataDto.NewFeed
         public string Image { get; set; }
         public string Create_time { get; set; }
     }
+
 }
