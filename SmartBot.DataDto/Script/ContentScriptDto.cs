@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SmartBot.DataDto.Img;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,10 +13,5 @@ namespace SmartBot.DataDto.Script
         public string Detail { get; set; } = null!;
         public List<string> ListTopic { get; set; } = null!;
         public ImgDto? Img { get; set; }
-    }
-    public class ImgDto
-    {
-        public int Id { get; set; }
-        public string Path { get; set; }
     }
 }

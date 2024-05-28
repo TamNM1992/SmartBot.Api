@@ -11,7 +11,9 @@ public partial class PageFb
 
     public string Url { get; set; } = null!;
 
-    public string Type { get; set; } = null!;
+    public int IdFaceBook { get; set; }
+
+    public string? Type { get; set; }
 
     public string? Distance { get; set; }
 
@@ -23,13 +25,13 @@ public partial class PageFb
 
     public string? NumPostPerDay { get; set; }
 
-    public int NumFollowers { get; set; }
+    public int? NumFollowers { get; set; }
 
     public string? Description { get; set; }
 
     public DateTime? DateUpdate { get; set; }
 
-    public virtual ICollection<FaceBookPage> FaceBookPages { get; set; } = new List<FaceBookPage>();
+    public virtual AccountFb IdFaceBookNavigation { get; set; } = null!;
 
     public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 }
