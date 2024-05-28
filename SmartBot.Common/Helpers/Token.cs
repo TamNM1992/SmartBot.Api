@@ -13,7 +13,7 @@ namespace SmartBot.Common.Helpers
 {
     public class Token
     {
-        public static string GenerateSecurityToken(string username, string day)
+        public static string GenerateSecurityToken(string userId, string day)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes("123456789abcdefghijklmnopqrstuvwxyz");
@@ -21,11 +21,11 @@ namespace SmartBot.Common.Helpers
             {
                 Subject = new ClaimsIdentity(new[]
                  {
-                      new Claim(ClaimTypes.NameIdentifier, username)
+                      new Claim("id", userId)
                  }),
                 Expires = DateTime.UtcNow.AddDays(double.Parse(day)),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                //Audience = "https://nhatkyhoctap.blogspot.com",
+                Audience = "https://nhatkyhoctap.blogspot.com",
                 Issuer = "SmartbotApi"
             };
 

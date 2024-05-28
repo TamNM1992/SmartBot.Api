@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartBot.DataDto.Base;
 using SmartBot.Services;
@@ -9,7 +10,7 @@ namespace SmartBot.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class CommentController : ControllerBase
+    public class CommentController : BaseAPIController
     {
 
         private readonly IMapper _mapper;
@@ -24,10 +25,21 @@ namespace SmartBot.Api.Controllers
         }
 
         [HttpGet("comment-group")]
+        [Authorize]
         public ResponseBase GetDataCommentGroup()
         {
-            var item = _commentService.GetDataCommentGroup();
-            return item;
+            string? id = getUserId();
+            if (id == "2")
+            {
+                var item = _commentService.GetDataCommentGroup();
+                return item;
+            }
+            return new ResponseBase()
+            {
+                Code = 403,
+                Message = "You are not authorized to do this operation",
+                Data = id
+            };
         }
 
     }

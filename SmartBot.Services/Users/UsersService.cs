@@ -136,7 +136,7 @@ namespace SmartBot.Services.Users
                         IdClient = idClient,
                         DateUpdate= DateTime.Now,
                         Status=1,
-                        Token = Token.GenerateSecurityToken(userName, "7"),
+                        Token = Token.GenerateSecurityToken(user.Id.ToString(), "7"),
                     };
                     token = newuserclient.Token;
                     _commonUoW.BeginTransaction();
@@ -146,7 +146,7 @@ namespace SmartBot.Services.Users
                 else
                 {
                     userclient.DateUpdate = DateTime.Now;
-                    userclient.Token = Token.GenerateSecurityToken(userName, "7");
+                    userclient.Token = Token.GenerateSecurityToken(user.Id.ToString(), "7");
 
                     _commonUoW.BeginTransaction();
                     _userClientRepository.Update(userclient);
