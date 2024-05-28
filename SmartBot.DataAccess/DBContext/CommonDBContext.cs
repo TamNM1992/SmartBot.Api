@@ -27,10 +27,6 @@ namespace SmartBot.DataAccess.DBContext
 
     public virtual DbSet<District> Districts { get; set; }
 
-    public virtual DbSet<FaceBookGroup> FaceBookGroups { get; set; }
-
-    public virtual DbSet<FaceBookPage> FaceBookPages { get; set; }
-
     public virtual DbSet<GroupFb> GroupFbs { get; set; }
 
     public virtual DbSet<ImagePath> ImagePaths { get; set; }
@@ -119,7 +115,7 @@ namespace SmartBot.DataAccess.DBContext
             entity.Property(e => e.DateUpdate).HasColumnType("datetime");
             entity.Property(e => e.HardwareId)
                 .HasMaxLength(100)
-                .IsFixedLength();
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<ContentFb>(entity =>
@@ -166,38 +162,6 @@ namespace SmartBot.DataAccess.DBContext
                 .HasConstraintName("FK_District_Province");
         });
 
-        modelBuilder.Entity<FaceBookGroup>(entity =>
-        {
-            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-            entity.Property(e => e.IdGroupFb).HasColumnName("IdGroupFB");
-
-            entity.HasOne(d => d.IdFaceBookNavigation).WithMany(p => p.FaceBookGroups)
-                .HasForeignKey(d => d.IdFaceBook)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_FaceBookGroups_AccountFB");
-
-            entity.HasOne(d => d.IdGroupFbNavigation).WithMany(p => p.FaceBookGroups)
-                .HasForeignKey(d => d.IdGroupFb)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_FaceBookGroups_GroupFB");
-        });
-
-        modelBuilder.Entity<FaceBookPage>(entity =>
-        {
-            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-            entity.Property(e => e.IdPageFb).HasColumnName("IdPageFB");
-
-            entity.HasOne(d => d.IdFaceBookNavigation).WithMany(p => p.FaceBookPages)
-                .HasForeignKey(d => d.IdFaceBook)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_FaceBookPages_AccountFB");
-
-            entity.HasOne(d => d.IdPageFbNavigation).WithMany(p => p.FaceBookPages)
-                .HasForeignKey(d => d.IdPageFb)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_FaceBookPages_PageFB");
-        });
-
         modelBuilder.Entity<GroupFb>(entity =>
         {
             entity.ToTable("GroupFB");
@@ -208,6 +172,11 @@ namespace SmartBot.DataAccess.DBContext
             entity.Property(e => e.Url)
                 .HasMaxLength(500)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.IdFaceBookNavigation).WithMany(p => p.GroupFbs)
+                .HasForeignKey(d => d.IdFaceBook)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_GroupFB_AccountFB");
         });
 
         modelBuilder.Entity<ImagePath>(entity =>
@@ -258,6 +227,11 @@ namespace SmartBot.DataAccess.DBContext
             entity.Property(e => e.Url)
                 .HasMaxLength(512)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.IdFaceBookNavigation).WithMany(p => p.PageFbs)
+                .HasForeignKey(d => d.IdFaceBook)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PageFB_AccountFB");
         });
 
         modelBuilder.Entity<Post>(entity =>

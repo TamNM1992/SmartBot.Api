@@ -9,6 +9,7 @@ using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
+using SmartBot.DataDto.Img;
 using SmartBot.DataDto.Script;
 using System.Data;
 using System.Net;
@@ -34,8 +35,6 @@ namespace SmartBot.Services.Scripts
         private readonly ICommonRepository<UserClient> _userClientRepository;
         private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
         private readonly ICommonRepository<GroupFb> _groupRepository;
-        private readonly ICommonRepository<FaceBookGroup> _fbgroupRepository;
-        private readonly ICommonRepository<FaceBookPage> _fbpageRepository;
 
         private readonly ICommonRepository<Post> _postRepository;
         private readonly ICommonRepository<PostComment> _postCommentRepository;
@@ -49,9 +48,8 @@ namespace SmartBot.Services.Scripts
             ICommonRepository<UserClient> userClientRepository,  
             ICommonRepository<ActionType> actionTypeRepository,ICommonRepository<UsersAccountFb> userAccountRepository, 
             ICommonRepository<Topic> topicRepository,ICommonRepository<ImagePath> imgRepository,
-            ICommonRepository<GroupFb> groupRepository, ICommonRepository<FaceBookGroup> fbgroupRepository,
-            ICommonRepository<Post> postRepository, ICommonRepository<PostComment> postCommentRepository,
-            ICommonRepository<FaceBookPage> fbpageRepository, ICommonRepository<ContentTopic> contentTopicRepository,
+            ICommonRepository<GroupFb> groupRepository,ICommonRepository<Post> postRepository,
+            ICommonRepository<PostComment> postCommentRepository, ICommonRepository<ContentTopic> contentTopicRepository,
             ICommonRepository<User> userRepository)
         {
             _mapper = mapper;
@@ -67,10 +65,8 @@ namespace SmartBot.Services.Scripts
             _topicRepository = topicRepository;
             _imgRepository = imgRepository;
             _groupRepository = groupRepository;
-            _fbgroupRepository = fbgroupRepository;
             _postRepository = postRepository;
             _postCommentRepository = postCommentRepository;
-            _fbpageRepository = fbpageRepository;
             _contentTopicRepository = contentTopicRepository;
             _userRepository = userRepository;
         }
@@ -299,37 +295,37 @@ namespace SmartBot.Services.Scripts
                 if (typeAction==2||typeAction==0)
                 {
                     data.ListPage = new List<PageTargetDto>();
-                    var listpage = _fbpageRepository.FindAll(x => x.IdFaceBook==idAccountFB)
-                                                    .Include(x => x.IdPageFbNavigation);
-                    if (listpage.Any())
-                    {
-                        data.ListPage = listpage.Select(x => x.IdPageFbNavigation).Select(y => new PageTargetDto
-                        {
-                            Id=y.Id,
-                            Url = y.Url,
-                            Name = y.Name,
-                            Type = "Page"
+                    //var listpage = _fbpageRepository.FindAll(x => x.IdFaceBook==idAccountFB)
+                    //                                .Include(x => x.IdPageFbNavigation);
+                    //if (listpage.Any())
+                    //{
+                    //    data.ListPage = listpage.Select(x => x.IdPageFbNavigation).Select(y => new PageTargetDto
+                    //    {
+                    //        Id=y.Id,
+                    //        Url = y.Url,
+                    //        Name = y.Name,
+                    //        Type = "Page"
 
-                        }).ToList();
+                    //    }).ToList();
                         
-                    }
+                    //}
 
                 }
                 if (typeAction==3||typeAction==0)
                 {
                     data.ListGroup = new List<GroupTargetDto>();
-                    var listgroup = _fbgroupRepository.FindAll(x=>x.IdFaceBook==idAccountFB)
-                                                    .Include (x => x.IdGroupFbNavigation);
-                    if(listgroup.Any() )
-                    {
-                        data.ListGroup = listgroup.Select(x=>x.IdGroupFbNavigation).Select(y=> new GroupTargetDto
-                        {
-                            Id=y.Id,
-                            Url = y.Url,
-                            Name = y.Name,
-                            Type = "Group"
-                        }).ToList() ;
-                    }
+                    //var listgroup = _fbgroupRepository.FindAll(x=>x.IdFaceBook==idAccountFB)
+                    //                                .Include (x => x.IdGroupFbNavigation);
+                    //if(listgroup.Any() )
+                    //{
+                    //    data.ListGroup = listgroup.Select(x=>x.IdGroupFbNavigation).Select(y=> new GroupTargetDto
+                    //    {
+                    //        Id=y.Id,
+                    //        Url = y.Url,
+                    //        Name = y.Name,
+                    //        Type = "Group"
+                    //    }).ToList() ;
+                    //}
                     
                 }
 
@@ -437,14 +433,64 @@ namespace SmartBot.Services.Scripts
             ResponseBase response = new ResponseBase();
             try
             {
+                var client = _clientRepository.FindAll(x=>x.HardwareId==param.HwId).FirstOrDefault();
+                var clientId = 0;
+                if(client == null)
+                {
+                    var newclient = new ClientCustomer()
+                    {
+                        HardwareId=param.HwId,
+                        DateUpdate = DateTime.Now,
+                    };
+                    _commonUoW.BeginTransaction();
+                    _clientRepository.Insert(newclient);
+                    _commonUoW.Commit();
+                    clientId = newclient.Id;
+                }
+                else
+                {
+                    clientId = client.Id;
+                }
                 var content = _contentRepository.GetById(param.IdContent);
                 content.Detail = param.Detail;
                 content.DateUpdate = DateTime.Now;
-                var img = _imgRepository.GetById(param.IdImg);
-                img.Path  =param.PathImg;
+                if (param.PathImg!=null&& param.PathImg.Any())
+                {
+                    content.Img=true;
+                    if (param.IdImg>0)
+                    {
+                        var img = _imgRepository.GetById(param.IdImg);
+                        img.Path  =param.PathImg;
+                        _commonUoW.BeginTransaction();
+                        _imgRepository.Update(img);
+                        _commonUoW.Commit();
+                    }
+                    else
+                    {
+                        var newimg = new ImagePath()
+                        {
+                            IdClient = clientId,
+                            IdContent= param.IdContent,
+                            Path = param.PathImg,
+                        };
+                        _commonUoW.BeginTransaction();
+                        _imgRepository.Insert(newimg);
+                        _commonUoW.Commit();
+                    }    
+                }
+                else
+                {
+                    content.Img=false;
+                    if (param.IdImg>0)
+                    {
+                        var img = _imgRepository.GetById(param.IdImg);
+                        _commonUoW.BeginTransaction();
+                        _imgRepository.Remove(img);
+                        _commonUoW.Commit();
+                    }
+                }    
                 _commonUoW.BeginTransaction();
                 _contentRepository.Update(content);
-                _imgRepository.Update(img);
                 _commonUoW.Commit();
                 response.Data = "Success";
                 return response;
