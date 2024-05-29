@@ -14,6 +14,8 @@ namespace SmartBot.Services.Group
         public ResponseBase GetGroupByTypeAndLocation(string type, string location, string profile);
         public ResponseBase GetSearchConfig();
         public ResponseBase InsertGroup(InsertGroupDto data);
+        public ResponseBase GetJoinedGroup(int idFacebook);
+        public ResponseBase InsertGroupFB(InsertGroupFBDto data);
 
     }
 }

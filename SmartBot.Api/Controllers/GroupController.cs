@@ -60,5 +60,17 @@ namespace SmartBot.Api.Controllers
             var item = _GroupService.InsertGroup(data);
             return item;
         }
+        [HttpGet("group-fb")]
+        public ResponseBase GetJoinedGroup(int idFacebook)
+        {
+            var item = _GroupService.GetJoinedGroup(idFacebook);
+            return item;
+        }
+        [HttpPost("insert-group-fb")]
+        public ResponseBase InsertGroupFB(InsertGroupFBDto data)
+        {
+            var item = _GroupService.InsertGroupFB(data);
+            return item;
+        }
     }
 }
