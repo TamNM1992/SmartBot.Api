@@ -10,6 +10,7 @@ namespace SmartBot.DataAccess.DBContext
 
         public CommonDBContext(DbContextOptions options) : base(options)
         {
+
         }
         public virtual DbSet<AccountFb> AccountFbs { get; set; }
 
