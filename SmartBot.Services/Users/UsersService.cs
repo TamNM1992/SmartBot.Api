@@ -309,6 +309,11 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
+
+        public User? getUserById(int id)
+        {
+            return _userRepository.GetById(id);
+        }
     }
     
 }

@@ -17,6 +17,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Diagnostics;
+using Newtonsoft.Json;
+using System.Net;
+using SmartBot.Api.Middleware;
+using SmartBot.Services.Users;
+using SmartBot.Services.Roles;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = new ConfigurationBuilder()
@@ -68,7 +74,7 @@ builder.Services.AddCors(o => o.AddPolicy("AllowOrigin", builder =>
         .AllowAnyMethod()
         .AllowAnyHeader();
 }));
-builder.Services.AddSwaggerGen(/*c =>
+builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
@@ -93,9 +99,10 @@ builder.Services.AddSwaggerGen(/*c =>
                     new string[]{ }
                     }
                 });
-}*/
+}
        );
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+//builder.Services.AddScoped<IRoleService, RoleService>();
 var app = builder.Build();
 StaticServiceProvider.Provider = app.Services;
 app.UseDeveloperExceptionPage();
@@ -107,11 +114,35 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseRouting();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+/*app.UseExceptionHandler(appError =>
+{
+    appError.Run(async context =>
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        context.Response.ContentType = "application/json";
+        var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+        if (contextFeature != null)
+        {
+            var message = contextFeature.Error.Message;
 
+            if (contextFeature.Error is UnauthorizedAccessException)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            }
+
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(new ResponseBase()
+            {
+                Code = context.Response.StatusCode,
+                Message = message,
+            }));
+        }
+    });
+});*/
+app.UseMiddleware<JwtMiddleware>();
 app.MapControllers();
 //UpdateTimer.Init();
 app.Run();

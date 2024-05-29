@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmartBot.Api.Attributes;
+using SmartBot.Api.Middleware;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
 using SmartBot.Services;
@@ -9,7 +10,7 @@ using SmartBot.Services.Users;
 namespace SmartBot.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("[controller]")] 
     public class UserController : BaseAPIController
     {
 
@@ -44,21 +45,12 @@ namespace SmartBot.Api.Controllers
             return item;
         }
         [HttpGet("list-account")]
+        [Role(Common.Enums.Role.ADMIN)]
         [Authorize]
         public ResponseBase GetAccountEverLogin(int idUser)
         {
-            string? id = getUserId();
-            if(string.Compare(id, "2", true) == 0)
-            {
-                var item = _userService.GetAccountEverLogin(idUser);
-                return item;
-            }
-            return new ResponseBase()
-            {
-                Code = 403,
-                Message = "You are not authorized to do this operation",
-                Data = id
-            };
+            var item = _userService.GetAccountEverLogin(idUser);
+            return item;
         }
         [HttpPost("register")]
         public ResponseBase Register(UserDto data)
