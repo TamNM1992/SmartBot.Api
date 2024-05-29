@@ -68,7 +68,7 @@ builder.Services.AddCors(o => o.AddPolicy("AllowOrigin", builder =>
         .AllowAnyMethod()
         .AllowAnyHeader();
 }));
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(/*c =>
 {
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
@@ -93,7 +93,7 @@ builder.Services.AddSwaggerGen(c =>
                     new string[]{ }
                     }
                 });
-}
+}*/
        );
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 var app = builder.Build();
