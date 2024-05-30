@@ -280,24 +280,10 @@ namespace SmartBot.DataAccess.DBContext
         {
             entity.ToTable("Role");
 
-
-            entity.HasMany(d => d.IdUsers).WithMany(p => p.IdRoles)
-                .UsingEntity<Dictionary<string, object>>(
-                    "RoleUser",
-                    r => r.HasOne<User>().WithMany()
-                        .HasForeignKey("IdUser")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_RoleUser_Users"),
-                    l => l.HasOne<Role>().WithMany()
-                        .HasForeignKey("IdRole")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_RoleUser_Role"),
-                    j =>
-                    {
-                        j.HasKey("IdRole", "IdUser").HasName("PK_RoleUser_1");
-                        j.ToTable("RoleUser");
-                    });
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Description).HasMaxLength(100);
         });
+
         modelBuilder.Entity<Script>(entity =>
         {
             entity.ToTable("Script");
