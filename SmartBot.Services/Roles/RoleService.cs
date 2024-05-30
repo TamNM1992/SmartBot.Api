@@ -1,6 +1,4 @@
-﻿
-using SmartBot.Common.Enums;
-using SmartBot.DataAccess.Entities;
+﻿using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 
 namespace SmartBot.Services.Roles
@@ -14,10 +12,10 @@ namespace SmartBot.Services.Roles
             _userRepository = userRepository;
         }
 
-        public bool CheckUserRole(Role[] roles, int userId)
+        public bool CheckUserRole(Common.Enums.Role[] roles, int userId)
         {
             User? user = _userRepository.GetById(userId);
-            Role role = user?.UserName == "admin" ? Role.ADMIN : Role.USER;
+            Common.Enums.Role role = user?.UserName == "admin" ? Common.Enums.Role.ADMIN : Common.Enums.Role.USER;
             return roles.Contains(role);
         }
     }

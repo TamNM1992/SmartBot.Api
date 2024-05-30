@@ -42,6 +42,8 @@ namespace SmartBot.DataAccess.DBContext
 
         public virtual DbSet<Province> Provinces { get; set; }
 
+        public virtual DbSet<Role> Roles { get; set; }
+
         public virtual DbSet<Script> Scripts { get; set; }
 
         public virtual DbSet<Topic> Topics { get; set; }
@@ -49,6 +51,8 @@ namespace SmartBot.DataAccess.DBContext
         public virtual DbSet<User> Users { get; set; }
 
         public virtual DbSet<UserClient> UserClients { get; set; }
+
+        public virtual DbSet<UserRole> UserRoles { get; set; }
 
         public virtual DbSet<UsersAccountFb> UsersAccountFbs { get; set; }
 
@@ -275,6 +279,14 @@ namespace SmartBot.DataAccess.DBContext
                 entity.Property(e => e.Name).HasMaxLength(50);
             });
 
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("Role");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Description).HasMaxLength(100);
+            });
+
             modelBuilder.Entity<Script>(entity =>
             {
                 entity.ToTable("Script");
@@ -321,6 +333,23 @@ namespace SmartBot.DataAccess.DBContext
                     .HasForeignKey(d => d.IdUser)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_UserClient_Users");
+            });
+
+            modelBuilder.Entity<UserRole>(entity =>
+            {
+                entity.ToTable("UserRole");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.HasOne(d => d.IdRoleNavigation).WithMany(p => p.UserRoles)
+                    .HasForeignKey(d => d.IdRole)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserRole_Role");
+
+                entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.UserRoles)
+                    .HasForeignKey(d => d.IdUser)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserRole_Users");
             });
 
             modelBuilder.Entity<UsersAccountFb>(entity =>

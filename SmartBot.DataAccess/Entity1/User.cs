@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SmartBot.DataAccess.Entities;
+namespace SmartBot.Api.Entity;
 
 public partial class User
 {
