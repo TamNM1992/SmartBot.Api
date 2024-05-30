@@ -3,6 +3,7 @@ using AutoMapper;
 using Azure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Kiota.Abstractions;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
@@ -321,7 +322,7 @@ namespace SmartBot.Services.Group
             ResponseBase response = new ResponseBase();
             try
             {
-                var data = new Dictionary<string, string>();
+                var data = new List<GroupMiniData>();
                 var group = _groupRepository.FindAll(x => x.IdFaceBook==idFacebook);
                 var deadlineUpdate = group.FirstOrDefault().DateUpdate-DateTime.Now;
                 if (!group.Any() || deadlineUpdate.Value.Days>30)
@@ -330,11 +331,11 @@ namespace SmartBot.Services.Group
                     response.Message = "update data";
                     return response;
                 }
-                data = group.Select(x => new
+                data = group.Select(x => new GroupMiniData
                 {
-                    x.Name,
-                    x.Url,
-                }).ToDictionary(x => x.Name, x => x.Url);
+                    Name = x.Name,
+                    Url =x.Url,
+                }).ToList();
 
                 response.Data = data;
                 return response;
@@ -351,33 +352,79 @@ namespace SmartBot.Services.Group
             ResponseBase response = new ResponseBase();
             try
             {
-                var idFb = _fbRepository.FindAll(x => x.FbUser==data.FbUser).SingleOrDefault().Id;
-
-                var group = _groupRepository.FindAll();
+                var group = _groupRepository.FindAll(x=>x.IdFaceBook==data.IdFb);
+                var listNewGroup = new List<GroupFb>();
+                var listUrl = new List<string>();
                 if (group != null)
                 {
-                    var temp = group.Select(x => new
+                    listUrl = group.Select(x=>x.Url).ToList();
+                    foreach (var item in data.Groups)
                     {
-                        x.Id,
-                        x.Url,
-                    }).ToDictionary(x => x.Id, x => x.Url);
-                    //foreach (var item in data.Groups)
-                    //{
-                    //    if(temp.Values.Contains(item.Value))
-                    //    {
-                    //        if(fbGroup.Contains(te))
-                    //    }    
-                    //}    
+                        if(!listUrl.Contains(item.Url))
+                        {
+                            var newGroup = new GroupFb()
+                            {
+                                Name=item.Name,
+                                Url=item.Url,
+                                IdFaceBook=data.IdFb,
+                                DateUpdate = DateTime.Now,
+                            };
+                            listNewGroup.Add(newGroup);
+                        }    
+                    }    
                 }
-
-
-                response.Data = data;
+                if(listNewGroup.Any())
+                {
+                    _commonUoW.BeginTransaction();
+                    _groupRepository.InsertMultiple(listNewGroup);
+                    _commonUoW.Commit();
+                }
+                group.ForEachAsync(x => x.DateUpdate = DateTime.Now);
+                _commonUoW.BeginTransaction();
+                _groupRepository.UpdateMultiple(group);
+                _commonUoW.Commit();
+                response.Data = true;
                 return response;
             }
             catch (Exception ex)
             {
                 response.Message = ex.Message;
-                response.Data = "False";
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase CheckLastUpdateGroup(int idFb)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+
+                var groups = _groupRepository.FindAll(x => x.IdFaceBook==idFb);
+                if (groups!=null&& groups.Any())
+                {
+                    var lastdate = groups.FirstOrDefault().DateUpdate;
+                    var date = (DateTime.Now - (DateTime)lastdate).TotalDays;
+                    if (lastdate==null||date>30)
+                    {
+                        response.Data = true;
+                    }
+                    else
+                    {
+                        response.Data = false;
+                    }
+                }
+                else
+                {
+                    response.Data = true;
+                }    
+                
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
                 return response;
             }
         }

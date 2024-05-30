@@ -13,7 +13,6 @@ namespace SmartBot.Services.Users
         public ResponseBase Register(UserDto data);
         public ResponseBase CheckLicenseUser(string userName, string license);
         public ResponseBase GetAccountEverLogin(int idUser);
-
-
+        public ResponseBase GetAccountFbEverLogin(int idUser);
     }
 }

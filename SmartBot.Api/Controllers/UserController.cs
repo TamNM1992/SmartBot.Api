@@ -48,6 +48,12 @@ namespace SmartBot.Api.Controllers
             var item = _userService.GetAccountEverLogin(idUser);
             return item;
         }
+        [HttpGet("list-accountFb")]
+        public ResponseBase GetAccountFbEverLogin(int idUser)
+        {
+            var item = _userService.GetAccountFbEverLogin(idUser);
+            return item;
+        }
         [HttpPost("register")]
         public ResponseBase Register(UserDto data)
         {
