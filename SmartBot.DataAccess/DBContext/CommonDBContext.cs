@@ -41,6 +41,7 @@ namespace SmartBot.DataAccess.DBContext
 
     public virtual DbSet<Province> Provinces { get; set; }
 
+    public virtual DbSet<Role> Roles { get; set; }
     public virtual DbSet<Script> Scripts { get; set; }
 
     public virtual DbSet<Topic> Topics { get; set; }
@@ -49,6 +50,7 @@ namespace SmartBot.DataAccess.DBContext
 
     public virtual DbSet<UserClient> UserClients { get; set; }
 
+    public virtual DbSet<UserRole> UserRoles { get; set; }
     public virtual DbSet<UsersAccountFb> UsersAccountFbs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -274,6 +276,28 @@ namespace SmartBot.DataAccess.DBContext
             entity.Property(e => e.Name).HasMaxLength(50);
         });
 
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.ToTable("Role");
+
+
+            entity.HasMany(d => d.IdUsers).WithMany(p => p.IdRoles)
+                .UsingEntity<Dictionary<string, object>>(
+                    "RoleUser",
+                    r => r.HasOne<User>().WithMany()
+                        .HasForeignKey("IdUser")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_RoleUser_Users"),
+                    l => l.HasOne<Role>().WithMany()
+                        .HasForeignKey("IdRole")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_RoleUser_Role"),
+                    j =>
+                    {
+                        j.HasKey("IdRole", "IdUser").HasName("PK_RoleUser_1");
+                        j.ToTable("RoleUser");
+                    });
+        });
         modelBuilder.Entity<Script>(entity =>
         {
             entity.ToTable("Script");
@@ -320,6 +344,23 @@ namespace SmartBot.DataAccess.DBContext
                 .HasForeignKey(d => d.IdUser)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserClient_Users");
+        });
+
+        modelBuilder.Entity<UserRole>(entity =>
+        {
+            entity.ToTable("UserRole");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+
+            entity.HasOne(d => d.IdRoleNavigation).WithMany(p => p.UserRoles)
+                .HasForeignKey(d => d.IdRole)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserRole_Role");
+
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.UserRoles)
+                .HasForeignKey(d => d.IdUser)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserRole_Users");
         });
 
         modelBuilder.Entity<UsersAccountFb>(entity =>
