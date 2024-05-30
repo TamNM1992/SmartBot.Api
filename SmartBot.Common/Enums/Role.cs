@@ -8,7 +8,10 @@ namespace SmartBot.Common.Enums
 {
     public enum role : int
     {
-        Admin = 1,
-        User = 2
+        Admin = 0,
+        User1 = 1,
+        User2 = 2,
+        User3 = 3,
+        User4 = 4
     }
 }

@@ -37,7 +37,7 @@ namespace SmartBot.Api.Attributes
             {
                 context.Result = new JsonResult("NoPermission")
                 {
-                    StatusCode = 405,
+                    StatusCode = 403,
                     Value = new
                     {
                         Status = "Error",
