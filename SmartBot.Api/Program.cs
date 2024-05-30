@@ -13,6 +13,7 @@ using SmartBot.Services.Permissions;
 using Microsoft.EntityFrameworkCore;
 
 using Q101.ServiceCollectionExtensions.ServiceCollectionExtensions;
+using SmartBot.Api.MiddleWare;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = new ConfigurationBuilder()
@@ -60,6 +61,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<JwtMiddleware>();
 
 app.MapControllers();
 //UpdateTimer.Init();
