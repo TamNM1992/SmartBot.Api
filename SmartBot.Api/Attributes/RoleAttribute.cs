@@ -37,7 +37,19 @@ namespace SmartBot.Api.Attributes
             string? UserId = jwtSecurityToken?.Claims.FirstOrDefault(x => x.Type == "id")?.Value;
             int userId = int.Parse(UserId == null ? "" : UserId);
             var isChecked = authorityService?.CheckUserRole(Roles, userId);
-            if (isChecked != null && isChecked == false)
+            if (isChecked == null)
+            {
+                context.Result = new JsonResult("NoPermission")
+                {
+                    StatusCode = 500,
+                    Value = new
+                    {
+                        Status = "Error",
+                        Message = "Something wrong when check role"
+                    },
+                };
+            }
+            else if (isChecked == false)
             {
                 context.Result = new JsonResult("NoPermission")
                 {
@@ -45,7 +57,7 @@ namespace SmartBot.Api.Attributes
                     Value = new
                     {
                         Status = "Error",
-                        Message = "Sorry, You don't have permission for the acction."
+                        Message = "Sorry, You don't have permission for the action."
                     },
                 };
             }
