@@ -20,17 +20,33 @@ namespace SmartBot.Services.Roles
 
         public bool? CheckUserRole(Common.Enums.Role[] roles, int userId)
         {
-            User? user =_userRepository.GetById(userId);
-            if(user == null)
+            User? user = _userRepository.GetById(userId);
+            if (user == null)
             {
                 return null;
             }
-            List<UserRole> list = _userRoleRepository.GetMany(ur => ur.IdUser == userId).ToList();
-            foreach (UserRole item in list)    
+            List<UserRole> list = _userRoleRepository.FindAll(ur => ur.IdUser == userId).Include(ur => ur.IdRoleNavigation).ToList();
+
+            // ---------------------------------check  role --------------------------
+            if(list.Count == 0)
             {
-                if(roles.Contains((Common.Enums.Role)item.IdRole))
+                return false;
+            }
+
+            foreach (UserRole item in list)
+            {
+                int maxRole = list.Max(ur => ur.IdRoleNavigation.Code);
+                if (maxRole == (int)Common.Enums.Role.VIP1)
                 {
-                    return true; 
+                    return false;
+                }
+            }
+
+            foreach (UserRole item in list)
+            {
+                if (roles.Contains((Common.Enums.Role)item.IdRoleNavigation.Code))
+                {
+                    return true;
                 }
             }
             return false;

@@ -2,7 +2,10 @@
 {
     public enum Role
     {
-        ADMIN = 1,
-        USER = 2,
+        VIP1 = 1,
+        VIP2 = 2,
+        VIP3 = 3,
+        VIP4 = 4,
+        VIP5 = 5,
     }
 }

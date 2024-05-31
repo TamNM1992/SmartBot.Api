@@ -246,6 +246,11 @@ namespace SmartBot.DataAccess.Repositories
 		{
 			_context.AddRange(entities);
 		}
+
+		public object? Max(Expression<Func<T, object>> selector)
+		{
+			return _context.Set<T>().Max(selector);
+		}
 		#endregion
 
 

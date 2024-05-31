@@ -37,9 +37,10 @@ namespace SmartBot.Api.Attributes
             string? UserId = jwtSecurityToken?.Claims.FirstOrDefault(x => x.Type == "id")?.Value;
             int userId = int.Parse(UserId == null ? "" : UserId);
             var isChecked = authorityService?.CheckUserRole(Roles, userId);
+            // if user not exist
             if (isChecked == null)
             {
-                context.Result = new JsonResult("NoPermission")
+                context.Result = new JsonResult("Error")
                 {
                     StatusCode = 500,
                     Value = new
