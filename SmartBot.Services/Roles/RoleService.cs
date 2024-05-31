@@ -30,7 +30,7 @@ namespace SmartBot.Services.Roles
             {
                 if(roles.Contains((Common.Enums.Role)item.IdRole))
                 {
-                    return true;
+                    return true; 
                 }
             }
             return false;
