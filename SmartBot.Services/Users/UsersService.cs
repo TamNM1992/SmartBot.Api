@@ -255,7 +255,7 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
-        public ResponseBase GetAccountEverLogin(int idUser, Vips role)
+        public ResponseBase GetAccountEverLogin(int idUser)
         {
             ResponseBase response = new ResponseBase();
             try
@@ -270,9 +270,16 @@ namespace SmartBot.Services.Users
                 }
                 else
                 {
+                    // Lấy tất cả các userRoles từ repository
+                    var userRoles = _userRoleRepository.FindAll(
+                        ur => ur.IdUser == idUser,
+                        ur => ur.IdRoleNavigation
+                    );
+                    var heightesVip = userRoles.Select(ur => ur.IdRoleNavigation).Max(role => role.Code);
+
                     IEnumerable<AccountDto> accounts;
                     var query = listaccount.Select(x => new AccountDto { UserName = x.IdAccountFbNavigation.FbUser, Password = x.IdAccountFbNavigation.FbPassword });
-                    switch (role)
+                    switch ((Vips)heightesVip)
                     {
                         case Vips.Vip2:
                             accounts = query.Take(5);
@@ -292,34 +299,6 @@ namespace SmartBot.Services.Users
 
                     response.Data = accounts;
                     response.Message = "Success";
-                    return response;
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-                response.Data = false;
-                return response;
-            }
-        }
-
-        public ResponseBase GetUserById(int idUser)
-        {
-            ResponseBase response = new ResponseBase();
-            try
-            {
-                var user = _userRepository.FindSingle(x => x.Id == idUser);
-
-
-                if (user == null)
-                {
-                    response.Message = "No user";
-                    response.Code = 99;
-                    return response;
-                }
-                else
-                {
-                    response.Data = new User { UserName = user.UserName };
                     return response;
                 }
             }
@@ -365,5 +344,4 @@ namespace SmartBot.Services.Users
             }
         }
     }
-
 }

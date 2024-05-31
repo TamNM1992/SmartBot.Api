@@ -10,8 +10,7 @@ namespace SmartBot.Services.Users
         public ResponseBase CheckUserByToken(string token);
         public ResponseBase Register(UserDto data);
         public ResponseBase CheckLicenseUser(string userName, string license);
-        public ResponseBase GetAccountEverLogin(int idUser, Vips role);
-        public ResponseBase GetUserById(int idUser);
+        public ResponseBase GetAccountEverLogin(int idUser);
 
     }
 }

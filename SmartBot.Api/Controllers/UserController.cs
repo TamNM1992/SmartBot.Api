@@ -45,12 +45,12 @@ namespace SmartBot.Api.Controllers
             var item = _userService.CheckLicenseUser(userName, license);
             return item;
         }
-        [Authorize, Role(Vips.Vip4)]
+
+        [Authorize, Role(Vips.Vip2, Vips.Vip3, Vips.Vip4, Vips.Vip5)]
         [HttpGet("list-account")]
         public ResponseBase GetAccountEverLogin(int idUser)
         {
-            var role = (Vips)HttpContext.Items["Role"];
-            var item = _userService.GetAccountEverLogin(idUser, role);
+            var item = _userService.GetAccountEverLogin(idUser);
             return item;
         }
 

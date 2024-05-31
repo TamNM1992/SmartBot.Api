@@ -16,22 +16,17 @@ namespace SmartBot.Services.Users.RoleServices
         public bool IsUserHasRole(Vips[] roles, int userId)
         {
             // Lấy tất cả các userRoles từ repository
-            var userRoles = _userRoleRepository.FindAll(
+            var query = _userRoleRepository.FindAll(
                 ur => ur.IdUser == userId,
                 ur => ur.IdRoleNavigation
             );
 
-            // Lấy các roles code của người dùng
-            var userRolesCode = userRoles.Select(ur => ur.IdRoleNavigation.Code).ToList();
+            // Lấy các roles của người dùng
+            var userRoles = query.Select(ur => ur.IdRoleNavigation).ToList();
 
-            foreach (var role in roles)
+            foreach (var role in userRoles)
             {
-                if (userRolesCode.Contains((int)Vips.Vip1))
-                {
-                    return false;
-                }
-
-                if (userRolesCode.Contains((int)role))
+                if (roles.Contains((Vips)role.Code))
                 {
                     return true;
                 }

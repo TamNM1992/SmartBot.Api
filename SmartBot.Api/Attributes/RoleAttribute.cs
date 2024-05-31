@@ -10,6 +10,7 @@ namespace BaoTangBn.API.Attributes
     public class RoleAttribute : Attribute, IActionFilter
     {
         public Vips[] Roles { get; set; }
+
         public RoleAttribute(params Vips[] roles)
         {
             Roles = roles;
@@ -19,7 +20,6 @@ namespace BaoTangBn.API.Attributes
         {
             // không thể khởi tạo service thông qua contructor như bình thường 
             // phải tạo ra 1 cái là provider, đây là 1 cách để lấy service đã được khởi tạo ra dùng
-
             var httpContext = (IHttpContextAccessor)StaticServiceProvider.Provider.GetService(typeof(IHttpContextAccessor));
             var authorityService = (IRoleService)httpContext.HttpContext.RequestServices.GetService(typeof(IRoleService));
 
@@ -44,11 +44,7 @@ namespace BaoTangBn.API.Attributes
                         Message = "Sorry, You don't have permission for the acction."
                     },
                 };
-            } else
-            {
-                context.HttpContext.Items["Role"] = Roles.FirstOrDefault();
-            }
-
+            } 
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
