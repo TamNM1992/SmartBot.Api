@@ -90,9 +90,33 @@ namespace SmartBot.Services.AccountFB
                     _commonUoW.Commit();
                 }    
 
-                response.Data=true;
+                response.Data=idfb;
                 return response;
                 
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                return response;
+            }
+
+        }
+        public ResponseBase GetFaceBookId(string fbUserName)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var data = _accountRepository.FindAll(x=>x.FbUser==fbUserName).FirstOrDefault();
+                if(data!=null)
+                {
+                    response.Data = data.Id;
+                }    
+                else
+                {
+                    response.Data=0;
+                }    
+                return response;
+
             }
             catch (Exception ex)
             {
