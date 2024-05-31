@@ -8,7 +8,7 @@ namespace SmartBot.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ClassConfigFacebookController : BaseAPIController
+    public class ClassConfigFacebookController : ControllerBase
     {
 
         private readonly IMapper _mapper;

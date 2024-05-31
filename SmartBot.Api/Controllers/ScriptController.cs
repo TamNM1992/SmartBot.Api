@@ -10,7 +10,7 @@ namespace SmartBot.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ScriptController : BaseAPIController
+    public class ScriptController : ControllerBase
     {
 
         private readonly IMapper _mapper;

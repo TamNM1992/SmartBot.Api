@@ -11,7 +11,7 @@ namespace SmartBot.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ContentController : BaseAPIController
+    public class ContentController : ControllerBase
     {
 
         private readonly IMapper _mapper;

@@ -9,7 +9,7 @@ namespace SmartBot.Api.Controllers
     [ApiController]
     [Route("[controller]")]
     //[Authorize]
-    public class CommentController : BaseAPIController
+    public class CommentController : ControllerBase
     {
 
         private readonly IMapper _mapper;

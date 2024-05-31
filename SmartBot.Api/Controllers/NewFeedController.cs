@@ -9,7 +9,7 @@ namespace SmartBot.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class NewFeedController : BaseAPIController
+    public class NewFeedController : ControllerBase
     {
 
         private readonly IMapper _mapper;
