@@ -46,22 +46,6 @@ builder.Services.RegisterAssemblyTypesByName(typeof(IPermissionService).Assembly
      .Bind();
 builder.Services.AddCommonServices();
 builder.Services.Configure<AppSettings>(config.GetSection("AppSettings"));
-// ----------------------  config JWT authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters()
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-    };
-});
 // Add services to the container.
 builder.Services.AddHttpClient<IMyTypedClientServices, MyTypedClientServices>();
 
@@ -102,7 +86,6 @@ builder.Services.AddSwaggerGen(c =>
 }
        );
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-//builder.Services.AddScoped<IRoleService, RoleService>();
 var app = builder.Build();
 StaticServiceProvider.Provider = app.Services;
 app.UseDeveloperExceptionPage();
@@ -116,32 +99,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseRouting();
 app.UseHttpsRedirection();
-app.UseAuthentication();
 app.UseAuthorization();
-/*app.UseExceptionHandler(appError =>
-{
-    appError.Run(async context =>
-    {
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        context.Response.ContentType = "application/json";
-        var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
-        if (contextFeature != null)
-        {
-            var message = contextFeature.Error.Message;
-
-            if (contextFeature.Error is UnauthorizedAccessException)
-            {
-                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            }
-
-            await context.Response.WriteAsync(JsonConvert.SerializeObject(new ResponseBase()
-            {
-                Code = context.Response.StatusCode,
-                Message = message,
-            }));
-        }
-    });
-});*/
 app.UseMiddleware<JwtMiddleware>();
 app.MapControllers();
 //UpdateTimer.Init();
