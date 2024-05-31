@@ -5,6 +5,7 @@ namespace SmartBot.Services.Users.RoleServices
 {
     public interface IRoleService
     {
-        bool CheckUserRole(Roles[] roles, int userId);
+        bool IsUserHasRole(Vips[] roles, int userId);
+      
     }
 }

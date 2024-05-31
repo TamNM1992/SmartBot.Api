@@ -1,12 +1,12 @@
 ﻿namespace SmartBot.Common.Enums
 {
-    public enum Roles 
+    public enum Vips 
     {
-        Vip1 = 0,
-        Vip2 = 1,
-        Vip3 = 2,
-        Vip4 = 3,
-        Vip5 = 4,
+        Vip1 = 1,
+        Vip2 = 2,
+        Vip3 = 3,
+        Vip4 = 4,
+        Vip5 = 5,
     }
 
     public class ActiveResponse

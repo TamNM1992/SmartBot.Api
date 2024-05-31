@@ -4,8 +4,9 @@ using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
 using SmartBot.Services;
 using SmartBot.Services.Users;
-using Microsoft.AspNetCore.Authorization;
 using BaoTangBn.API.Attributes;
+using SmartBot.Common.Enums;
+using SmartBot.DataAccess.Entities;
 
 namespace SmartBot.Api.Controllers
 {
@@ -44,24 +45,20 @@ namespace SmartBot.Api.Controllers
             var item = _userService.CheckLicenseUser(userName, license);
             return item;
         }
+        [Authorize, Role(Vips.Vip4)]
         [HttpGet("list-account")]
         public ResponseBase GetAccountEverLogin(int idUser)
         {
-            var item = _userService.GetAccountEverLogin(idUser);
+            var role = (Vips)HttpContext.Items["Role"];
+            var item = _userService.GetAccountEverLogin(idUser, role);
             return item;
         }
+
         [HttpPost("register")]
         public ResponseBase Register(UserDto data)
         {
             var item = _userService.Register(data);
             return item;
         }
-
-        //[Authorize, Role(Common.Enums.Roles.T)]
-        //[HttpGet("test")]
-        //public IActionResult Test()
-        //{
-        //    return Ok("Thanh cong");
-        //}
     }
 }

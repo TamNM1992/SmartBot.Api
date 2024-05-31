@@ -9,8 +9,8 @@ namespace BaoTangBn.API.Attributes
 {
     public class RoleAttribute : Attribute, IActionFilter
     {
-        public Roles[] Roles { get; set; }
-        public RoleAttribute(params Roles[] roles)
+        public Vips[] Roles { get; set; }
+        public RoleAttribute(params Vips[] roles)
         {
             Roles = roles;
         }
@@ -31,7 +31,7 @@ namespace BaoTangBn.API.Attributes
             var jwtSecurityToken = handler.ReadJwtToken(_token);
 
             var userId = int.Parse(jwtSecurityToken.Claims.First(x => x.Type == "nameid").Value);
-            var isCheked = authorityService.CheckUserRole(Roles, userId);
+            var isCheked = authorityService.IsUserHasRole(Roles, userId);
 
             if (!isCheked)
             {
@@ -44,7 +44,11 @@ namespace BaoTangBn.API.Attributes
                         Message = "Sorry, You don't have permission for the acction."
                     },
                 };
+            } else
+            {
+                context.HttpContext.Items["Role"] = Roles.FirstOrDefault();
             }
+
         }
 
         public void OnActionExecuted(ActionExecutedContext context)

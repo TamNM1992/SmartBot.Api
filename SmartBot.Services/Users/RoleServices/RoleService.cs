@@ -13,20 +13,25 @@ namespace SmartBot.Services.Users.RoleServices
             _userRoleRepository = userRoleRepository;
         }
 
-        public bool CheckUserRole(Roles[] roles, int userId)
+        public bool IsUserHasRole(Vips[] roles, int userId)
         {
             // Lấy tất cả các userRoles từ repository
-            var users = _userRoleRepository.FindAll(
+            var userRoles = _userRoleRepository.FindAll(
                 ur => ur.IdUser == userId,
                 ur => ur.IdRoleNavigation
             );
 
             // Lấy các roles code của người dùng
-            var userRoles = users.Select(ur => ur.IdRoleNavigation.Code).ToList();
+            var userRolesCode = userRoles.Select(ur => ur.IdRoleNavigation.Code).ToList();
 
             foreach (var role in roles)
             {
-                if (userRoles.Contains((int)role))
+                if (userRolesCode.Contains((int)Vips.Vip1))
+                {
+                    return false;
+                }
+
+                if (userRolesCode.Contains((int)role))
                 {
                     return true;
                 }
@@ -34,6 +39,5 @@ namespace SmartBot.Services.Users.RoleServices
 
             return false;
         }
-
     }
 }

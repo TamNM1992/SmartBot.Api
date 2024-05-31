@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using NhaDat24h.Common.Enums;
+using SmartBot.Common.Enums;
 using SmartBot.Common.Extention;
 using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
@@ -14,6 +15,7 @@ using SmartBot.DataDto.User;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 
@@ -27,82 +29,83 @@ namespace SmartBot.Services.Users
         private readonly ICommonRepository<User> _userRepository;
         private readonly ICommonRepository<UserClient> _userClientRepository;
         private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
+        private readonly IRepository<UserRole> _userRoleRepository;
 
-
-        public UserService( IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<ClientCustomer> clientCustomerRepository,
-            ICommonRepository<UserClient> userClientRepository, ICommonRepository<UsersAccountFb> userAccountRepository)
+        public UserService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<ClientCustomer> clientCustomerRepository,
+            ICommonRepository<UserClient> userClientRepository, ICommonRepository<UsersAccountFb> userAccountRepository, ICommonRepository<UserRole> userRoleRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
             _userRepository = userRepository;
-            _clientCustomerRepository=clientCustomerRepository;
-            _userClientRepository=userClientRepository;
-            _userAccountRepository=userAccountRepository;
+            _clientCustomerRepository = clientCustomerRepository;
+            _userClientRepository = userClientRepository;
+            _userAccountRepository = userAccountRepository;
+            _userRoleRepository = userRoleRepository;
         }
         public ResponseBase CheckUserByAccount(string userName, string password, string hardwareId)
         {
             ResponseBase response = new ResponseBase();
             try
             {
-                var user = _userRepository.FindAll(x => x.UserName==userName).SingleOrDefault();
+                var user = _userRepository.FindAll(x => x.UserName == userName).SingleOrDefault();
                 if (user == null)
                 {
                     return new ResponseBase()
                     {
-                        Code= 99,
+                        Code = 99,
                         Message = StatusLogin.UserNotExisting.ToString(),
                         Data = new LoginDto()
                         {
-                            Status=(int)StatusLogin.UserNotExisting,
-                            Token="",
-                            IdUser =0
+                            Status = (int)StatusLogin.UserNotExisting,
+                            Token = "",
+                            IdUser = 0
                         },
 
                     };
                 }
                 else
                 {
-                    if (user.Password!=password)
+                    if (user.Password != password)
                     {
                         return new ResponseBase()
                         {
-                            Code= 98,
+                            Code = 98,
                             Message = StatusLogin.PasswordWrong.ToString(),
                             Data = new LoginDto()
                             {
-                                Status=(int)StatusLogin.PasswordWrong,
-                                Token="",
-                                IdUser =0
+                                Status = (int)StatusLogin.PasswordWrong,
+                                Token = "",
+                                IdUser = 0
                             },
 
                         };
                     }
-                    if (user.Status==0)
+                    if (user.Status == 0)
                     {
                         return new ResponseBase()
                         {
-                            Code= 97,
+                            Code = 97,
                             Message = "Tài khoản chưa được kích hoạt, vui lòng nhập license",
                             Data = new LoginDto()
                             {
-                                Status= (int)StatusLogin.NoLicense,
-                                Token="",
-                                IdUser =user.Id
+                                Status = (int)StatusLogin.NoLicense,
+                                Token = "",
+                                IdUser = user.Id
                             }
 
                         };
                     }
-                    if (user.ExpiryDate< DateTime.Now)
+                    if (user.ExpiryDate < DateTime.Now)
                     {
                         return new ResponseBase()
                         {
-                            Code= 96,
+                            Code = 96,
                             Message = "Tài khoản đã hết hạn dùng",
                             Data = new LoginDto()
                             {
-                                Status= (int)StatusLogin.LicenseExpires,
-                                Token="",
-                                IdUser =user.Id
+                                Status = (int)StatusLogin.LicenseExpires,
+                                Token = "",
+                                IdUser = user.Id
                             }
 
                         };
@@ -110,7 +113,7 @@ namespace SmartBot.Services.Users
                 }
 
                 var idClient = 0;
-                var client = _clientCustomerRepository.FindAll(x => x.HardwareId==hardwareId).FirstOrDefault();
+                var client = _clientCustomerRepository.FindAll(x => x.HardwareId == hardwareId).FirstOrDefault();
                 if (client == null)
                 {
                     var newClient = new ClientCustomer()
@@ -127,7 +130,7 @@ namespace SmartBot.Services.Users
                 {
                     idClient = client.Id;
                 }
-                var userclient = _userClientRepository.FindAll(x => x.IdUser==user.Id && x.IdClient ==idClient).FirstOrDefault();
+                var userclient = _userClientRepository.FindAll(x => x.IdUser == user.Id && x.IdClient == idClient).FirstOrDefault();
                 string token = "";
                 if (userclient == null)
                 {
@@ -135,8 +138,8 @@ namespace SmartBot.Services.Users
                     {
                         IdUser = user.Id,
                         IdClient = idClient,
-                        DateUpdate= DateTime.Now,
-                        Status=1,
+                        DateUpdate = DateTime.Now,
+                        Status = 1,
                         Token = Token.GenerateSecurityToken(user.Id, "7"),
                     };
                     token = newuserclient.Token;
@@ -158,13 +161,13 @@ namespace SmartBot.Services.Users
 
                 return new ResponseBase()
                 {
-                    Code= 0,
+                    Code = 0,
                     Message = "Success",
                     Data = new LoginDto()
                     {
-                        Status= (int)StatusLogin.Success,
-                        Token =  token,
-                        IdUser=user.Id,
+                        Status = (int)StatusLogin.Success,
+                        Token = token,
+                        IdUser = user.Id,
                     },
 
                 };
@@ -183,7 +186,7 @@ namespace SmartBot.Services.Users
             {
                 return new ResponseBase()
                 {
-                    Code= 0,
+                    Code = 0,
                     Message = "Success",
                     Data = new LoginDto()
                     {
@@ -204,16 +207,16 @@ namespace SmartBot.Services.Users
             try
             {
                 var user = _userRepository.FindAll(x => x.UserName == userName).FirstOrDefault();
-                if (license!=user.License)
+                if (license != user.License)
                 {
                     return new ResponseBase()
                     {
-                        Code= 99,
+                        Code = 99,
                         Message = StatusLogin.NoLicense.GetEnumDescription(),
                         Data = new LoginDto()
                         {
                             Status = (int)StatusLogin.NoLicense,
-                            Token=""
+                            Token = ""
                         },
                     };
                 }
@@ -221,12 +224,12 @@ namespace SmartBot.Services.Users
                 {
                     return new ResponseBase()
                     {
-                        Code= 99,
+                        Code = 99,
                         Message = StatusLogin.LicenseExpires.GetEnumDescription(),
                         Data = new LoginDto()
                         {
                             Status = (int)StatusLogin.LicenseExpires,
-                            Token=""
+                            Token = ""
                         },
                     };
                 }
@@ -236,12 +239,12 @@ namespace SmartBot.Services.Users
                 _commonUoW.Commit();
                 return new ResponseBase()
                 {
-                    Code= 0,
+                    Code = 0,
                     Message = "Success",
                     Data = new LoginDto()
                     {
                         Status = (int)StatusLogin.Success,
-                        Token=""
+                        Token = ""
                     },
                 };
             }
@@ -252,13 +255,14 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
-        public ResponseBase GetAccountEverLogin(int idUser)
+        public ResponseBase GetAccountEverLogin(int idUser, Vips role)
         {
             ResponseBase response = new ResponseBase();
             try
             {
-                var listaccount = _userAccountRepository.FindAll(x=>x.IdUser == idUser).Include(x=>x.IdAccountFbNavigation);
-                if (listaccount==null)
+                var listaccount = _userAccountRepository.FindAll(x => x.IdUser == idUser).Include(x => x.IdAccountFbNavigation);
+                
+                if (listaccount == null)
                 {
                     response.Message = "No account";
                     response.Code = 99;
@@ -266,7 +270,28 @@ namespace SmartBot.Services.Users
                 }
                 else
                 {
-                    response.Data = listaccount.Select(x=> new AccountDto { UserName= x.IdAccountFbNavigation.FbUser,Password=x.IdAccountFbNavigation.FbPassword});
+                    IEnumerable<AccountDto> accounts;
+                    var query = listaccount.Select(x => new AccountDto { UserName = x.IdAccountFbNavigation.FbUser, Password = x.IdAccountFbNavigation.FbPassword });
+                    switch (role)
+                    {
+                        case Vips.Vip2:
+                            accounts = query.Take(5);
+                            break;
+                        case Vips.Vip3:
+                            accounts = query.Take(10);
+                            break;
+                        case Vips.Vip4:
+                        case Vips.Vip5:
+                            accounts = query;
+                            break;
+                        default:
+                            response.Message = "Invalid role";
+                            response.Code = 400;
+                            return response;
+                    }
+
+                    response.Data = accounts;
+                    response.Message = "Success";
                     return response;
                 }
             }
@@ -277,30 +302,59 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
+
+        public ResponseBase GetUserById(int idUser)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var user = _userRepository.FindSingle(x => x.Id == idUser);
+
+
+                if (user == null)
+                {
+                    response.Message = "No user";
+                    response.Code = 99;
+                    return response;
+                }
+                else
+                {
+                    response.Data = new User { UserName = user.UserName };
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
         public ResponseBase Register(UserDto data)
         {
             ResponseBase response = new ResponseBase();
             try
             {
-                var olduser = _userRepository.FindAll(x => x.UserName==data.Email);
-                if (olduser!=null && olduser.Any())
+                var olduser = _userRepository.FindAll(x => x.UserName == data.Email);
+                if (olduser != null && olduser.Any())
                 {
-                    response.Message ="username existing";
+                    response.Message = "username existing";
                     return response;
                 }
                 var user = new User
                 {
                     UserName = data.Email,
                     Password = data.Password,
-                    Status=1,
-                    DateCreated= DateTime.Now,
-                    DateUpdate= DateTime.Now,
+                    Status = 1,
+                    DateCreated = DateTime.Now,
+                    DateUpdate = DateTime.Now,
                 };
                 _commonUoW.BeginTransaction();
                 _userRepository.Insert(user);
                 _commonUoW.Commit();
 
-                response.Data=user.Id;
+                response.Data = user.Id;
                 return response;
             }
             catch (Exception ex)
@@ -311,5 +365,5 @@ namespace SmartBot.Services.Users
             }
         }
     }
-    
+
 }

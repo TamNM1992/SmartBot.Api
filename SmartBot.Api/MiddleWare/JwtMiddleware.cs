@@ -67,7 +67,7 @@ namespace SmartBot.Api.MiddleWare
                 var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "nameid").Value);
 
                 // attach user to context on successful jwt validation
-                context.Items["User"] = userService.GetAccountEverLogin(userId);
+                context.Items["User"] = userService.GetUserById(userId);
             }
             catch
             {
