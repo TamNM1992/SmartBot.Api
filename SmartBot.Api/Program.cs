@@ -1,5 +1,3 @@
-
-
 using SmartBot.Api.Configurations;
 using SmartBot.Api.Providers;
 using SmartBot.Common.Configuration;
@@ -11,8 +9,8 @@ using SmartBot.DataDto.Base;
 using SmartBot.Services;
 using SmartBot.Services.Permissions;
 using Microsoft.EntityFrameworkCore;
-
 using Q101.ServiceCollectionExtensions.ServiceCollectionExtensions;
+using SmartBot.Api.MiddleWare;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = new ConfigurationBuilder()
@@ -20,6 +18,7 @@ var config = new ConfigurationBuilder()
     .Build();
 AppConfigs.LoadAll(config);
 builder.Services.AddHttpContextAccessor();
+
 //--register CommonDBContext
 builder.Services.AddDbContext<CommonDBContext>(options =>
             options.UseSqlServer(AppConfigs.SqlConnection, options => { }),
@@ -28,6 +27,7 @@ builder.Services.AddDbContext<CommonDBContext>(options =>
 builder.Services.AddTransient(typeof(ICommonRepository<>), typeof(CommonRepository<>));
 builder.Services.AddTransient(typeof(ICommonUoW), typeof(CommonUoW));
 //builder.Services.AddScoped(typeof(IOrderFunction), typeof(OrderFunction));
+
 //--register Service
 builder.Services.RegisterAssemblyTypesByName(typeof(IPermissionService).Assembly,
      name => name.EndsWith("Service")) // Condition for name of type
@@ -45,6 +45,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
 var app = builder.Build();
 StaticServiceProvider.Provider = app.Services;
 app.UseDeveloperExceptionPage();
@@ -60,6 +61,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+app.UseMiddleware<JwtMiddleware>();
+
+app.UseMiddleware<JwtMiddleware>();
 
 app.MapControllers();
 //UpdateTimer.Init();

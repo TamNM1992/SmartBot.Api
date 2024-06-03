@@ -4,6 +4,8 @@ using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
 using SmartBot.Services;
 using SmartBot.Services.Users;
+using SmartBot.Common.Enums;
+using SmartBot.DataAccess.Entities;
 
 namespace SmartBot.Api.Controllers
 {
@@ -15,7 +17,6 @@ namespace SmartBot.Api.Controllers
         private readonly IMapper _mapper;
         private readonly IMyTypedClientServices _client;
         private readonly IUserService _userService;
-
 
         public UserController(IMapper mapper, IMyTypedClientServices client, IUserService userService)
         {
@@ -30,6 +31,7 @@ namespace SmartBot.Api.Controllers
             var item = _userService.CheckUserByAccount(userName, password, hardwareId);
             return item;
         }
+
         [HttpGet("check-token")]
         public ResponseBase CheckUserByToken(string token)
         {
@@ -42,6 +44,8 @@ namespace SmartBot.Api.Controllers
             var item = _userService.CheckLicenseUser(userName, license);
             return item;
         }
+
+        //[Authorize, Role(Vips.Vip2, Vips.Vip3, Vips.Vip4, Vips.Vip5)]
         [HttpGet("list-account")]
         public ResponseBase GetAccountEverLogin(int idUser)
         {
