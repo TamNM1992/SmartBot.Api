@@ -5,7 +5,7 @@ using SmartBot.Common.Enums;
 using SmartBot.Services.Users.RoleServices;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace BaoTangBn.API.Attributes
+namespace SmartBot.Api.Attributes
 {
     public class RoleAttribute : Attribute, IActionFilter
     {

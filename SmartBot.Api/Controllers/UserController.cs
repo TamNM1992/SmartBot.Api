@@ -4,7 +4,6 @@ using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
 using SmartBot.Services;
 using SmartBot.Services.Users;
-using BaoTangBn.API.Attributes;
 using SmartBot.Common.Enums;
 using SmartBot.DataAccess.Entities;
 
@@ -46,7 +45,7 @@ namespace SmartBot.Api.Controllers
             return item;
         }
 
-        [Authorize, Role(Vips.Vip2, Vips.Vip3, Vips.Vip4, Vips.Vip5)]
+        //[Authorize, Role(Vips.Vip2, Vips.Vip3, Vips.Vip4, Vips.Vip5)]
         [HttpGet("list-account")]
         public ResponseBase GetAccountEverLogin(int idUser)
         {
