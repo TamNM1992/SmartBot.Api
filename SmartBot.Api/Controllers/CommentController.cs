@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using SmartBot.Api.Attributes;
 using SmartBot.DataDto.Base;
 using SmartBot.Services;
 using SmartBot.Services.Comment;
@@ -8,7 +7,6 @@ namespace SmartBot.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[Authorize]
     public class CommentController : ControllerBase
     {
 
@@ -24,7 +22,6 @@ namespace SmartBot.Api.Controllers
         }
 
         [HttpGet("comment-group")]
-        //[Authorize]
         public ResponseBase GetDataCommentGroup()
         {
             var item = _commentService.GetDataCommentGroup();

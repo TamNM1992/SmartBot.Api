@@ -44,8 +44,6 @@ namespace SmartBot.Api.Controllers
             return item;
         }
         [HttpGet("list-account")]
-        [Authorize]
-        [Role(Common.Enums.Role.VIP2)]
         public ResponseBase GetAccountEverLogin(int idUser)
         {
             var item = _userService.GetAccountEverLogin(idUser);

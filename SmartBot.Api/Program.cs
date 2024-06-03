@@ -1,6 +1,10 @@
 
 
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using Q101.ServiceCollectionExtensions.ServiceCollectionExtensions;
 using SmartBot.Api.Configurations;
+using SmartBot.Api.Middleware;
 using SmartBot.Api.Providers;
 using SmartBot.Common.Configuration;
 using SmartBot.DataAccess.DBContext;
@@ -10,19 +14,6 @@ using SmartBot.DataAccess.UnitOfWork;
 using SmartBot.DataDto.Base;
 using SmartBot.Services;
 using SmartBot.Services.Permissions;
-using Microsoft.EntityFrameworkCore;
-
-using Q101.ServiceCollectionExtensions.ServiceCollectionExtensions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Diagnostics;
-using Newtonsoft.Json;
-using System.Net;
-using SmartBot.Api.Middleware;
-using SmartBot.Services.Users;
-using SmartBot.Services.Roles;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = new ConfigurationBuilder()
