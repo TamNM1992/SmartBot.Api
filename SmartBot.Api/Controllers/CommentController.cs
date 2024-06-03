@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmartBot.Api.Attributes;
 using SmartBot.DataDto.Base;
 using SmartBot.Services;
 using SmartBot.Services.ClassConfigFacebook;
 using SmartBot.Services.Comment;
-using SmartBot.Api.Attributes;
 
 namespace SmartBot.Api.Controllers
 {
@@ -26,7 +26,6 @@ namespace SmartBot.Api.Controllers
         }
 
         [HttpGet("comment-group")]
-        [Role(Common.Enums.role.Admin)]
         public ResponseBase GetDataCommentGroup()
         {
             var item = _commentService.GetDataCommentGroup();
