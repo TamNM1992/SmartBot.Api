@@ -11,116 +11,51 @@ namespace SmartBot.DataAccess.DBContext
         public CommonDBContext(DbContextOptions options) : base(options)
         {
         }
-    public virtual DbSet<AccountFb> AccountFbs { get; set; }
+        public virtual DbSet<AccountFb> AccountFbs { get; set; }
 
-    public virtual DbSet<Action> Actions { get; set; }
+        public virtual DbSet<Action> Actions { get; set; }
 
-    public virtual DbSet<ActionType> ActionTypes { get; set; }
+        public virtual DbSet<ActionType> ActionTypes { get; set; }
 
-    public virtual DbSet<ClassDatum> ClassData { get; set; }
+        public virtual DbSet<ClassDatum> ClassData { get; set; }
 
-    public virtual DbSet<ClientCustomer> ClientCustomers { get; set; }
+        public virtual DbSet<ClientCustomer> ClientCustomers { get; set; }
 
-    public virtual DbSet<ContentFb> ContentFbs { get; set; }
+        public virtual DbSet<ContentFb> ContentFbs { get; set; }
 
-    public virtual DbSet<ContentTopic> ContentTopics { get; set; }
+        public virtual DbSet<ContentTopic> ContentTopics { get; set; }
 
-    public virtual DbSet<District> Districts { get; set; }
+        public virtual DbSet<District> Districts { get; set; }
 
-    public virtual DbSet<GroupFb> GroupFbs { get; set; }
+        public virtual DbSet<GroupFb> GroupFbs { get; set; }
 
-    public virtual DbSet<ImagePath> ImagePaths { get; set; }
+        public virtual DbSet<ImagePath> ImagePaths { get; set; }
 
-    public virtual DbSet<ImageTopic> ImageTopics { get; set; }
+        public virtual DbSet<ImageTopic> ImageTopics { get; set; }
 
-    public virtual DbSet<PageFb> PageFbs { get; set; }
+        public virtual DbSet<PageFb> PageFbs { get; set; }
 
-    public virtual DbSet<Post> Posts { get; set; }
+        public virtual DbSet<Post> Posts { get; set; }
 
-    public virtual DbSet<PostComment> PostComments { get; set; }
+        public virtual DbSet<PostComment> PostComments { get; set; }
 
-    public virtual DbSet<Province> Provinces { get; set; }
+        public virtual DbSet<Province> Provinces { get; set; }
 
-    public virtual DbSet<Role> Roles { get; set; }
-    public virtual DbSet<Script> Scripts { get; set; }
+        public virtual DbSet<Role> Roles { get; set; }
+        public virtual DbSet<Script> Scripts { get; set; }
 
-    public virtual DbSet<Topic> Topics { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Topic> Topics { get; set; }
 
-    public virtual DbSet<UserClient> UserClients { get; set; }
+        public virtual DbSet<User> Users { get; set; }
 
-    public virtual DbSet<UserRole> UserRoles { get; set; }
-    public virtual DbSet<UsersAccountFb> UsersAccountFbs { get; set; }
+        public virtual DbSet<UserClient> UserClients { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<AccountFb>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_FaceBookAccount");
+        public virtual DbSet<UserRole> UserRoles { get; set; }
+        public virtual DbSet<UsersAccountFb> UsersAccountFbs { get; set; }
 
-            entity.ToTable("AccountFB");
 
-            entity.Property(e => e.DateLogin).HasColumnType("datetime");
-            entity.Property(e => e.FbPassword).HasMaxLength(20);
-            entity.Property(e => e.FbProfileLink)
-                .HasMaxLength(512)
-                .IsUnicode(false);
-            entity.Property(e => e.FbUser).HasMaxLength(50);
-            entity.Property(e => e.KeySearch).HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<Action>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_ActionLike");
-
-            entity.ToTable("Action");
-
-            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-            entity.Property(e => e.IdAccountFb).HasColumnName("IdAccountFB");
-
-            entity.HasOne(d => d.IdAccountFbNavigation).WithMany(p => p.Actions)
-                .HasForeignKey(d => d.IdAccountFb)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ActionLike_AccountFB");
-
-            entity.HasOne(d => d.IdContentNavigation).WithMany(p => p.Actions)
-                .HasForeignKey(d => d.IdContent)
-                .HasConstraintName("FK_Action_ContentFB");
-
-            entity.HasOne(d => d.IdScriptNavigation).WithMany(p => p.Actions)
-                .HasForeignKey(d => d.IdScript)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ActionLike_Script");
-        });
-
-        modelBuilder.Entity<ActionType>(entity =>
-        {
-            entity.ToTable("ActionType");
-
-            entity.Property(e => e.TypeName).HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<ClassDatum>(entity =>
-        {
-            entity.Property(e => e.ClassName)
-                .HasMaxLength(1000)
-                .IsUnicode(false);
-            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-            entity.Property(e => e.Description).HasMaxLength(100);
-        });
-
-        modelBuilder.Entity<ClientCustomer>(entity =>
-        {
-            entity.ToTable("ClientCustomer");
-
-            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-            entity.Property(e => e.HardwareId)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-        });
-
-        modelBuilder.Entity<ContentFb>(entity =>
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             entity.HasKey(e => e.Id).HasName("PK_CommentFB");
 
@@ -369,7 +304,6 @@ namespace SmartBot.DataAccess.DBContext
 
         OnModelCreatingPartial(modelBuilder);
     }
-
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

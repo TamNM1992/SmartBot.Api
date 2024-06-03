@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using SmartBot.DataAccess.Entities;
 using Microsoft.Extensions.Options;
@@ -14,7 +14,7 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
 {
     public void OnAuthorization(AuthorizationFilterContext context)
     {
-        var user = (User)context.HttpContext.Items["User"];
+        var user = (ResponseBase)context.HttpContext.Items["User"];
         if (user == null)
         {
             // not logged in
@@ -68,7 +68,7 @@ namespace SmartBot.Api.MiddleWare
                 var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "nameid").Value);
 
                 // attach user to context on successful jwt validation
-                context.Items["User"] = userService.GetById(userId);
+                context.Items["User"] = userService.GetAccountEverLogin(userId);
             }
             catch
             {
@@ -78,3 +78,4 @@ namespace SmartBot.Api.MiddleWare
         }
     }
 }
+

@@ -1,16 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using SmartBot.Api.Providers;
-using System.IdentityModel.Tokens.Jwt;
 using SmartBot.Common.Enums;
-using SmartBot.Services.Roles;
+using SmartBot.Services.Users.RoleServices;
+using System.IdentityModel.Tokens.Jwt;
 
-namespace SmartBot.Api.Attributes
+namespace BaoTangBn.API.Attributes
 {
     public class RoleAttribute : Attribute, IActionFilter
     {
-        public role[] Roles { get; set; }
-        public RoleAttribute(params role[] roles)
+        public Vips[] Roles { get; set; }
+
+        public RoleAttribute(params Vips[] roles)
         {
             Roles = roles;
         }
@@ -19,7 +20,6 @@ namespace SmartBot.Api.Attributes
         {
             // không thể khởi tạo service thông qua contructor như bình thường 
             // phải tạo ra 1 cái là provider, đây là 1 cách để lấy service đã được khởi tạo ra dùng
-
             var httpContext = (IHttpContextAccessor)StaticServiceProvider.Provider.GetService(typeof(IHttpContextAccessor));
             var authorityService = (IRoleService)httpContext.HttpContext.RequestServices.GetService(typeof(IRoleService));
 
@@ -29,22 +29,23 @@ namespace SmartBot.Api.Attributes
             var _token = authTokens.FirstOrDefault().Replace("Bearer ", "");
             var handler = new JwtSecurityTokenHandler();
             var jwtSecurityToken = handler.ReadJwtToken(_token);
-            var idUser = int.Parse(jwtSecurityToken.Claims.First(x => x.Type == "nameid").Value);
 
-            var isCheked = authorityService.CheckUserRole(Roles, idUser);
+            var userId = int.Parse(jwtSecurityToken.Claims.First(x => x.Type == "nameid").Value);
+            var isCheked = authorityService.IsUserHasRole(Roles, userId);
 
             if (!isCheked)
             {
-                context.Result = new JsonResult("NoPermission")
+                context.Result = new JsonResult("No Permission")
                 {
-                    StatusCode = 403,
+                    StatusCode = 405,
+
                     Value = new
                     {
                         Status = "Error",
                         Message = "Sorry, You don't have permission for the acction."
                     },
                 };
-            }
+            } 
         }
         public void OnActionExecuted(ActionExecutedContext context)
         {
