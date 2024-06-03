@@ -29,6 +29,12 @@ namespace SmartBot.Api.Controllers
             var item = _fbService.InsertAccountFb(param);
             return item;
         }
+        [HttpGet("id-fb")]
+        public ResponseBase GetFaceBookId(string fbUserName)
+        {
+            var item = _fbService.GetFaceBookId(fbUserName);
+            return item;
+        }
     }
 
 

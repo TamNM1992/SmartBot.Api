@@ -11,5 +11,7 @@ namespace SmartBot.Services.AccountFB
     public interface IAccountFbService
     {
         public ResponseBase InsertAccountFb(InsertAccountFbDto param);
+        public ResponseBase GetFaceBookId(string fbUserName);
+
     }
 }
