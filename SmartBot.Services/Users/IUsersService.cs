@@ -1,4 +1,6 @@
-﻿using SmartBot.DataAccess.Entities;
+
+using SmartBot.Common.Enums;
+using SmartBot.DataAccess.Entities;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
 
