@@ -51,10 +51,6 @@ namespace SmartBot.DataAccess.DBContext
 
         public virtual DbSet<UsersAccountFb> UsersAccountFbs { get; set; }
 
-        public virtual DbSet<Role> Role { get; set; }
-
-        public virtual DbSet<UserRole> UserRoles { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AccountFb>(entity =>
@@ -342,27 +338,6 @@ namespace SmartBot.DataAccess.DBContext
                     .HasForeignKey(d => d.IdUser)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_UsersAccountFB_Users");
-            });
-
-            modelBuilder.Entity<Role>(entity =>
-            {
-                entity.ToTable("Role");
-                entity.Property(e => e.Description).HasMaxLength(100);
-            });
-
-            modelBuilder.Entity<UserRole>(entity =>
-            {
-                entity.ToTable("UserRole");
-
-                entity.HasOne(d => d.IdRoleNavigation).WithMany(p => p.UserRoles)
-                    .HasForeignKey(d => d.IdRole)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UserRole_Role");
-
-                entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.UserRoles)
-                    .HasForeignKey(d => d.IdUser)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UserRole_Users");
             });
 
             OnModelCreatingPartial(modelBuilder);

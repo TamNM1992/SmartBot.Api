@@ -24,6 +24,4 @@ public partial class User
     public virtual ICollection<UserClient> UserClients { get; set; } = new List<UserClient>();
 
     public virtual ICollection<UsersAccountFb> UsersAccountFbs { get; set; } = new List<UsersAccountFb>();
-
-    public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }

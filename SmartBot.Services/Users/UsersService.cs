@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using NhaDat24h.Common.Enums;
-using SmartBot.Common.Enums;
 using SmartBot.Common.Extention;
 using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
@@ -15,7 +14,6 @@ using SmartBot.DataDto.User;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 
@@ -29,10 +27,10 @@ namespace SmartBot.Services.Users
         private readonly ICommonRepository<User> _userRepository;
         private readonly ICommonRepository<UserClient> _userClientRepository;
         private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
-        private readonly IRepository<UserRole> _userRoleRepository;
+
 
         public UserService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<ClientCustomer> clientCustomerRepository,
-            ICommonRepository<UserClient> userClientRepository, ICommonRepository<UsersAccountFb> userAccountRepository, ICommonRepository<UserRole> userRoleRepository)
+            ICommonRepository<UserClient> userClientRepository, ICommonRepository<UsersAccountFb> userAccountRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
@@ -40,7 +38,6 @@ namespace SmartBot.Services.Users
             _clientCustomerRepository = clientCustomerRepository;
             _userClientRepository = userClientRepository;
             _userAccountRepository = userAccountRepository;
-            _userRoleRepository = userRoleRepository;
         }
         public ResponseBase CheckUserByAccount(string userName, string password, string hardwareId)
         {
@@ -111,7 +108,6 @@ namespace SmartBot.Services.Users
                         };
                     }
                 }
-
                 var idClient = 0;
                 var client = _clientCustomerRepository.FindAll(x => x.HardwareId == hardwareId).FirstOrDefault();
                 if (client == null)
@@ -261,7 +257,6 @@ namespace SmartBot.Services.Users
             try
             {
                 var listaccount = _userAccountRepository.FindAll(x => x.IdUser == idUser).Include(x => x.IdAccountFbNavigation);
-                
                 if (listaccount == null)
                 {
                     response.Message = "No account";
@@ -270,35 +265,32 @@ namespace SmartBot.Services.Users
                 }
                 else
                 {
-                    // Lấy tất cả các userRoles từ repository
-                    var userRoles = _userRoleRepository.FindAll(
-                        ur => ur.IdUser == idUser,
-                        ur => ur.IdRoleNavigation
-                    );
-                    var heightesVip = userRoles.Select(ur => ur.IdRoleNavigation).Max(role => role.Code);
-
-                    IEnumerable<AccountDto> accounts;
-                    var query = listaccount.Select(x => new AccountDto { UserName = x.IdAccountFbNavigation.FbUser, Password = x.IdAccountFbNavigation.FbPassword });
-                    switch ((Vips)heightesVip)
-                    {
-                        case Vips.Vip2:
-                            accounts = query.Take(5);
-                            break;
-                        case Vips.Vip3:
-                            accounts = query.Take(10);
-                            break;
-                        case Vips.Vip4:
-                        case Vips.Vip5:
-                            accounts = query;
-                            break;
-                        default:
-                            response.Message = "Invalid role";
-                            response.Code = 400;
-                            return response;
-                    }
-
-                    response.Data = accounts;
-                    response.Message = "Success";
+                    response.Data = listaccount.Select(x => new AccountDto { UserName = x.IdAccountFbNavigation.FbUser, Password = x.IdAccountFbNavigation.FbPassword });
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+        public ResponseBase GetAccountFbEverLogin(int idUser)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var listaccount = _userAccountRepository.FindAll(x => x.IdUser == idUser).Include(x => x.IdAccountFbNavigation);
+                if (listaccount == null)
+                {
+                    response.Message = "No account";
+                    response.Code = 99;
+                    return response;
+                }
+                else
+                {
+                    response.Data = listaccount.Select(x => new AccountFbDto { IdFb = x.IdAccountFbNavigation.Id, UserName = x.IdAccountFbNavigation.FbUser, Password = x.IdAccountFbNavigation.FbPassword });
                     return response;
                 }
             }
@@ -343,5 +335,11 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
+        public User GetById(int idUser)
+        {
+            var temp = _userRepository.GetById(idUser);
+            return temp;
+        }
     }
+
 }
