@@ -88,6 +88,7 @@ namespace SmartBot.Services.Group
                 {
                     new ProvinceDto()
                     {
+                        Id=1,
                         Name = "Hà Nội",
                         Districts = new List<string>
                         {
@@ -106,6 +107,7 @@ namespace SmartBot.Services.Group
                     },
                     new ProvinceDto()
                     {
+                        Id = 2,
                         Name = "Tp Hồ Chí Minh",
                         Districts = new List<string>
                         {
