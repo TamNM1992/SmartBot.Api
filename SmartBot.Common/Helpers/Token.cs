@@ -48,7 +48,7 @@ namespace SmartBot.Common.Helpers
             }, out SecurityToken validatedToken);
 
             var jwtToken = (JwtSecurityToken)validatedToken;
-            var username = jwtToken.Claims.FirstOrDefault(x => x.Type=="nameid").Value;
+            var username = jwtToken.Claims.FirstOrDefault(x => x.Type == "nameid").Value;
             //var userId = Guid.Parse(jwtToken.Claims.FirstOrDefault(x=>x.Type=="nameid").Value);
 
             return username;

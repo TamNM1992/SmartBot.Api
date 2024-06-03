@@ -3,6 +3,7 @@ using AutoMapper;
 using Azure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Kiota.Abstractions;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
@@ -22,8 +23,7 @@ namespace SmartBot.Services.Group
         private readonly ICommonUoW _commonUoW;
         private readonly ICommonRepository<GroupFb> _groupRepository;
         private readonly ICommonRepository<AccountFb> _fbRepository;
-
-        public GroupService( IMapper mapper, ICommonUoW commonUoW, ICommonRepository<GroupFb> groupRepository,
+        public GroupService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<GroupFb> groupRepository,
              ICommonRepository<AccountFb> fbRepository)
         {
             _mapper = mapper;
@@ -42,7 +42,7 @@ namespace SmartBot.Services.Group
                     Message = "Success",
                     Data = new List<GroupPostData>()
                     {
-                        new GroupPostData() 
+                        new GroupPostData()
                         {
                         STT=1,
                         ResponseID="Group kèm ảnh",
@@ -141,7 +141,7 @@ namespace SmartBot.Services.Group
                 var data = new List<string>();
                 if (key=="ăn vặt")
                 {
-                    data.AddRange( new List<string>()
+                    data.AddRange(new List<string>()
                     {
                         "Nhà bếp",
                         "Sức khỏe",
@@ -228,18 +228,18 @@ namespace SmartBot.Services.Group
             ResponseBase response = new ResponseBase();
             try
             {
-                if(data.Groups.IsNullOrEmpty())
+                if (data.Groups.IsNullOrEmpty())
                 {
                     response.Message ="input empty";
                     return response;
-                }    
-                var fb= _fbRepository.FindAll(x=>x.FbUser==data.FbUser).SingleOrDefault();
-                var newUrl = data.Groups.Select(x=>x.Url);
-                var oldGroup = _groupRepository.FindAll().Select(x=>x.Url).AsNoTracking();
+                }
+                var fb = _fbRepository.FindAll(x => x.FbUser==data.FbUser).SingleOrDefault();
+                var newUrl = data.Groups.Select(x => x.Url);
+                var oldGroup = _groupRepository.FindAll().Select(x => x.Url).AsNoTracking();
                 var newGroup = new List<GroupFb>();
-                foreach(var item in data.Groups)
+                foreach (var item in data.Groups)
                 {
-                    if(oldGroup.IsNullOrEmpty() || !oldGroup.Contains(item.Url))
+                    if (oldGroup.IsNullOrEmpty() || !oldGroup.Contains(item.Url))
                     {
                         var group = new GroupFb()
                         {
@@ -252,16 +252,16 @@ namespace SmartBot.Services.Group
                             DateUpdate = DateTime.Now,
                         };
                         newGroup.Add(group);
-                    }    
+                    }
                 }
-                if(newGroup.Any())
+                if (newGroup.Any())
                 {
                     _commonUoW.BeginTransaction();
                     _groupRepository.InsertMultiple(newGroup);
                     _commonUoW.Commit();
                 }
 
-                
+
                 response.Data = "Success";
                 return response;
             }
@@ -272,25 +272,70 @@ namespace SmartBot.Services.Group
                 return response;
             }
         }
-        public ResponseBase GetJoinedGroup (int idFacebook)
+
+        public ResponseBase InsertGroupFB(InsertGroupFBDto data)
+        {
+            ResponseBase response = new ResponseBase();
+            var listAdd = new List<GroupFb>();
+
+            try
+            {
+                if (data.Groups.IsNullOrEmpty())
+                {
+                    response.Message ="input empty";
+                    return response;
+                }
+                var check = _groupRepository.FindAll(x=>x.IdFaceBook == data.IdFaceBook).Select(x=>x.Url);
+                if (check.Any())
+                {
+                    foreach (var group in data.Groups)
+                    {
+                        if(!check.Contains(group.Value))
+                        {
+                            var newGroup = new GroupFb()
+                            {
+                                IdFaceBook= data.IdFaceBook,
+                                Name = group.Key,
+                                Url = group.Value,
+                            };
+                            listAdd.Add(newGroup);
+                        }
+                    } 
+                }
+                _commonUoW.BeginTransaction();
+                _groupRepository.InsertMultiple(listAdd);
+                _commonUoW.Commit();
+
+                response.Data = "Success";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = "False";
+                return response;
+            }
+        }
+
+        public ResponseBase GetJoinedGroup(int idFacebook)
         {
             ResponseBase response = new ResponseBase();
             try
             {
-                var data = new Dictionary<string, string>();
-                var group = _groupRepository.FindAll(x=>x.IdFaceBook==idFacebook);
+                var data = new List<GroupMiniData>();
+                var group = _groupRepository.FindAll(x => x.IdFaceBook==idFacebook);
                 var deadlineUpdate = group.FirstOrDefault().DateUpdate-DateTime.Now;
                 if (!group.Any() || deadlineUpdate.Value.Days>30)
                 {
                     response.Code = 1001;
                     response.Message = "update data";
-                    return response ;
+                    return response;
                 }
-                data = group.Select(x => new
+                data = group.Select(x => new GroupMiniData
                 {
-                    x.Name,
-                    x.Url,
-                }).ToDictionary(x=> x.Name,x=>x.Url);
+                    Name = x.Name,
+                    Url =x.Url,
+                }).ToList();
 
                 response.Data = data;
                 return response;
@@ -307,33 +352,79 @@ namespace SmartBot.Services.Group
             ResponseBase response = new ResponseBase();
             try
             {
-                var idFb = _fbRepository.FindAll(x=>x.FbUser==data.FbUser).SingleOrDefault().Id;
-
-                var group = _groupRepository.FindAll();
+                var group = _groupRepository.FindAll(x=>x.IdFaceBook==data.IdFb);
+                var listNewGroup = new List<GroupFb>();
+                var listUrl = new List<string>();
                 if (group != null)
                 {
-                    var temp = group.Select(x => new
+                    listUrl = group.Select(x=>x.Url).ToList();
+                    foreach (var item in data.Groups)
                     {
-                        x.Id,
-                        x.Url,
-                    }).ToDictionary(x=>x.Id, x=>x.Url);
-                    //foreach (var item in data.Groups)
-                    //{
-                    //    if(temp.Values.Contains(item.Value))
-                    //    {
-                    //        if(fbGroup.Contains(te))
-                    //    }    
-                    //}    
+                        if(!listUrl.Contains(item.Url))
+                        {
+                            var newGroup = new GroupFb()
+                            {
+                                Name=item.Name,
+                                Url=item.Url,
+                                IdFaceBook=data.IdFb,
+                                DateUpdate = DateTime.Now,
+                            };
+                            listNewGroup.Add(newGroup);
+                        }    
+                    }    
                 }
-
-
-                response.Data = data;
+                if(listNewGroup.Any())
+                {
+                    _commonUoW.BeginTransaction();
+                    _groupRepository.InsertMultiple(listNewGroup);
+                    _commonUoW.Commit();
+                }
+                group.ForEachAsync(x => x.DateUpdate = DateTime.Now);
+                _commonUoW.BeginTransaction();
+                _groupRepository.UpdateMultiple(group);
+                _commonUoW.Commit();
+                response.Data = true;
                 return response;
             }
             catch (Exception ex)
             {
                 response.Message = ex.Message;
-                response.Data = "False";
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase CheckLastUpdateGroup(int idFb)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+
+                var groups = _groupRepository.FindAll(x => x.IdFaceBook==idFb);
+                if (groups!=null&& groups.Any())
+                {
+                    var lastdate = groups.FirstOrDefault().DateUpdate;
+                    var date = (DateTime.Now - (DateTime)lastdate).TotalDays;
+                    if (lastdate==null||date>30)
+                    {
+                        response.Data = true;
+                    }
+                    else
+                    {
+                        response.Data = false;
+                    }
+                }
+                else
+                {
+                    response.Data = true;
+                }    
+                
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
                 return response;
             }
         }

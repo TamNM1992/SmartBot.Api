@@ -301,6 +301,31 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
+        public ResponseBase GetAccountFbEverLogin(int idUser)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var listaccount = _userAccountRepository.FindAll(x => x.IdUser == idUser).Include(x => x.IdAccountFbNavigation);
+                if (listaccount==null)
+                {
+                    response.Message = "No account";
+                    response.Code = 99;
+                    return response;
+                }
+                else
+                {
+                    response.Data = listaccount.Select(x => new AccountFbDto {IdFb=x.IdAccountFbNavigation.Id, UserName= x.IdAccountFbNavigation.FbUser, Password=x.IdAccountFbNavigation.FbPassword });
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
 
         public ResponseBase Register(UserDto data)
         {

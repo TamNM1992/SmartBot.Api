@@ -63,6 +63,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseMiddleware<JwtMiddleware>();
 
+app.UseMiddleware<JwtMiddleware>();
+
 app.MapControllers();
 //UpdateTimer.Init();
 app.Run();

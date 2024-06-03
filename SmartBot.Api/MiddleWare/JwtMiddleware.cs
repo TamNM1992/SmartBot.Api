@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc;
+using SmartBot.DataAccess.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SmartBot.DataDto.Base;
@@ -77,3 +78,4 @@ namespace SmartBot.Api.MiddleWare
         }
     }
 }
+

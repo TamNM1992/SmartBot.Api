@@ -38,6 +38,7 @@ namespace BaoTangBn.API.Attributes
                 context.Result = new JsonResult("No Permission")
                 {
                     StatusCode = 405,
+
                     Value = new
                     {
                         Status = "Error",
@@ -46,7 +47,6 @@ namespace BaoTangBn.API.Attributes
                 };
             } 
         }
-
         public void OnActionExecuted(ActionExecutedContext context)
         {
             Console.WriteLine("OnActionExecuted");
