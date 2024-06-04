@@ -4,6 +4,7 @@ using Azure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Kiota.Abstractions;
+using SmartBot.Common.Extention;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
@@ -23,13 +24,15 @@ namespace SmartBot.Services.Group
         private readonly ICommonUoW _commonUoW;
         private readonly ICommonRepository<GroupFb> _groupRepository;
         private readonly ICommonRepository<AccountFb> _fbRepository;
+        private readonly ICommonRepository<Province> _provinceRepository;
         public GroupService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<GroupFb> groupRepository,
-             ICommonRepository<AccountFb> fbRepository)
+             ICommonRepository<AccountFb> fbRepository, ICommonRepository<Province> provinceRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
             _groupRepository = groupRepository;
             _fbRepository = fbRepository;
+            _provinceRepository=provinceRepository;
         }
         public ResponseBase GetDataGroupPost()
         {
@@ -84,45 +87,14 @@ namespace SmartBot.Services.Group
             ResponseBase response = new ResponseBase();
             try
             {
-                var data = new List<ProvinceDto>()
+                var data = new List<ProvinceDto>();
+                var getProvince = _provinceRepository.FindAll();
+
+                data = getProvince.Select(x => new ProvinceDto
                 {
-                    new ProvinceDto()
-                    {
-                        Name = "Hà Nội",
-                        Districts = new List<string>
-                        {
-                            "Hai Bà Trưng",
-                            "Hoàng Mai",
-                            "Thanh Xuân",
-                            //"Sóc Sơn",
-                            //"Đông Anh",
-                            //"Gia Lâm",
-                            //"Nam Từ Liêm",
-                            //"Thanh Trì",
-                            //"Bắc Từ Liêm",
-                            //"Mê Linh",
-                            //"Hà Đông",
-                        }
-                    },
-                    new ProvinceDto()
-                    {
-                        Name = "Tp Hồ Chí Minh",
-                        Districts = new List<string>
-                        {
-                            "Quận 1",
-                            "Quận 10",
-                            "Thủ Đức",
-                            //"Sóc Sơn",
-                            //"Đông Anh",
-                            //"Gia Lâm",
-                            //"Nam Từ Liêm",
-                            //"Thanh Trì",
-                            //"Bắc Từ Liêm",
-                            //"Mê Linh",
-                            //"Hà Đông",
-                        }
-                    }
-                };
+                    Name = x.Name,
+                    Districts = x.Districts.Select(y => y.Name).ToList(),
+                }).ToList();
                 response.Data = data;
                 return response;
             }
@@ -419,6 +391,30 @@ namespace SmartBot.Services.Group
                     response.Data = true;
                 }    
                 
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase UpdateProvince()
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var getProvince = _provinceRepository.FindAll();
+                foreach (var item in getProvince)
+                {
+                    item.KeyWord = item.Name.ToLower().Trim().RemoveUnicode().Replace(" ", string.Empty);
+                }
+                _commonUoW.BeginTransaction();
+                _provinceRepository.UpdateMultiple(getProvince);
+                _commonUoW.Commit();
+                response.Data = true;
                 return response;
             }
             catch (Exception ex)
