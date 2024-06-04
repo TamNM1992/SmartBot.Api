@@ -22,14 +22,17 @@ namespace SmartBot.Services.Group
         private IMapper _mapper;
         private readonly ICommonUoW _commonUoW;
         private readonly ICommonRepository<GroupFb> _groupRepository;
+        private readonly ICommonRepository<PageFb> _pageRepository;
+
         private readonly ICommonRepository<AccountFb> _fbRepository;
         public GroupService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<GroupFb> groupRepository,
-             ICommonRepository<AccountFb> fbRepository)
+             ICommonRepository<AccountFb> fbRepository, ICommonRepository<PageFb> pageRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
             _groupRepository = groupRepository;
             _fbRepository = fbRepository;
+            _pageRepository=pageRepository;
         }
         public ResponseBase GetDataGroupPost()
         {
@@ -235,9 +238,9 @@ namespace SmartBot.Services.Group
                     response.Message ="input empty";
                     return response;
                 }
-                var fb = _fbRepository.FindAll(x => x.FbUser==data.FbUser).SingleOrDefault();
+                var fb = _fbRepository.FindAll(x => x.Id==data.IdFb).SingleOrDefault();
                 var newUrl = data.Groups.Select(x => x.Url);
-                var oldGroup = _groupRepository.FindAll().Select(x => x.Url).AsNoTracking();
+                var oldGroup = _groupRepository.FindAll(x=>x.IdFaceBook==data.IdFb).Select(x => x.Url).AsNoTracking();
                 var newGroup = new List<GroupFb>();
                 foreach (var item in data.Groups)
                 {
@@ -252,6 +255,7 @@ namespace SmartBot.Services.Group
                             NumPostPerDay = item.NumPostPerDay,
                             Description = item.Description,
                             DateUpdate = DateTime.Now,
+                            IdFaceBook = data.IdFb,
                         };
                         newGroup.Add(group);
                     }
@@ -262,8 +266,6 @@ namespace SmartBot.Services.Group
                     _groupRepository.InsertMultiple(newGroup);
                     _commonUoW.Commit();
                 }
-
-
                 response.Data = "Success";
                 return response;
             }
@@ -274,7 +276,58 @@ namespace SmartBot.Services.Group
                 return response;
             }
         }
-
+        public ResponseBase InsertPage(InsertPageDto data)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                if (data.Pages.IsNullOrEmpty())
+                {
+                    response.Message ="input empty";
+                    return response;
+                }
+                var fb = _fbRepository.FindAll(x => x.Id==data.IdFb).SingleOrDefault();
+                var newUrl = data.Pages.Select(x => x.Url);
+                var oldGroup = _pageRepository.FindAll(x=>x.IdFaceBook==data.IdFb).Select(x => x.Url).AsNoTracking();
+                var newGroup = new List<PageFb>();
+                foreach (var item in data.Pages)
+                {
+                    if (oldGroup.IsNullOrEmpty() || !oldGroup.Contains(item.Url))
+                    {
+                        var group = new PageFb()
+                        {
+                            Name = item.Name.Trim(),
+                            Url = item.Url,
+                            Type = item.Type.Trim(),
+                            Distance = item.Distance,
+                            Rate = item.Rate,
+                            Status = item.Status,
+                            Price = item.Price,
+                            NumFollowers = item.NumFollowers,
+                            NumPostPerDay = item.PostPerDay,
+                            Description = item.Description,
+                            DateUpdate = DateTime.Now,
+                            IdFaceBook = data.IdFb,
+                        };
+                        newGroup.Add(group);
+                    }
+                }
+                if (newGroup.Any())
+                {
+                    _commonUoW.BeginTransaction();
+                    _pageRepository.InsertMultiple(newGroup);
+                    _commonUoW.Commit();
+                }
+                response.Data = "Success";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = "False";
+                return response;
+            }
+        }
         public ResponseBase InsertGroupFB(InsertGroupFBDto data)
         {
             ResponseBase response = new ResponseBase();

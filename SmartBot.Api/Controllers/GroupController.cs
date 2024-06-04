@@ -59,6 +59,12 @@ namespace SmartBot.Api.Controllers
             var item = _GroupService.InsertGroup(data);
             return item;
         }
+        [HttpPost("page-fb")]
+        public ResponseBase InsertPage(InsertPageDto data)
+        {
+            var item = _GroupService.InsertPage(data);
+            return item;
+        }
         [HttpGet("group-fb")]
         public ResponseBase GetJoinedGroup(int idFacebook)
         {
@@ -71,6 +77,7 @@ namespace SmartBot.Api.Controllers
             var item = _GroupService.InsertGroupFB(data);
             return item;
         }
+
         [HttpGet("check-last-update")]
         public ResponseBase CheckLastUpdateGroup(int idFb)
         {
