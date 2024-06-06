@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartBot.Api.Attributes;
 using SmartBot.DataDto.Base;
 using SmartBot.Services;
-using SmartBot.Services.ClassConfigFacebook;
 using SmartBot.Services.Comment;
-
 namespace SmartBot.Api.Controllers
 {
     [ApiController]

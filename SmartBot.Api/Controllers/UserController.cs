@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SmartBot.Api.Attributes;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
 using SmartBot.Services;
@@ -10,7 +11,7 @@ using SmartBot.DataAccess.Entities;
 namespace SmartBot.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("[controller]")] 
     public class UserController : ControllerBase
     {
 
