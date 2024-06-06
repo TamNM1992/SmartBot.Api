@@ -28,7 +28,5 @@ namespace SmartBot.DataAccess.Interface
 		Task<int> CountWhere(Expression<Func<T, bool>> predicate);
 
 		Task<int> CountAll();
-
-        object? Max(Expression<Func<T, object>> selector);
 	}
 }
