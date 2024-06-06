@@ -1,11 +1,29 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc;
+using SmartBot.DataAccess.Entities;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SmartBot.DataDto.Base;
 using SmartBot.Services.Users;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Attribute = System.Attribute;
 
-namespace SmartBot.Api.Middleware
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+public class AuthorizeAttribute : Attribute, IAuthorizationFilter
+{
+    public void OnAuthorization(AuthorizationFilterContext context)
+    {
+        var user = (ResponseBase)context.HttpContext.Items["User"];
+        if (user == null)
+        {
+            // not logged in
+            context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
+        }
+    }
+}
+
+namespace SmartBot.Api.MiddleWare
 {
     public class JwtMiddleware
     {
@@ -17,6 +35,17 @@ namespace SmartBot.Api.Middleware
             // lúc đăng kí
             _next = next;
             _appSettings = appSettings.Value;
+        }
+
+        public async Task Invoke(HttpContext context, IUserService userService)
+        {
+            // mỗi request sau này nhảy vào đây tiền xử lý
+            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+            if (token != null)
+                attachUserToContext(context, userService, token);
+
+            await _next(context);
         }
 
         private void attachUserToContext(HttpContext context, IUserService userService, string token)
@@ -36,8 +65,10 @@ namespace SmartBot.Api.Middleware
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                string userId = jwtToken.Claims.First(x => x.Type == "id").Value;
-                context.Items["user"] = userService.getUserById(int.Parse(userId));
+                var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "nameid").Value);
+
+                // attach user to context on successful jwt validation
+                context.Items["User"] = userService.GetAccountEverLogin(userId);
             }
             catch
             {
@@ -45,17 +76,6 @@ namespace SmartBot.Api.Middleware
                 // user is not attached to context so request won't have access to secure routes
             }
         }
-
-        public async Task Invoke(HttpContext context, IUserService userService)
-        {
-            // mỗi request sau này nhảy vào đây tiền xử lý
-            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-
-            if (token != null)
-            {
-                attachUserToContext(context, userService, token);
-            }
-            await _next(context);
-        }
     }
 }
+
