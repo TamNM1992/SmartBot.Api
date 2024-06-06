@@ -29,7 +29,6 @@ namespace SmartBot.Common.Helpers
             return tokenHandler.WriteToken(token);
 
         }
-
         public static string Authentication(string token)
         {
             var secret = "123456789abcdefghijklmnopqrstuvwxyz";
@@ -48,7 +47,7 @@ namespace SmartBot.Common.Helpers
             }, out SecurityToken validatedToken);
 
             var jwtToken = (JwtSecurityToken)validatedToken;
-            var username = jwtToken.Claims.FirstOrDefault(x => x.Type == "nameid").Value;
+            var username = jwtToken.Claims.FirstOrDefault(x => x.Type=="nameid").Value;
             //var userId = Guid.Parse(jwtToken.Claims.FirstOrDefault(x=>x.Type=="nameid").Value);
 
             return username;
