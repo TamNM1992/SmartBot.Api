@@ -8,17 +8,17 @@ namespace SmartBot.DataDto.Group
 {
     public class InsertGroupDto
     {
-        public string FbUser {  get; set; }
+        public int IdFb {  get; set; }
         public List<GroupDataDto> Groups { get; set; }
+    }
+    public class InsertPageDto
+    {
+        public int IdFb { get; set; }
+        public List<PageDataDto> Pages { get; set; }
     }
     public class UpdateGroupDto
     {
-        public int IdFb { get; set; }
-        public List<GroupMiniData> Groups { get; set; }
-    }
-    public class InsertGroupFBDto
-    {
-        public int IdFaceBook { get; set; }
-        public Dictionary<string,string> Groups { get;set; }
+        public string FbUser { get; set; }
+        public Dictionary<string,string> Groups { get; set; }
     }
 }

@@ -3,8 +3,6 @@ using AutoMapper;
 using Azure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Kiota.Abstractions;
-using SmartBot.Common.Extention;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
@@ -23,16 +21,17 @@ namespace SmartBot.Services.Group
         private IMapper _mapper;
         private readonly ICommonUoW _commonUoW;
         private readonly ICommonRepository<GroupFb> _groupRepository;
+        private readonly ICommonRepository<PageFb> _pageRepository;
+
         private readonly ICommonRepository<AccountFb> _fbRepository;
-        private readonly ICommonRepository<Province> _provinceRepository;
         public GroupService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<GroupFb> groupRepository,
-             ICommonRepository<AccountFb> fbRepository, ICommonRepository<Province> provinceRepository)
+             ICommonRepository<AccountFb> fbRepository, ICommonRepository<PageFb> pageRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
             _groupRepository = groupRepository;
             _fbRepository = fbRepository;
-            _provinceRepository=provinceRepository;
+            _pageRepository=pageRepository;
         }
         public ResponseBase GetDataGroupPost()
         {
@@ -45,7 +44,7 @@ namespace SmartBot.Services.Group
                     Message = "Success",
                     Data = new List<GroupPostData>()
                     {
-                        new GroupPostData()
+                        new GroupPostData() 
                         {
                         STT=1,
                         ResponseID="Group kèm ảnh",
@@ -87,14 +86,47 @@ namespace SmartBot.Services.Group
             ResponseBase response = new ResponseBase();
             try
             {
-                var data = new List<ProvinceDto>();
-                var getProvince = _provinceRepository.FindAll();
-
-                data = getProvince.Select(x => new ProvinceDto
+                var data = new List<ProvinceDto>()
                 {
-                    Name = x.Name,
-                    Districts = x.Districts.Select(y => y.Name).ToList(),
-                }).ToList();
+                    new ProvinceDto()
+                    {
+                        Id=1,
+                        Name = "Hà Nội",
+                        Districts = new List<string>
+                        {
+                            "Hai Bà Trưng",
+                            "Hoàng Mai",
+                            "Thanh Xuân",
+                            //"Sóc Sơn",
+                            //"Đông Anh",
+                            //"Gia Lâm",
+                            //"Nam Từ Liêm",
+                            //"Thanh Trì",
+                            //"Bắc Từ Liêm",
+                            //"Mê Linh",
+                            //"Hà Đông",
+                        }
+                    },
+                    new ProvinceDto()
+                    {
+                        Id = 2,
+                        Name = "Tp Hồ Chí Minh",
+                        Districts = new List<string>
+                        {
+                            "Quận 1",
+                            "Quận 10",
+                            "Thủ Đức",
+                            //"Sóc Sơn",
+                            //"Đông Anh",
+                            //"Gia Lâm",
+                            //"Nam Từ Liêm",
+                            //"Thanh Trì",
+                            //"Bắc Từ Liêm",
+                            //"Mê Linh",
+                            //"Hà Đông",
+                        }
+                    }
+                };
                 response.Data = data;
                 return response;
             }
@@ -113,7 +145,7 @@ namespace SmartBot.Services.Group
                 var data = new List<string>();
                 if (key=="ăn vặt")
                 {
-                    data.AddRange(new List<string>()
+                    data.AddRange( new List<string>()
                     {
                         "Nhà bếp",
                         "Sức khỏe",
@@ -200,18 +232,19 @@ namespace SmartBot.Services.Group
             ResponseBase response = new ResponseBase();
             try
             {
-                if (data.Groups.IsNullOrEmpty())
+                if(data.Groups.IsNullOrEmpty())
                 {
                     response.Message ="input empty";
                     return response;
                 }
-                var fb = _fbRepository.FindAll(x => x.FbUser==data.FbUser).SingleOrDefault();
+                var fb = _fbRepository.FindAll(x => x.Id==data.IdFb).SingleOrDefault();
                 var newUrl = data.Groups.Select(x => x.Url);
-                var oldGroup = _groupRepository.FindAll().Select(x => x.Url).AsNoTracking();
+                var oldGroup = _groupRepository.FindAll(x=>x.IdFaceBook==data.IdFb).Select(x => x.Url).AsNoTracking();
+
                 var newGroup = new List<GroupFb>();
-                foreach (var item in data.Groups)
+                foreach(var item in data.Groups)
                 {
-                    if (oldGroup.IsNullOrEmpty() || !oldGroup.Contains(item.Url))
+                    if(oldGroup.IsNullOrEmpty() || !oldGroup.Contains(item.Url))
                     {
                         var group = new GroupFb()
                         {
@@ -222,6 +255,59 @@ namespace SmartBot.Services.Group
                             NumPostPerDay = item.NumPostPerDay,
                             Description = item.Description,
                             DateUpdate = DateTime.Now,
+                            IdFaceBook = data.IdFb,
+                        };
+                        newGroup.Add(group);
+                    }    
+                }
+                if(newGroup.Any())
+                {
+                    _commonUoW.BeginTransaction();
+                    _groupRepository.InsertMultiple(newGroup);
+                    _commonUoW.Commit();
+                }
+                response.Data = "Success";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = "False";
+                return response;
+            }
+        }
+        public ResponseBase InsertPage(InsertPageDto data)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                if (data.Pages.IsNullOrEmpty())
+                {
+                    response.Message ="input empty";
+                    return response;
+                }
+                var fb = _fbRepository.FindAll(x => x.Id==data.IdFb).SingleOrDefault();
+                var newUrl = data.Pages.Select(x => x.Url);
+                var oldGroup = _pageRepository.FindAll(x=>x.IdFaceBook==data.IdFb).Select(x => x.Url).AsNoTracking();
+                var newGroup = new List<PageFb>();
+                foreach (var item in data.Pages)
+                {
+                    if (oldGroup.IsNullOrEmpty() || !oldGroup.Contains(item.Url))
+                    {
+                        var group = new PageFb()
+                        {
+                            Name = item.Name.Trim(),
+                            Url = item.Url,
+                            Type = item.Type.Trim(),
+                            Distance = item.Distance,
+                            Rate = item.Rate,
+                            Status = item.Status,
+                            Price = item.Price,
+                            NumFollowers = item.NumFollowers,
+                            NumPostPerDay = item.PostPerDay,
+                            Description = item.Description,
+                            DateUpdate = DateTime.Now,
+                            IdFaceBook = data.IdFb,
                         };
                         newGroup.Add(group);
                     }
@@ -229,11 +315,9 @@ namespace SmartBot.Services.Group
                 if (newGroup.Any())
                 {
                     _commonUoW.BeginTransaction();
-                    _groupRepository.InsertMultiple(newGroup);
+                    _pageRepository.InsertMultiple(newGroup);
                     _commonUoW.Commit();
                 }
-
-
                 response.Data = "Success";
                 return response;
             }
@@ -244,70 +328,25 @@ namespace SmartBot.Services.Group
                 return response;
             }
         }
-
         public ResponseBase InsertGroupFB(InsertGroupFBDto data)
         {
             ResponseBase response = new ResponseBase();
-            var listAdd = new List<GroupFb>();
-
             try
             {
-                if (data.Groups.IsNullOrEmpty())
-                {
-                    response.Message ="input empty";
-                    return response;
-                }
-                var check = _groupRepository.FindAll(x=>x.IdFaceBook == data.IdFaceBook).Select(x=>x.Url);
-                if (check.Any())
-                {
-                    foreach (var group in data.Groups)
-                    {
-                        if(!check.Contains(group.Value))
-                        {
-                            var newGroup = new GroupFb()
-                            {
-                                IdFaceBook= data.IdFaceBook,
-                                Name = group.Key,
-                                Url = group.Value,
-                            };
-                            listAdd.Add(newGroup);
-                        }
-                    } 
-                }
-                _commonUoW.BeginTransaction();
-                _groupRepository.InsertMultiple(listAdd);
-                _commonUoW.Commit();
-
-                response.Data = "Success";
-                return response;
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-                response.Data = "False";
-                return response;
-            }
-        }
-
-        public ResponseBase GetJoinedGroup(int idFacebook)
-        {
-            ResponseBase response = new ResponseBase();
-            try
-            {
-                var data = new List<GroupMiniData>();
-                var group = _groupRepository.FindAll(x => x.IdFaceBook==idFacebook);
+                var data = new Dictionary<string, string>();
+                var group = _groupRepository.FindAll(x=>x.IdFaceBook==idFacebook);
                 var deadlineUpdate = group.FirstOrDefault().DateUpdate-DateTime.Now;
                 if (!group.Any() || deadlineUpdate.Value.Days>30)
                 {
                     response.Code = 1001;
                     response.Message = "update data";
-                    return response;
+                    return response ;
                 }
-                data = group.Select(x => new GroupMiniData
+                data = group.Select(x => new
                 {
-                    Name = x.Name,
-                    Url =x.Url,
-                }).ToList();
+                    x.Name,
+                    x.Url,
+                }).ToDictionary(x=> x.Name,x=>x.Url);
 
                 response.Data = data;
                 return response;
@@ -324,103 +363,33 @@ namespace SmartBot.Services.Group
             ResponseBase response = new ResponseBase();
             try
             {
-                var group = _groupRepository.FindAll(x=>x.IdFaceBook==data.IdFb);
-                var listNewGroup = new List<GroupFb>();
-                var listUrl = new List<string>();
+                var idFb = _fbRepository.FindAll(x=>x.FbUser==data.FbUser).SingleOrDefault().Id;
+
+                var group = _groupRepository.FindAll();
                 if (group != null)
                 {
-                    listUrl = group.Select(x=>x.Url).ToList();
-                    foreach (var item in data.Groups)
+                    var temp = group.Select(x => new
                     {
-                        if(!listUrl.Contains(item.Url))
-                        {
-                            var newGroup = new GroupFb()
-                            {
-                                Name=item.Name,
-                                Url=item.Url,
-                                IdFaceBook=data.IdFb,
-                                DateUpdate = DateTime.Now,
-                            };
-                            listNewGroup.Add(newGroup);
-                        }    
-                    }    
+                        x.Id,
+                        x.Url,
+                    }).ToDictionary(x=>x.Id, x=>x.Url);
+                    //foreach (var item in data.Groups)
+                    //{
+                    //    if(temp.Values.Contains(item.Value))
+                    //    {
+                    //        if(fbGroup.Contains(te))
+                    //    }    
+                    //}    
                 }
-                if(listNewGroup.Any())
-                {
-                    _commonUoW.BeginTransaction();
-                    _groupRepository.InsertMultiple(listNewGroup);
-                    _commonUoW.Commit();
-                }
-                group.ForEachAsync(x => x.DateUpdate = DateTime.Now);
-                _commonUoW.BeginTransaction();
-                _groupRepository.UpdateMultiple(group);
-                _commonUoW.Commit();
-                response.Data = true;
+
+
+                response.Data = data;
                 return response;
             }
             catch (Exception ex)
             {
                 response.Message = ex.Message;
-                response.Data = false;
-                return response;
-            }
-        }
-
-        public ResponseBase CheckLastUpdateGroup(int idFb)
-        {
-            ResponseBase response = new ResponseBase();
-            try
-            {
-
-                var groups = _groupRepository.FindAll(x => x.IdFaceBook==idFb);
-                if (groups!=null&& groups.Any())
-                {
-                    var lastdate = groups.FirstOrDefault().DateUpdate;
-                    var date = (DateTime.Now - (DateTime)lastdate).TotalDays;
-                    if (lastdate==null||date>30)
-                    {
-                        response.Data = true;
-                    }
-                    else
-                    {
-                        response.Data = false;
-                    }
-                }
-                else
-                {
-                    response.Data = true;
-                }    
-                
-                return response;
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-                response.Data = false;
-                return response;
-            }
-        }
-
-        public ResponseBase UpdateProvince()
-        {
-            ResponseBase response = new ResponseBase();
-            try
-            {
-                var getProvince = _provinceRepository.FindAll();
-                foreach (var item in getProvince)
-                {
-                    item.KeyWord = item.Name.ToLower().Trim().RemoveUnicode().Replace(" ", string.Empty);
-                }
-                _commonUoW.BeginTransaction();
-                _provinceRepository.UpdateMultiple(getProvince);
-                _commonUoW.Commit();
-                response.Data = true;
-                return response;
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-                response.Data = false;
+                response.Data = "False";
                 return response;
             }
         }

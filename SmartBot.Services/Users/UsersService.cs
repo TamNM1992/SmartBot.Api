@@ -1,9 +1,6 @@
-
+﻿
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
 using NhaDat24h.Common.Enums;
 using SmartBot.Common.Extention;
 using SmartBot.Common.Helpers;
@@ -12,10 +9,6 @@ using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
 
 namespace SmartBot.Services.Users
 {
@@ -27,10 +20,10 @@ namespace SmartBot.Services.Users
         private readonly ICommonRepository<User> _userRepository;
         private readonly ICommonRepository<UserClient> _userClientRepository;
         private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
-
+        private readonly ICommonRepository<UserRole> _userRoleRepository;
 
         public UserService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<ClientCustomer> clientCustomerRepository,
-            ICommonRepository<UserClient> userClientRepository, ICommonRepository<UsersAccountFb> userAccountRepository)
+            ICommonRepository<UserClient> userClientRepository, ICommonRepository<UsersAccountFb> userAccountRepository, ICommonRepository<UserRole> userRoleRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
@@ -38,6 +31,7 @@ namespace SmartBot.Services.Users
             _clientCustomerRepository = clientCustomerRepository;
             _userClientRepository = userClientRepository;
             _userAccountRepository = userAccountRepository;
+            _userRoleRepository = userRoleRepository;
         }
         public ResponseBase CheckUserByAccount(string userName, string password, string hardwareId)
         {
@@ -136,7 +130,7 @@ namespace SmartBot.Services.Users
                         IdClient = idClient,
                         DateUpdate = DateTime.Now,
                         Status = 1,
-                        Token = Token.GenerateSecurityToken(user.Id, "7"),
+                        Token = Token.GenerateSecurityToken(user.Id.ToString(), "7"),
                     };
                     token = newuserclient.Token;
                     _commonUoW.BeginTransaction();
@@ -146,7 +140,7 @@ namespace SmartBot.Services.Users
                 else
                 {
                     userclient.DateUpdate = DateTime.Now;
-                    userclient.Token = Token.GenerateSecurityToken(user.Id, "7");
+                    userclient.Token = Token.GenerateSecurityToken(user.Id.ToString(), "7");
 
                     _commonUoW.BeginTransaction();
                     _userClientRepository.Update(userclient);
@@ -276,33 +270,6 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
-        public ResponseBase GetAccountFbEverLogin(int idUser)
-        {
-            ResponseBase response = new ResponseBase();
-            try
-            {
-                var listaccount = _userAccountRepository.FindAll(x => x.IdUser == idUser).Include(x => x.IdAccountFbNavigation);
-                if (listaccount == null)
-                {
-                    response.Message = "No account";
-                    response.Code = 99;
-                    return response;
-                }
-                else
-                {
-                    response.Data = listaccount.Select(x => new AccountFbDto { IdFb = x.IdAccountFbNavigation.Id, UserName = x.IdAccountFbNavigation.FbUser, Password = x.IdAccountFbNavigation.FbPassword });
-                    return response;
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-                response.Data = false;
-                return response;
-            }
-        }
-
-
         public ResponseBase Register(UserDto data)
         {
             ResponseBase response = new ResponseBase();
@@ -336,10 +303,10 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
-        public User GetById(int idUser)
+
+        public User? getUserById(int id)
         {
-            var temp = _userRepository.GetById(idUser);
-            return temp;
+            return _userRepository.GetById(id);
         }
     }
 
