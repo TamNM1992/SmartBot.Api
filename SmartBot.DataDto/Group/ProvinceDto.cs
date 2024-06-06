@@ -8,6 +8,7 @@ namespace SmartBot.DataDto.Group
 {
     public class ProvinceDto
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public List<string> Districts { get; set; }
     }
