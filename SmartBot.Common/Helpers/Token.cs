@@ -1,19 +1,14 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace SmartBot.Common.Helpers
 {
-    public class Token
+    public static class Token
     {
-        public static string GenerateSecurityToken(string userId, string day)
+        public static string GenerateSecurityToken(int userId, string day)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes("123456789abcdefghijklmnopqrstuvwxyz");
@@ -21,11 +16,11 @@ namespace SmartBot.Common.Helpers
             {
                 Subject = new ClaimsIdentity(new[]
                  {
-                      new Claim("id", userId)
+                      new Claim(ClaimTypes.NameIdentifier, userId.ToString())
                  }),
                 Expires = DateTime.UtcNow.AddDays(double.Parse(day)),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                Audience = "https://nhatkyhoctap.blogspot.com",
+                //Audience = "https://nhatkyhoctap.blogspot.com",
                 Issuer = "SmartbotApi"
             };
 
