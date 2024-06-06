@@ -1,11 +1,17 @@
-﻿namespace SmartBot.Common.Enums
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SmartBot.Common.Enums
 {
-    public enum Role
+    public enum role : int
     {
-        VIP1 = 1,
-        VIP2 = 2,
-        VIP3 = 3,
-        VIP4 = 4,
-        VIP5 = 5,
+        Admin = 0,
+        User1 = 1,
+        User2 = 2,
+        User3 = 3,
+        User4 = 4
     }
 }
