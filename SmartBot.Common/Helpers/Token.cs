@@ -1,14 +1,19 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
-
+using System.Threading.Tasks;
 
 namespace SmartBot.Common.Helpers
 {
-    public static class Token
+    public class Token
     {
-        public static string GenerateSecurityToken(int userId, string day)
+        public static string GenerateSecurityToken(string userId, string day)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes("123456789abcdefghijklmnopqrstuvwxyz");
@@ -16,11 +21,11 @@ namespace SmartBot.Common.Helpers
             {
                 Subject = new ClaimsIdentity(new[]
                  {
-                      new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+                      new Claim("id", userId)
                  }),
                 Expires = DateTime.UtcNow.AddDays(double.Parse(day)),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                //Audience = "https://nhatkyhoctap.blogspot.com",
+                Audience = "https://nhatkyhoctap.blogspot.com",
                 Issuer = "SmartbotApi"
             };
 
@@ -29,7 +34,6 @@ namespace SmartBot.Common.Helpers
             return tokenHandler.WriteToken(token);
 
         }
-
         public static string Authentication(string token)
         {
             var secret = "123456789abcdefghijklmnopqrstuvwxyz";
@@ -48,7 +52,7 @@ namespace SmartBot.Common.Helpers
             }, out SecurityToken validatedToken);
 
             var jwtToken = (JwtSecurityToken)validatedToken;
-            var username = jwtToken.Claims.FirstOrDefault(x => x.Type == "nameid").Value;
+            var username = jwtToken.Claims.FirstOrDefault(x => x.Type=="nameid").Value;
             //var userId = Guid.Parse(jwtToken.Claims.FirstOrDefault(x=>x.Type=="nameid").Value);
 
             return username;

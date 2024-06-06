@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.Group;
 using SmartBot.Services;
+using SmartBot.Services.ClassConfigFacebook;
 using SmartBot.Services.Group;
 
 namespace SmartBot.Api.Controllers

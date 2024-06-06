@@ -17,8 +17,6 @@ namespace SmartBot.Services.Group
         public ResponseBase InsertPage(InsertPageDto data);
 
         public ResponseBase GetJoinedGroup(int idFacebook);
-        public ResponseBase InsertGroupFB(InsertGroupFBDto data);
-        public ResponseBase CheckLastUpdateGroup(int idFb);
-        public ResponseBase UpdateGroup(UpdateGroupDto data);
+
     }
 }
