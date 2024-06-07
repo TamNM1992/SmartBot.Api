@@ -64,5 +64,13 @@ namespace SmartBot.Api.Controllers
             var item = _userService.Register(data);
             return item;
         }
+
+        [HttpGet("userlogin")]
+        public ResponseBase GetUser(string userName, string passWord)
+        {
+            var item = _userService.GetUser(userName,passWord);
+            return item;
+        }
+
     }
 }
