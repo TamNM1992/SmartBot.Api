@@ -341,6 +341,28 @@ namespace SmartBot.Services.Users
             var temp = _userRepository.GetById(idUser);
             return temp;
         }
+
+        public ResponseBase GetUser(string userName, string passWord)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var getuser = _userRepository.FindAll().Where(x => x.UserName==userName && x.Password==passWord).FirstOrDefault();
+                var newuser = new UserLoginDto()
+                {
+                    UserName=getuser.UserName,
+                    Password=getuser.Password,
+                };
+                response.Data = newuser;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
     }
 
 }
