@@ -64,5 +64,16 @@ namespace SmartBot.Api.Controllers
             var item = _userService.Register(data);
             return item;
         }
+        [HttpGet("account-client")]
+        public ResponseBase GetAccountClient(int userId)
+        {
+            return _userService.GetAccountClient(userId);
+        }
+
+        [HttpGet("account-fb")]
+        public ResponseBase GetAccountFb(int userId)
+        {
+            return _userService.GetAccountFb(userId);
+        }
     }
 }

@@ -302,7 +302,6 @@ namespace SmartBot.Services.Users
             }
         }
 
-
         public ResponseBase Register(UserDto data)
         {
             ResponseBase response = new ResponseBase();
@@ -340,6 +339,70 @@ namespace SmartBot.Services.Users
         {
             var temp = _userRepository.GetById(idUser);
             return temp;
+        }
+
+        public ResponseBase GetAccountClient(int userId)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                User? user = _userRepository.FindAll(u => u.Id == userId).Include(u => u.UserClients).SingleOrDefault();
+                if (user == null)
+                {
+                    response.Message = "Not found user";
+                    response.Data = false;
+                    response.Code = 99;
+                    return response;
+                }
+                ClienAccountsViewModel model = new ClienAccountsViewModel()
+                {
+                    UserName = user.UserName,
+                    DateCreate = user.DateCreated,
+                    DateUpdate = user.DateUpdate.Value,
+                    ExpiryDate = user.ExpiryDate == null ? "" : user.ExpiryDate.Value.ToShortDateString(),
+                    NumberClient = user.UserClients.ToList().Count.ToString(),
+                };
+                response.Data = model;
+                return response;
+            }
+            catch(Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase GetAccountFb(int userId)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                User? user = _userRepository.FindAll(u => u.Id == userId).Include(u => u.UsersAccountFbs).SingleOrDefault();
+                if (user == null)
+                {
+                    response.Message = "Not found user";
+                    response.Data = false;
+                    response.Code = 99;
+                    return response;
+                }
+                ClienAccountsViewModel model = new ClienAccountsViewModel()
+                {
+                    UserName = user.UserName,
+                    DateCreate = user.DateCreated,
+                    DateUpdate = user.DateUpdate.Value,
+                    ExpiryDate = user.ExpiryDate == null ? "" : user.ExpiryDate.Value.ToShortDateString(),
+                    NumberClient = user.UsersAccountFbs.ToList().Count.ToString(),
+                };
+                response.Data = model;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
         }
     }
 
