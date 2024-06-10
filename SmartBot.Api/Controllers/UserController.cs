@@ -7,6 +7,8 @@ using SmartBot.Services.Users;
 using SmartBot.Common.Enums;
 using SmartBot.DataAccess.Entities;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.Graph.Models;
+using User = SmartBot.DataAccess.Entities.User;
 
 namespace SmartBot.Api.Controllers
 {
@@ -93,22 +95,12 @@ namespace SmartBot.Api.Controllers
             return item;
         }
 
-        [HttpGet("checkExitUser")]
-        public ResponseBase CheckExitUser(string userName)
+        [HttpGet("get-user-by-id")]
+        public ResponseBase GetUserById(int idUser)
         {
-            var item = _userService.CheckExitUser(userName);
+            var item = _userService.GetUserById(idUser);
             return item;
         }
-        [HttpPut("change-password")]
-        public ResponseBase ChangePassword(ChangePasswordDto passwordDto)
-        {
-            return _userService.ChangePassword(passwordDto);
-        }
-        [HttpGet("forgotpassword")]
-        public ResponseBase ForgotPassword(string userName, string license)
-        {
-            var item = _userService.ForgotPassword(userName, license);
-            return item;
-        }
+
     }
 }
