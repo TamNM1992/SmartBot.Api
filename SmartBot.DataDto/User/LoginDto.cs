@@ -12,6 +12,7 @@ namespace SmartBot.DataDto.User
         public int Status {  get; set; }
         public int IdUser { get; set; }
     }
+
     public class UserLoginDto
     {
         public int Id { get; set; }

@@ -1,10 +1,7 @@
-﻿
 using AutoMapper;
 using Azure;
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
 using NhaDat24h.Common.Enums;
 using SmartBot.Common.Extention;
 using SmartBot.Common.Helpers;
@@ -13,10 +10,6 @@ using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
 
 namespace SmartBot.Services.Users
 {
@@ -348,7 +341,7 @@ namespace SmartBot.Services.Users
             ResponseBase response = new ResponseBase();
             try
             {
-                var getuser = _userRepository.FindSingle(x => x.UserName==userName && x.Password==passWord);
+                var getuser = _userRepository.FindSingle(x => x.UserName == userName && x.Password == passWord)
                 if (getuser != null)
                 {
                     var newuser = new UserLoginDto()
@@ -360,12 +353,16 @@ namespace SmartBot.Services.Users
                         DateCreated = getuser.DateCreated,
                         DateUpdate = getuser.DateUpdate,
                         ExpiryDate = getuser.ExpiryDate,
-                        License =  getuser.License,
+                        License = getuser.License,
+
                     };
                     response.Data = newuser;
                 }
                 else
-                    response.Data=false;
+
+                {
+                    response.Data = false;
+                }
                 return response;
                 
             }
@@ -403,6 +400,7 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
+
         public ResponseBase ChangePassword(ChangePasswordDto passwordDto)
         {
             ResponseBase response = new ResponseBase();
@@ -436,6 +434,7 @@ namespace SmartBot.Services.Users
                     _commonUoW.Commit();
                     response.Data = true;
                 }
+
                 return response;
             }
             catch (Exception ex)
@@ -456,6 +455,60 @@ namespace SmartBot.Services.Users
                 {
                     response.Data = true;
                 }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase CheckExitUser(string userName)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var getAccUser = _userRepository.FindSingle(x => x.UserName == userName);
+                if (getAccUser != null)
+                {
+                    var newuser = new UserLoginDto()
+                    {
+                        Id = getAccUser.Id,
+                        UserName = getAccUser.UserName,
+                    };
+                    response.Data = newuser;
+                }
+                else
+                    response.Data = false;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase ForgotPassword(string userName, string license)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var user = _userRepository.FindSingle(x => x.UserName == userName && x.License == license);
+                if (user != null)
+                {
+                    var newuser = new UserLoginDto()
+                    {
+                        Id = user.Id,
+                        UserName = user.UserName,
+                        Password = user.Password
+                    };
+                    response.Data = newuser;
+                }
                 return response;
             }
             catch (Exception ex)
@@ -466,5 +519,4 @@ namespace SmartBot.Services.Users
             }
         }
     }
-
 }
