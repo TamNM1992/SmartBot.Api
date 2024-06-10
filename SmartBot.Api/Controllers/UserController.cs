@@ -72,5 +72,11 @@ namespace SmartBot.Api.Controllers
             return item;
         }
 
+        [HttpGet("checkExitUser")]
+        public ResponseBase CheckExitUser(string userName)
+        {
+            var item = _userService.CheckExitUser(userName);
+            return item;
+        }
     }
 }

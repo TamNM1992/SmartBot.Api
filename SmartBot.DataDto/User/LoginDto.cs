@@ -14,7 +14,20 @@ namespace SmartBot.DataDto.User
     }
     public class UserLoginDto
     {
-        public string UserName { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        public int Id { get; set; }
+
+        public string UserName { get; set; } = null!;
+
+        public string Password { get; set; } = null!;
+
+        public byte Status { get; set; }
+
+        public DateTime DateCreated { get; set; }
+
+        public DateTime? DateUpdate { get; set; }
+
+        public string? License { get; set; }
+
+        public DateTime? ExpiryDate { get; set; }
     }
 }

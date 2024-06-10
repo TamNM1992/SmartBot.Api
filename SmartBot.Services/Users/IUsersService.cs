@@ -16,5 +16,6 @@ namespace SmartBot.Services.Users
         User GetById(int idUser);
         public ResponseBase GetAccountFbEverLogin(int idUser);
         public ResponseBase GetUser(string userName, string passWord);
+        public ResponseBase CheckExitUser(string userName);
     }
 }
