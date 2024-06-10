@@ -1,5 +1,6 @@
 ﻿
 using AutoMapper;
+using Azure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -367,6 +368,33 @@ namespace SmartBot.Services.Users
                     response.Data=false;
                 return response;
                 
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase CheckExitUser(string userName)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var getAccUser = _userRepository.FindAll().Where(x => x.UserName==userName).FirstOrDefault();
+                if (getAccUser != null)
+                {
+                    var newuser = new UserLoginDto()
+                    {
+                        Id = getAccUser.Id,
+                        UserName = getAccUser.UserName,
+                    };
+                    response.Data = newuser;
+                }
+                else
+                    response.Data=false;
+                return response;
             }
             catch (Exception ex)
             {
