@@ -1,9 +1,6 @@
 ﻿
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
 using NhaDat24h.Common.Enums;
 using SmartBot.Common.Extention;
 using SmartBot.Common.Helpers;
@@ -12,10 +9,6 @@ using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
 
 namespace SmartBot.Services.Users
 {
@@ -365,7 +358,7 @@ namespace SmartBot.Services.Users
                 response.Data = model;
                 return response;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 response.Message = ex.Message;
                 response.Data = false;
@@ -430,6 +423,48 @@ namespace SmartBot.Services.Users
                     License = getuser.License,
                 };
                 response.Data = newuser;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase ChangePassword(int userId, ChangePasswordDTO DTO)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                User? user = _userRepository.GetById(userId);
+                if (user == null)
+                {
+                    response.Data = false;
+                    response.Code = 404;
+                    response.Message = "Not Found user";
+                }
+                else if (!user.Password.Equals(DTO.CurrentPassword))
+                {
+                    response.Data = false;
+                    response.Code = 99;
+                    response.Message = "Old password not correct";
+                }
+                else if (DTO.NewPassword != DTO.ConfirmPassword)
+                {
+                    response.Data = false;
+                    response.Code = 99;
+                    response.Message = "Confirm password not the same new password";
+                }
+                else
+                {
+                    user.Password = DTO.ConfirmPassword;
+                    user.DateUpdate = DateTime.Now;
+                    _commonUoW.BeginTransaction();
+                    _userRepository.Update(user);
+                    _commonUoW.Commit();
+                }
                 return response;
             }
             catch (Exception ex)

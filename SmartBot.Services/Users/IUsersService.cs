@@ -18,5 +18,6 @@ namespace SmartBot.Services.Users
         ResponseBase GetAccountClient(int userId);
         ResponseBase GetAccountFb(int userId);
         ResponseBase GetUser(string userName, string passWord);
+        ResponseBase ChangePassword(int userId, ChangePasswordDTO DTO);
     }
 }
