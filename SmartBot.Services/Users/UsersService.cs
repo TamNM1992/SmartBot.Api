@@ -403,12 +403,20 @@ namespace SmartBot.Services.Users
             ResponseBase response = new ResponseBase();
             try
             {
-                var getuser = _userRepository.FindAll().Where(x => x.UserName == userName && x.Password.Equals(passWord)).FirstOrDefault();
+                var getuser = _userRepository.FindAll().Where(x => x.UserName == userName).FirstOrDefault();
                 if (getuser == null)
                 {
-                    response.Message = "Username or password incorrect";
-                    response.Data = false;
-                    response.Code = 99;
+                    response.Message = StatusLogin.UserNotExisting.ToString();
+                    response.Data = null;
+                    response.Code = (int)StatusLogin.UserNotExisting;
+                    return response;
+                }
+
+                if(!getuser.Password.Equals(passWord))
+                {
+                    response.Message = StatusLogin.PasswordWrong.ToString();
+                    response.Data = null;
+                    response.Code = (int)StatusLogin.PasswordWrong;
                     return response;
                 }
                 var newuser = new UserLoginDto()
@@ -428,7 +436,8 @@ namespace SmartBot.Services.Users
             catch (Exception ex)
             {
                 response.Message = ex.Message;
-                response.Data = false;
+                response.Data = null;
+                response.Code = 99;
                 return response;
             }
         }
