@@ -330,10 +330,36 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
-        public User GetById(int idUser)
+        public ResponseBase GetUserById(int? idUser)
         {
-            var temp = _userRepository.GetById(idUser);
-            return temp;
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var temp = _userRepository.FindSingle(x => x.Id==idUser);
+                if (temp != null)
+                {
+                    var newuser = new UserLoginDto()
+                    {
+                        Id = temp.Id,
+                        UserName = temp.UserName,
+                        Password = temp.Password,
+                        Status = temp.Status,
+                        DateCreated = temp.DateCreated,
+                        DateUpdate = temp.DateUpdate,
+                        ExpiryDate = temp.ExpiryDate,
+                        License = temp.License,
+
+                    };
+                    response.Data = newuser;
+                }
+                return response;
+            }
+            catch(Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
         }
 
         public ResponseBase GetUser(string userName, string passWord)
@@ -341,7 +367,7 @@ namespace SmartBot.Services.Users
             ResponseBase response = new ResponseBase();
             try
             {
-                var getuser = _userRepository.FindSingle(x => x.UserName == userName && x.Password == passWord)
+                var getuser = _userRepository.FindSingle(x => x.UserName == userName && x.Password == passWord);
                 if (getuser != null)
                 {
                     var newuser = new UserLoginDto()
@@ -435,54 +461,6 @@ namespace SmartBot.Services.Users
                     response.Data = true;
                 }
 
-                return response;
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-                response.Data = false;
-                return response;
-            }
-        }
-
-        public ResponseBase ForgotPassword(string userName, string license)
-        {
-            ResponseBase response = new ResponseBase();
-            try
-            {
-                var getLicense = _userRepository.FindSingle(x => x.UserName==userName && x.License==license);
-                if (getLicense != null)
-                {
-                    response.Data = true;
-                }
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-                response.Data = false;
-                return response;
-            }
-        }
-
-        public ResponseBase CheckExitUser(string userName)
-        {
-            ResponseBase response = new ResponseBase();
-            try
-            {
-                var getAccUser = _userRepository.FindSingle(x => x.UserName == userName);
-                if (getAccUser != null)
-                {
-                    var newuser = new UserLoginDto()
-                    {
-                        Id = getAccUser.Id,
-                        UserName = getAccUser.UserName,
-                    };
-                    response.Data = newuser;
-                }
-                else
-                    response.Data = false;
                 return response;
             }
             catch (Exception ex)
