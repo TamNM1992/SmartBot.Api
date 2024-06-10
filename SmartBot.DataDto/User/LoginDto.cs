@@ -12,6 +12,7 @@ namespace SmartBot.DataDto.User
         public int Status {  get; set; }
         public int IdUser { get; set; }
     }
+
     public class UserLoginDto
     {
         public int Id { get; set; }
@@ -29,5 +30,13 @@ namespace SmartBot.DataDto.User
         public string? License { get; set; }
 
         public DateTime? ExpiryDate { get; set; }
+    }
+    public class ChangePasswordDto
+    {
+        public int IdUser { get; set; }
+        public string CurrentPassword { get; set; } = null!;
+        public string NewPassword { get; set; } = null!;
+        public string ConfirmPassword { get; set; } = null!;
+
     }
 }
