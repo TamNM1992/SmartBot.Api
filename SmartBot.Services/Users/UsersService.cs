@@ -348,7 +348,7 @@ namespace SmartBot.Services.Users
             ResponseBase response = new ResponseBase();
             try
             {
-                var getuser = _userRepository.FindAll().Where(x => x.UserName==userName && x.Password==passWord).FirstOrDefault();
+                var getuser = _userRepository.FindSingle(x => x.UserName==userName && x.Password==passWord);
                 if (getuser != null)
                 {
                     var newuser = new UserLoginDto()
@@ -382,7 +382,7 @@ namespace SmartBot.Services.Users
             ResponseBase response = new ResponseBase();
             try
             {
-                var getAccUser = _userRepository.FindAll().Where(x => x.UserName==userName).FirstOrDefault();
+                var getAccUser = _userRepository.FindSingle(x => x.UserName==userName);
                 if (getAccUser != null)
                 {
                     var newuser = new UserLoginDto()
@@ -394,6 +394,68 @@ namespace SmartBot.Services.Users
                 }
                 else
                     response.Data=false;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+        public ResponseBase ChangePassword(ChangePasswordDto passwordDto)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                User? user = _userRepository.GetById(passwordDto.IdUser);
+                if (user == null)
+                {
+                    response.Data = false;
+                    response.Code = 404;
+                    response.Message = "Not Found user";
+                }
+                else if (!user.Password.Equals(passwordDto.CurrentPassword))
+                {
+                    response.Data = false;
+                    response.Code = 99;
+                    response.Message = "Old password not correct";
+                }
+                else if (passwordDto.NewPassword != passwordDto.ConfirmPassword)
+                {
+                    response.Data = false;
+                    response.Code = 99;
+                    response.Message = "Confirm password not the same new password";
+                }
+                else
+                {
+                    user.Password = passwordDto.ConfirmPassword;
+                    user.DateUpdate = DateTime.Now;
+                    _commonUoW.BeginTransaction();
+                    _userRepository.Update(user);
+                    _commonUoW.Commit();
+                    response.Data = true;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase ForgotPassword(string userName, string license)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var getLicense = _userRepository.FindSingle(x => x.UserName==userName && x.License==license);
+                if (getLicense != null)
+                {
+                    response.Data = true;
+                }
                 return response;
             }
             catch (Exception ex)
