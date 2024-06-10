@@ -1,9 +1,5 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
 using NhaDat24h.Common.Enums;
 using SmartBot.Common.Extention;
 using SmartBot.Common.Helpers;
@@ -12,10 +8,6 @@ using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
 
 namespace SmartBot.Services.Users
 {
@@ -350,8 +342,14 @@ namespace SmartBot.Services.Users
                 var getuser = _userRepository.FindAll().Where(x => x.UserName==userName && x.Password==passWord).FirstOrDefault();
                 var newuser = new UserLoginDto()
                 {
-                    UserName=getuser.UserName,
-                    Password=getuser.Password,
+                    Id = getuser.Id,
+                    UserName = getuser.UserName,
+                    Password = getuser.Password,
+                    Status = getuser.Status,
+                    DateCreated = getuser.DateCreated,
+                    DateUpdate = getuser.DateUpdate,
+                    ExpiryDate = getuser.ExpiryDate,
+                    License =  getuser.License,
                 };
                 response.Data = newuser;
                 return response;
