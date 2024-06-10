@@ -86,5 +86,12 @@ namespace SmartBot.Api.Controllers
             return item;
         }
 
+        [HttpGet("forgot-password")]
+        public ResponseBase ForgotPassword(string userName, string license)
+        {
+            var item = _userService.ForgotPassword(userName, license);
+            return item;
+        }
+
     }
 }

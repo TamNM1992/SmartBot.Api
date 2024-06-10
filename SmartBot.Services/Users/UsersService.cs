@@ -339,8 +339,9 @@ namespace SmartBot.Services.Users
             ResponseBase response = new ResponseBase();
             try
             {
-                var getuser = _userRepository.FindSingle(x => x.UserName==userName && x.Password==passWord);
-                if (getuser != null) {
+                var getuser = _userRepository.FindSingle(x => x.UserName == userName && x.Password == passWord);
+                if (getuser != null)
+                {
                     var newuser = new UserLoginDto()
                     {
                         Id = getuser.Id,
@@ -358,7 +359,7 @@ namespace SmartBot.Services.Users
                 {
                     response.Data = false;
                 }
-               
+
                 return response;
             }
             catch (Exception ex)
@@ -438,6 +439,31 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
-    }
 
+        public ResponseBase ForgotPassword(string userName, string license)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var user = _userRepository.FindSingle(x => x.UserName == userName && x.License == license);
+                if (user != null)
+                {
+                    var newuser = new UserLoginDto()
+                    {
+                        Id = user.Id,
+                        UserName = user.UserName,
+                        Password = user.Password
+                    };
+                    response.Data = newuser;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+    }
 }
