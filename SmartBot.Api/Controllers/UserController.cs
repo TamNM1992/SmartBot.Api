@@ -6,6 +6,7 @@ using SmartBot.Services;
 using SmartBot.Services.Users;
 using SmartBot.Common.Enums;
 using SmartBot.DataAccess.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace SmartBot.Api.Controllers
 {
@@ -68,7 +69,20 @@ namespace SmartBot.Api.Controllers
         [HttpGet("userlogin")]
         public ResponseBase GetUser(string userName, string passWord)
         {
-            var item = _userService.GetUser(userName,passWord);
+            var item = _userService.GetUser(userName, passWord);
+            return item;
+        }
+
+        [HttpPut("change-password")]
+        public ResponseBase ChangePassword(ChangePasswordDto passwordDto)
+        {
+            return _userService.ChangePassword(passwordDto);
+        }
+
+        [HttpGet("checkExitUser")]
+        public ResponseBase CheckExitUser(string userName)
+        {
+            var item = _userService.CheckExitUser(userName);
             return item;
         }
 
