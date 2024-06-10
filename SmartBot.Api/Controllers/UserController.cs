@@ -93,5 +93,22 @@ namespace SmartBot.Api.Controllers
             return item;
         }
 
+        [HttpGet("checkExitUser")]
+        public ResponseBase CheckExitUser(string userName)
+        {
+            var item = _userService.CheckExitUser(userName);
+            return item;
+        }
+        [HttpPut("change-password")]
+        public ResponseBase ChangePassword(ChangePasswordDto passwordDto)
+        {
+            return _userService.ChangePassword(passwordDto);
+        }
+        [HttpGet("forgotpassword")]
+        public ResponseBase ForgotPassword(string userName, string license)
+        {
+            var item = _userService.ForgotPassword(userName, license);
+            return item;
+        }
     }
 }

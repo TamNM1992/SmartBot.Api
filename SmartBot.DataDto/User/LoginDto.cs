@@ -31,7 +31,6 @@ namespace SmartBot.DataDto.User
 
         public DateTime? ExpiryDate { get; set; }
     }
-
     public class ChangePasswordDto
     {
         public int IdUser { get; set; }
