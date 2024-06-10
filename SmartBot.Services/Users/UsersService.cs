@@ -404,6 +404,41 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
+
+        public ResponseBase GetUser(string userName, string passWord)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var getuser = _userRepository.FindAll().Where(x => x.UserName == userName && x.Password.Equals(passWord)).FirstOrDefault();
+                if (getuser == null)
+                {
+                    response.Message = "Username or password incorrect";
+                    response.Data = false;
+                    response.Code = 99;
+                    return response;
+                }
+                var newuser = new UserLoginDto()
+                {
+                    Id = getuser.Id,
+                    UserName = getuser.UserName,
+                    Password = getuser.Password,
+                    Status = getuser.Status,
+                    DateCreated = getuser.DateCreated,
+                    DateUpdate = getuser.DateUpdate,
+                    ExpiryDate = getuser.ExpiryDate,
+                    License = getuser.License,
+                };
+                response.Data = newuser;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
     }
 
 }

@@ -75,5 +75,12 @@ namespace SmartBot.Api.Controllers
         {
             return _userService.GetAccountFb(userId);
         }
+
+        [HttpGet("userlogin")]
+        public ResponseBase GetUser(string userName, string passWord)
+        {
+            var item = _userService.GetUser(userName, passWord);
+            return item;
+        }
     }
 }
