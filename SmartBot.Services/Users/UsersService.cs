@@ -180,6 +180,17 @@ namespace SmartBot.Services.Users
             ResponseBase response = new ResponseBase();
             try
             {
+                var handler = new JwtSecurityTokenHandler();
+                var jwtSecurityToken = handler.ReadJwtToken(token);
+
+                var userId = int.Parse(jwtSecurityToken.Claims.First(x => x.Type == "nameid").Value);
+                var user = _userRepository.GetById(userId);
+                if (user == null)
+                {
+                    response.Code= 2000;
+                    response.Message = "User không tồn tại";
+                    return response;
+                }    
                 var client = _clientCustomerRepository.FindAll(x=>x.HardwareId == hwId).SingleOrDefault();
                 if (client == null)
                 {
@@ -187,7 +198,7 @@ namespace SmartBot.Services.Users
                     response.Message = "Client không hợp lệ";
                     return response;
                 }
-                var userClient = _userClientRepository.FindAll(x=>x.IdClient==client.Id).SingleOrDefault();
+                var userClient = _userClientRepository.FindAll(x=>x.IdClient==client.Id && x.IdUser == userId).SingleOrDefault();
                 if (userClient == null)
                 {
                     response.Code= 2002;
@@ -207,14 +218,13 @@ namespace SmartBot.Services.Users
                     Data = new LoginDto()
                     {
                         Status = (int)StatusLogin.Success,
-                        IdUser = userClient.IdUser,
+                        IdUser = user.Id,
                     },
                 };
             }
             catch (Exception ex)
             {
                 response.Message = ex.Message;
-                response.Data = false;
                 return response;
             }
         }
