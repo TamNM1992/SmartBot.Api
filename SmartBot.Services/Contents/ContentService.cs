@@ -156,6 +156,36 @@ namespace SmartBot.Services.Content
                 return response;
             }
         }
+        public ResponseBase GetMultiContentById(string idContents, string hwId)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var listid = idContents.Split(',').Select(x=> int.Parse(x)).ToList();
+                var data = new List<ContentDto>();
+                var client = _clientRepository.FindAll(x => x.HardwareId == hwId).SingleOrDefault();
+                var contents = _contentRepository.FindAll(x=> listid.Contains(x.Id)).Include(x=>x.ImagePaths);
 
+                data = contents.Select(x=> new ContentDto
+                {
+                    Id= x.Id,
+                    Detail=x.Detail,
+                    ListImg = (x.Img==true)?x.ImagePaths.Where(y=>y.IdClient==client.Id).Select(x => new ImgDto
+                    {
+                        Id = x.Id,
+                        Path = x.Path,
+                    }).ToList(): new List<ImgDto>()
+                }).ToList();
+                
+                response.Data = data;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
     }
 }
