@@ -1,6 +1,5 @@
 using AutoMapper;
 using Azure;
-
 using Microsoft.EntityFrameworkCore;
 using NhaDat24h.Common.Enums;
 using SmartBot.Common.Extention;
@@ -379,13 +378,12 @@ namespace SmartBot.Services.Users
                         DateCreated = getuser.DateCreated,
                         DateUpdate = getuser.DateUpdate,
                         ExpiryDate = getuser.ExpiryDate,
-                        License = getuser.License,
 
+                        License = getuser.License,
                     };
                     response.Data = newuser;
                 }
                 else
-
                 {
                     response.Data = false;
                 }
@@ -460,7 +458,6 @@ namespace SmartBot.Services.Users
                     _commonUoW.Commit();
                     response.Data = true;
                 }
-
                 return response;
             }
             catch (Exception ex)

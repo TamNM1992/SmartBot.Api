@@ -101,5 +101,6 @@ namespace SmartBot.Api.Controllers
             var item = _userService.GetUserById(idUser);
             return item;
         }
+
     }
 }
