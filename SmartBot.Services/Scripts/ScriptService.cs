@@ -12,8 +12,7 @@ using SmartBot.DataDto.Base;
 using SmartBot.DataDto.Img;
 using SmartBot.DataDto.Script;
 using System.Data;
-using System.Net;
-using Action = SmartBot.DataAccess.Entities.Action;
+
 
 namespace SmartBot.Services.Scripts
 {
@@ -22,7 +21,7 @@ namespace SmartBot.Services.Scripts
         private IMapper _mapper;
         private readonly ICommonUoW _commonUoW;
         private readonly ICommonRepository<Script> _scriptRepository;
-        private readonly ICommonRepository<Action> _actionRepository;
+        private readonly ICommonRepository<DataAccess.Entities.Action> _actionRepository;
         private readonly ICommonRepository<ActionType> _actionTypeRepository;
         private readonly ICommonRepository<Topic> _topicRepository;
         private readonly ICommonRepository<ContentTopic> _contentTopicRepository;
@@ -43,7 +42,7 @@ namespace SmartBot.Services.Scripts
 
 
         public ScriptService( IMapper mapper, ICommonUoW commonUoW, ICommonRepository<Script> scriptRepository, 
-            ICommonRepository<Action> actionRepository,ICommonRepository<ContentFb> contentRepository,
+            ICommonRepository<DataAccess.Entities.Action> actionRepository,ICommonRepository<ContentFb> contentRepository,
             ICommonRepository<AccountFb> accountRepository, ICommonRepository<ClientCustomer> clientRepository,
             ICommonRepository<UserClient> userClientRepository,  
             ICommonRepository<ActionType> actionTypeRepository,ICommonRepository<UsersAccountFb> userAccountRepository, 
@@ -136,7 +135,7 @@ namespace SmartBot.Services.Scripts
                 _scriptRepository.Insert(script);
                 _commonUoW.Commit();
                 var idScript = script.Id;
-                var listAction = param.ListAction.Select(x => new Action
+                var listAction = param.ListAction.Select(x => new DataAccess.Entities.Action
                 {
                     IdScript = idScript,
                     IdAccountFb = x.IdAccountFb,

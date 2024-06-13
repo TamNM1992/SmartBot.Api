@@ -9,8 +9,8 @@ namespace SmartBot.Api.Controllers
     [ApiController]
     public class ActionController : ControllerBase
     {
-        private readonly IActionService _service;
-        public ActionController(IActionService service) 
+        private readonly IActionsService _service;
+        public ActionController(IActionsService service) 
         {
             _service = service;     
         }
