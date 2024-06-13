@@ -8,7 +8,7 @@ using User = SmartBot.DataAccess.Entities.User;
 
 namespace SmartBot.Services.Action
 {
-    public class ActionService : IActionService
+    public class ActionsService : IActionsService
     {
         private IMapper _mapper;
         private readonly ICommonUoW _commonUoW;
@@ -17,7 +17,7 @@ namespace SmartBot.Services.Action
         private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
         private readonly ICommonRepository<AccountFb> _accountRepository;
 
-        public ActionService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<UsersAccountFb> userAccountRepository, ICommonRepository<AccountFb> accountRepository)
+        public ActionsService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<UsersAccountFb> userAccountRepository, ICommonRepository<AccountFb> accountRepository)
         {
             _mapper=mapper;
             _commonUoW=commonUoW;

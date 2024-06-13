@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SmartBot.Services.Action
 {
-    public interface IActionService
+    public interface IActionsService
     {
         public ResponseBase GetActionHistory(int IdUser);
     }

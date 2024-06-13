@@ -12,4 +12,9 @@ namespace SmartBot.DataDto.AccountFb
         public string FbUser { get; set; }
         public string FbPassword { get; set; }
     }
+    public class TestChartFbDto
+    {
+        public int idUser { get; set; }
+        public int CountIdAccountFb { get; set; }
+    }
 }

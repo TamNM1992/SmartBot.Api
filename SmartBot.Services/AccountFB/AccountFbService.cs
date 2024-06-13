@@ -125,5 +125,34 @@ namespace SmartBot.Services.AccountFB
             }
 
         }
+        public ResponseBase TestChart()
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var data = _userAccountRepository.FindAll().GroupBy(u=>u.IdUser)
+                    .Select(g=> new TestChartFbDto()
+                    {
+                        idUser=g.Key,
+                        CountIdAccountFb=g.Count(),
+                    }).ToList();
+                if (data!=null)
+                {
+                    response.Data = data;
+                }
+                else
+                {
+                    response.Data=0;
+                }
+                return response;
+
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                return response;
+            }
+
+        }
     }
 }
