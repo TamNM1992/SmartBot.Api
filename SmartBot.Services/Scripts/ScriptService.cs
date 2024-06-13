@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph.Models.Security;
 using Microsoft.IdentityModel.Tokens;
 using NhaDat24h.Common.Enums;
+using SmartBot.Common.Enums;
 using SmartBot.Common.Extention;
 using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
@@ -11,6 +12,7 @@ using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.Img;
 using SmartBot.DataDto.Script;
+using SmartBot.DataDto.User;
 using System.Data;
 using System.Net;
 using Action = SmartBot.DataAccess.Entities.Action;
@@ -23,7 +25,7 @@ namespace SmartBot.Services.Scripts
         private readonly ICommonUoW _commonUoW;
         private readonly ICommonRepository<Script> _scriptRepository;
         private readonly ICommonRepository<Action> _actionRepository;
-        private readonly ICommonRepository<ActionType> _actionTypeRepository;
+        private readonly ICommonRepository<DataAccess.Entities.ActionType> _actionTypeRepository;
         private readonly ICommonRepository<Topic> _topicRepository;
         private readonly ICommonRepository<ContentTopic> _contentTopicRepository;
 
@@ -46,7 +48,7 @@ namespace SmartBot.Services.Scripts
             ICommonRepository<Action> actionRepository,ICommonRepository<ContentFb> contentRepository,
             ICommonRepository<AccountFb> accountRepository, ICommonRepository<ClientCustomer> clientRepository,
             ICommonRepository<UserClient> userClientRepository,  
-            ICommonRepository<ActionType> actionTypeRepository,ICommonRepository<UsersAccountFb> userAccountRepository, 
+            ICommonRepository<DataAccess.Entities.ActionType> actionTypeRepository,ICommonRepository<UsersAccountFb> userAccountRepository, 
             ICommonRepository<Topic> topicRepository,ICommonRepository<ImagePath> imgRepository,
             ICommonRepository<GroupFb> groupRepository,ICommonRepository<Post> postRepository,
             ICommonRepository<PostComment> postCommentRepository, ICommonRepository<ContentTopic> contentTopicRepository,
@@ -184,23 +186,29 @@ namespace SmartBot.Services.Scripts
                     ListActions = x.Actions.Select(y=> new ActionDataDto
                     {
                         Id=y.Id,
-                        Account = new AccountDataDto()
+                        Account = new AccountFbDto()
                         {
-                            Id = y.IdAccountFbNavigation.Id,
-                            FbUser = y.IdAccountFbNavigation.FbUser,
-                            FbPassword = y.IdAccountFbNavigation.FbPassword,
-                            FbProfileLink = y.IdAccountFbNavigation.FbProfileLink,
+                            IdFb = y.IdAccountFbNavigation.Id,
+                            UserName = y.IdAccountFbNavigation.FbUser,
+                            Password = y.IdAccountFbNavigation.FbPassword,
                         },
                         Style = y.Style,
                         
                         SequenceNumber = y.SequenceNumber,
-                        Content = new ContentDataDto()
+                        Content =(y.IdContent>0)? new ContentDataDto()
                         {
                             Id = y.IdContentNavigation.Id,
                             Detail = y.IdContentNavigation.Detail,
                             Type = (byte)y.IdContentNavigation.Type,
+                        }:null,
+                        Target = new TargetDataDto()
+                        {
+                            Type= y.TypeTarget,
+                            IdTarget = y.IdTarget,
+                            Link = y.Link,
                         }
                     }).ToList()
+
                 }).ToList();
                 response.Data = data;
 

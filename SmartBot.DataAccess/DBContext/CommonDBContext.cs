@@ -73,7 +73,7 @@ namespace SmartBot.DataAccess.DBContext
             entity.HasKey(e => e.Id).HasName("PK_ActionLike");
 
             entity.ToTable("Action");
-
+            entity.Property(e => e.Link).HasMaxLength(1000);
             entity.Property(e => e.DateUpdate).HasColumnType("datetime");
             entity.Property(e => e.IdAccountFb).HasColumnName("IdAccountFB");
 
