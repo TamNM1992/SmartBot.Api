@@ -130,15 +130,24 @@ namespace SmartBot.Services.AccountFB
             ResponseBase response = new ResponseBase();
             try
             {
-                var data = _userAccountRepository.FindAll().GroupBy(u=>u.IdUser)
-                    .Select(g=> new TestChartFbDto()
-                    {
-                        idUser=g.Key,
-                        CountIdAccountFb=g.Count(),
-                    }).ToList();
+                TestChartFbDto newchart = new TestChartFbDto();
+                var data = _userAccountRepository.FindAll().GroupBy(u => u.IdUser)
+                .Select(g => new TestChartFbDto()
+                 {
+                     //Labels=new string[] { g.Key.ToString() },
+                     //Datas=new int[] { g.Count() },
+                     idUser = g.Key,
+                     CountIdAccountFb=g.Count(),
+                 }).ToList();
+                foreach (var item in data)
+                {
+                    newchart.Labels=new string[] { item.idUser.ToString() };
+                    newchart.Datas=new int[] { item.CountIdAccountFb };
+                }
+                
                 if (data!=null)
                 {
-                    response.Data = data;
+                    response.Data = newchart;
                 }
                 else
                 {

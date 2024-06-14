@@ -9,6 +9,6 @@ namespace SmartBot.Services.Action
 {
     public interface IActionsService
     {
-        public ResponseBase GetActionHistory(int IdUser);
+        public ResponseBase GetActionHistory(int IdUser,DateTime? start, DateTime? end);
     }
 }

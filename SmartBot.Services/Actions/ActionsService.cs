@@ -26,7 +26,7 @@ namespace SmartBot.Services.Action
             _accountRepository=accountRepository;
         }
 
-        public ResponseBase GetActionHistory(int IdUser)
+        public ResponseBase GetActionHistory(int IdUser, DateTime? start, DateTime? end)
         {
             ResponseBase response = new ResponseBase();
             try
@@ -34,20 +34,25 @@ namespace SmartBot.Services.Action
                 var getFbUser = _userAccountRepository.FindAll(x => x.IdUser == IdUser)
                     .Include(y => y.IdAccountFbNavigation)
                     .ThenInclude(z => z.Actions);
-                List<ActionHistory> listAction = new List<ActionHistory>();
+                List<ActionHistory> listHistory = new List<ActionHistory>();
                 foreach (var item in getFbUser)
                 {
+                    List<DataAccess.Entities.Action> listAction = item.IdAccountFbNavigation.Actions.OrderByDescending(a => a.DateUpdate).ToList();
+                    if (start.HasValue && end.HasValue)
+                    {
+                        listAction = listAction.Where(a => a.DateUpdate >= start && a.DateUpdate <= end).ToList();
+                    }
                     ActionHistory actionHistory = new ActionHistory()
                     {
                         FbUser = item.IdAccountFbNavigation.FbUser,
-                        ActionName = item.IdAccountFbNavigation.Actions.Select(x => x.Style).ToList(),
+                        ActionName = listAction.Select(x => x.Style).ToList(),
                         Result= true,
-                        StartTime= item.IdAccountFbNavigation.Actions.Select(x => x.DateUpdate).ToList(),
-                        ExcuteTime= item.IdAccountFbNavigation.Actions.Select(x => x.DateUpdate).ToList(),
+                        StartTime= listAction.Select(x => x.DateUpdate).ToList(),
+                        ExcuteTime= listAction.Select(x => x.DateUpdate).ToList(),
                     };
-                    listAction.Add(actionHistory);
+                    listHistory.Add(actionHistory);
                 }
-                response.Data = listAction;
+                response.Data = listHistory;
                 return response;
             }
             catch (Exception ex)
