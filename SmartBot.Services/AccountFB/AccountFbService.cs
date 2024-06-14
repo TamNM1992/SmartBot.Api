@@ -1,19 +1,8 @@
 ﻿using AutoMapper;
-using Azure;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Graph.Models;
-using Microsoft.Identity.Client;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.AccountFb;
 using SmartBot.DataDto.Base;
-using SmartBot.DataDto.Script;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using User = SmartBot.DataAccess.Entities.User;
 
 namespace SmartBot.Services.AccountFB
@@ -27,8 +16,8 @@ namespace SmartBot.Services.AccountFB
         private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
         private readonly ICommonRepository<AccountFb> _accountRepository;
 
-        public AccountFbService(IMapper mapper, ICommonUoW commonUoW, 
-            ICommonRepository<User> userRepository, 
+        public AccountFbService(IMapper mapper, ICommonUoW commonUoW,
+            ICommonRepository<User> userRepository,
             ICommonRepository<UsersAccountFb> userAccountRepository,
             ICommonRepository<AccountFb> accountRepository)
         {
@@ -52,9 +41,9 @@ namespace SmartBot.Services.AccountFB
                     return response;
                 }
 
-                var FbAcc= _accountRepository.FindAll(x => x.FbUser==param.FbUser).SingleOrDefault();
+                var FbAcc = _accountRepository.FindAll(x => x.FbUser==param.FbUser).SingleOrDefault();
                 var idfb = 0;
-                if(FbAcc==null)
+                if (FbAcc==null)
                 {
                     var newFb = new AccountFb()
                     {
@@ -74,8 +63,8 @@ namespace SmartBot.Services.AccountFB
                 {
                     idfb = FbAcc.Id;
                 }
-                var userFb = _userAccountRepository.FindAll(x=>x.IdUser==param.idUser&& x.IdAccountFb==idfb).SingleOrDefault();
-                
+                var userFb = _userAccountRepository.FindAll(x => x.IdUser==param.idUser&& x.IdAccountFb==idfb).SingleOrDefault();
+
                 if (userFb==null)
                 {
                     var newUserFb = new UsersAccountFb()
@@ -88,11 +77,11 @@ namespace SmartBot.Services.AccountFB
                     _commonUoW.BeginTransaction();
                     _userAccountRepository.Insert(newUserFb);
                     _commonUoW.Commit();
-                }    
+                }
 
                 response.Data=idfb;
                 return response;
-                
+
             }
             catch (Exception ex)
             {
@@ -106,15 +95,15 @@ namespace SmartBot.Services.AccountFB
             ResponseBase response = new ResponseBase();
             try
             {
-                var data = _accountRepository.FindAll(x=>x.FbUser==fbUserName).FirstOrDefault();
-                if(data!=null)
+                var data = _accountRepository.FindAll(x => x.FbUser==fbUserName).FirstOrDefault();
+                if (data!=null)
                 {
                     response.Data = data.Id;
-                }    
+                }
                 else
                 {
                     response.Data=0;
-                }    
+                }
                 return response;
 
             }
@@ -130,29 +119,45 @@ namespace SmartBot.Services.AccountFB
             ResponseBase response = new ResponseBase();
             try
             {
+                //TestChartFbDto newchart = new TestChartFbDto();
+                //var data = _userAccountRepository.FindAll().GroupBy(u => u.IdUser)
+                //.Select(g => new TestChartFbDto()
+                // {
+                //     //Labels=new string[] { g.Key.ToString() },
+                //     //Datas=new int[] { g.Count() },
+                //     idUser = g.Key,
+                //     CountIdAccountFb=g.Count(),
+                // }).ToList();
+                //foreach (var item in data)
+                //{
+                //    newchart.Labels=new string[] { item.idUser.ToString() };
+                //    newchart.Datas=new int[] { item.CountIdAccountFb };
+
+                //}
+
+                //if (data!=null)
+                //{
+                //    response.Data = newchart;
+                //}
+                //else
+                //{
+                //    response.Data=0;
+                //}
+                int[] idUser = _userAccountRepository.FindAll().Select(x => x.IdUser).Distinct().ToArray();
+                string[] strIdUser = new string[idUser.Length];
+                for (int i = 0; i < strIdUser.Length; i++)
+                {
+                    strIdUser[i] = idUser[i].ToString();
+                }
+                int[] counts = new int[idUser.Length];
+                for (int i = 0; i < idUser.Length; i++)
+                {
+                    counts[i] = _userAccountRepository.FindAll(u => u.IdUser == idUser[i]).Count();
+                }
                 TestChartFbDto newchart = new TestChartFbDto();
-                var data = _userAccountRepository.FindAll().GroupBy(u => u.IdUser)
-                .Select(g => new TestChartFbDto()
-                 {
-                     //Labels=new string[] { g.Key.ToString() },
-                     //Datas=new int[] { g.Count() },
-                     idUser = g.Key,
-                     CountIdAccountFb=g.Count(),
-                 }).ToList();
-                foreach (var item in data)
-                {
-                    newchart.Labels=new string[] { item.idUser.ToString() };
-                    newchart.Datas=new int[] { item.CountIdAccountFb };
-                }
-                
-                if (data!=null)
-                {
-                    response.Data = newchart;
-                }
-                else
-                {
-                    response.Data=0;
-                }
+                newchart.Labels = strIdUser;
+                newchart.Datas = counts;
+                response.Data = newchart;
                 return response;
 
             }
