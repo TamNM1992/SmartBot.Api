@@ -295,7 +295,6 @@ namespace SmartBot.Services.Users
             }
         }
 
-
         public ResponseBase Register(UserDto data)
         {
             ResponseBase response = new ResponseBase();
@@ -483,6 +482,156 @@ namespace SmartBot.Services.Users
                         Password = user.Password
                     };
                     response.Data = newuser;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase GetAccountClient(int userId)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                User? user = _userRepository.FindAll(u => u.Id == userId).Include(u => u.UserClients).SingleOrDefault();
+                if (user == null)
+                {
+                    response.Message = "Not found user";
+                    response.Data = false;
+                    response.Code = 99;
+                    return response;
+                }
+                ClienAccountsViewModel model = new ClienAccountsViewModel()
+                {
+                    UserName = user.UserName,
+                    DateCreate = user.DateCreated,
+                    DateUpdate = user.DateUpdate.Value,
+                    ExpiryDate = user.ExpiryDate == null ? "" : user.ExpiryDate.Value.ToShortDateString(),
+                    NumberClient = user.UserClients.ToList().Count.ToString(),
+                };
+                response.Data = model;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase GetAccountFb(int userId)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                User? user = _userRepository.FindAll(u => u.Id == userId).Include(u => u.UsersAccountFbs).SingleOrDefault();
+                if (user == null)
+                {
+                    response.Message = "Not found user";
+                    response.Data = false;
+                    response.Code = 99;
+                    return response;
+                }
+                ClienAccountsViewModel model = new ClienAccountsViewModel()
+                {
+                    UserName = user.UserName,
+                    DateCreate = user.DateCreated,
+                    DateUpdate = user.DateUpdate.Value,
+                    ExpiryDate = user.ExpiryDate == null ? "" : user.ExpiryDate.Value.ToShortDateString(),
+                    NumberClient = user.UsersAccountFbs.ToList().Count.ToString(),
+                };
+                response.Data = model;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase GetUser(string userName, string passWord)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var getuser = _userRepository.FindAll().Where(x => x.UserName == userName).FirstOrDefault();
+                if (getuser == null)
+                {
+                    response.Message = StatusLogin.UserNotExisting.ToString();
+                    response.Data = null;
+                    response.Code = (int)StatusLogin.UserNotExisting;
+                    return response;
+                }
+
+                if(!getuser.Password.Equals(passWord))
+                {
+                    response.Message = StatusLogin.PasswordWrong.ToString();
+                    response.Data = null;
+                    response.Code = (int)StatusLogin.PasswordWrong;
+                    return response;
+                }
+                var newuser = new UserLoginDto()
+                {
+                    Id = getuser.Id,
+                    UserName = getuser.UserName,
+                    Password = getuser.Password,
+                    Status = getuser.Status,
+                    DateCreated = getuser.DateCreated,
+                    DateUpdate = getuser.DateUpdate,
+                    ExpiryDate = getuser.ExpiryDate,
+                    License = getuser.License,
+                };
+                response.Data = newuser;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = null;
+                response.Code = 99;
+                return response;
+            }
+        }
+
+        public ResponseBase ChangePassword(int userId, ChangePasswordDTO DTO)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                User? user = _userRepository.GetById(userId);
+                if (user == null)
+                {
+                    response.Data = false;
+                    response.Code = 404;
+                    response.Message = "Not Found user";
+                }
+                else if (!user.Password.Equals(DTO.CurrentPassword))
+                {
+                    response.Data = false;
+                    response.Code = 99;
+                    response.Message = "Old password not correct";
+                }
+                else if (DTO.NewPassword != DTO.ConfirmPassword)
+                {
+                    response.Data = false;
+                    response.Code = 99;
+                    response.Message = "Confirm password not the same new password";
+                }
+                else
+                {
+                    user.Password = DTO.ConfirmPassword;
+                    user.DateUpdate = DateTime.Now;
+                    _commonUoW.BeginTransaction();
+                    _userRepository.Update(user);
+                    _commonUoW.Commit();
                 }
                 return response;
             }

@@ -17,8 +17,9 @@ namespace SmartBot.Services.Users
         public ResponseBase GetAccountFbEverLogin(int idUser);
         public ResponseBase GetUser(string userName, string passWord);
         public ResponseBase CheckExitUser(string userName);
-        public ResponseBase ChangePassword(ChangePasswordDto passwordDto);
+        ResponseBase GetAccountClient(int userId);
+        ResponseBase GetAccountFb(int userId);
+        ResponseBase ChangePassword(int userId, ChangePasswordDTO DTO);
         public ResponseBase ForgotPassword(string userName, string license);
-
     }
 }
