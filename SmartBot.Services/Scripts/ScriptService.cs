@@ -509,6 +509,21 @@ namespace SmartBot.Services.Scripts
                 return response;
             }
         }
+        public ResponseBase LogScript(LogScriptInputData param)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                
+                response.Data = "Success";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                return response;
+            }
+        }
     }
     
 }
