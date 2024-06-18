@@ -25,7 +25,7 @@ namespace SmartBot.Services.Action
             _userAccountRepository=userAccountRepository;
             _accountRepository=accountRepository;
         }
-
+        
         public ResponseBase GetActionHistory(int IdUser, DateTime? start, DateTime? end)
         {
             ResponseBase response = new ResponseBase();
@@ -58,6 +58,7 @@ namespace SmartBot.Services.Action
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                response.Data = false;
                 return response;
             }
         }
