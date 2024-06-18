@@ -14,6 +14,5 @@ namespace SmartBot.DataDto.Action
         public List<DateTime> ExcuteTime { get; set; } = new List<DateTime>();
         public bool Result { get; set; }
         public string Description { get; set; } = string.Empty;
-
     }
 }
