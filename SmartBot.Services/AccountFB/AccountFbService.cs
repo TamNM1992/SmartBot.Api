@@ -134,7 +134,7 @@ namespace SmartBot.Services.AccountFB
                 //    newchart.Datas=new int[] { item.CountIdAccountFb };
 
                 //}
-
+                
                 //if (data!=null)
                 //{
                 //    response.Data = newchart;
@@ -159,14 +159,12 @@ namespace SmartBot.Services.AccountFB
                 newchart.Datas = counts;
                 response.Data = newchart;
                 return response;
-
             }
             catch (Exception ex)
             {
                 response.Message = ex.Message;
                 return response;
             }
-
         }
     }
 }
