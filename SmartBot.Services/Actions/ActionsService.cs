@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Action;
@@ -19,40 +18,40 @@ namespace SmartBot.Services.Action
 
         public ActionsService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<UsersAccountFb> userAccountRepository, ICommonRepository<AccountFb> accountRepository)
         {
-            _mapper=mapper;
-            _commonUoW=commonUoW;
-            _userRepository=userRepository;
-            _userAccountRepository=userAccountRepository;
-            _accountRepository=accountRepository;
+            _mapper = mapper;
+            _commonUoW = commonUoW;
+            _userRepository = userRepository;
+            _userAccountRepository = userAccountRepository;
+            _accountRepository = accountRepository;
         }
-        
-        public ResponseBase GetActionHistory(int IdUser, DateTime? start, DateTime? end)
+
+        public ResponseBase GetActionHistory(int IdUser, DateTime? start, DateTime? end, int? IdFb, int? ActionId)
         {
             ResponseBase response = new ResponseBase();
             try
             {
-                var getFbUser = _userAccountRepository.FindAll(x => x.IdUser == IdUser)
-                    .Include(y => y.IdAccountFbNavigation)
-                    .ThenInclude(z => z.Actions);
-                List<ActionHistory> listHistory = new List<ActionHistory>();
-                foreach (var item in getFbUser)
+                List<LogActionDto> logActions = new List<LogActionDto>()
                 {
-                    List<DataAccess.Entities.Action> listAction = item.IdAccountFbNavigation.Actions.OrderByDescending(a => a.DateUpdate).ToList();
-                    if (start.HasValue && end.HasValue)
+                    new LogActionDto
                     {
-                        listAction = listAction.Where(a => a.DateUpdate >= start && a.DateUpdate <= end).ToList();
+                        StartTime = DateTime.Parse("2024-06-19"),
+                        EndTime = DateTime.Parse("2024-06-19"),
+                        IdFb = 3,
+                        NameFb = "quanlhjos@gmail.com",
+                        ResultDetail = "Thanh cong",
+                        Result = true
+                    },
+                    new LogActionDto
+                    {
+                        StartTime = DateTime.Parse("2024-06-19"),
+                        EndTime = DateTime.Parse("2024-06-19"),
+                        IdFb = 4,
+                        NameFb = "0961082002",
+                        ResultDetail = "That bai",
+                        Result = false
                     }
-                    ActionHistory actionHistory = new ActionHistory()
-                    {
-                        FbUser = item.IdAccountFbNavigation.FbUser,
-                        ActionName = listAction.Select(x => x.Style).ToList(),
-                        Result= true,
-                        StartTime= listAction.Select(x => x.DateUpdate).ToList(),
-                        ExcuteTime= listAction.Select(x => x.DateUpdate).ToList(),
-                    };
-                    listHistory.Add(actionHistory);
-                }
-                response.Data = listHistory;
+                };
+                response.Data = logActions;
                 return response;
             }
             catch (Exception ex)

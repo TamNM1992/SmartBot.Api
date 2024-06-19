@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SmartBot.DataDto.Base;
 using SmartBot.Services.Action;
 
@@ -10,15 +9,15 @@ namespace SmartBot.Api.Controllers
     public class ActionController : ControllerBase
     {
         private readonly IActionsService _service;
-        public ActionController(IActionsService service) 
+        public ActionController(IActionsService service)
         {
-            _service = service;     
+            _service = service;
         }
 
         [HttpGet("history")]
-        public ResponseBase GetActionHistory(int IdUser, DateTime? start, DateTime? end)
+        public ResponseBase GetActionHistory(int IdUser, DateTime? start, DateTime? end, int? IdFb, int? ActionId)
         {
-            return _service.GetActionHistory(IdUser,start,end);
+            return _service.GetActionHistory(IdUser, start, end, IdFb, ActionId);
         }
     }
 }
