@@ -9,6 +9,7 @@ using SmartBot.DataAccess.Entities;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Graph.Models;
 using User = SmartBot.DataAccess.Entities.User;
+using SmartBot.Common.Helpers;
 
 namespace SmartBot.Api.Controllers
 {
@@ -55,9 +56,19 @@ namespace SmartBot.Api.Controllers
             var item = _userService.GetAccountEverLogin(idUser);
             return item;
         }
-        [HttpGet("list-accountFb")]
-        public ResponseBase GetAccountFbEverLogin(int idUser)
+
+        [HttpGet("list-accountClient")]
+        public ResponseBase GetAccountsClient(string token)
         {
+            var idUser = int.Parse(Token.Authentication(token));
+            var item = _userService.GetAccountEverLogin(idUser);
+            return item;
+        }
+
+        [HttpGet("list-accountFb")]
+        public ResponseBase GetAccountFbEverLogin(string token)
+        {
+            var idUser = int.Parse(Token.Authentication(token));
             var item = _userService.GetAccountFbEverLogin(idUser);
             return item;
         }

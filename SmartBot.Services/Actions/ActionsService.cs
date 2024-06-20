@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using SmartBot.Common.Enums;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Action;
@@ -30,6 +31,7 @@ namespace SmartBot.Services.Action
             ResponseBase response = new ResponseBase();
             try
             {
+                
                 List<LogActionDto> logActions = new List<LogActionDto>()
                 {
                     new LogActionDto
@@ -37,6 +39,7 @@ namespace SmartBot.Services.Action
                         StartTime = DateTime.Parse("2024-06-19"),
                         EndTime = DateTime.Parse("2024-06-19"),
                         IdFb = 3,
+                        Action = "Tha tim",
                         NameFb = "quanlhjos@gmail.com",
                         ResultDetail = "Thanh cong",
                         Result = true
@@ -46,6 +49,7 @@ namespace SmartBot.Services.Action
                         StartTime = DateTime.Parse("2024-06-19"),
                         EndTime = DateTime.Parse("2024-06-19"),
                         IdFb = 4,
+                        Action = "Tha tim",
                         NameFb = "0961082002",
                         ResultDetail = "That bai",
                         Result = false
