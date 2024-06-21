@@ -26,7 +26,7 @@ namespace SmartBot.Services.Action
             _accountRepository = accountRepository;
         }
 
-        public ResponseBase GetActionHistory(int IdUser, DateTime? start, DateTime? end, int? IdFb, int? ActionId)
+        public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? IdFb, int? ActionId)
         {
             ResponseBase response = new ResponseBase();
             try

@@ -27,7 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SmartBot.Common\SmartBot.Common.csproj" />
     <ProjectReference Include="..\SmartBot.Services\SmartBot.Services.csproj" />
   </ItemGroup>
 

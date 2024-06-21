@@ -428,11 +428,12 @@ namespace SmartBot.Services.Users
             ResponseBase response = new ResponseBase();
             try
             {
-                User? user = _userRepository.GetById(passwordDto.IdUser);
+                int IdUser = int.Parse(Token.Authentication(passwordDto.Token));
+                User? user = _userRepository.GetById(IdUser);
                 if (user == null)
                 {
                     response.Data = false;
-                    response.Code = 404;
+                    response.Code = 99;
                     response.Message = "Not Found user";
                 }
                 else if (!user.Password.Equals(passwordDto.CurrentPassword))
@@ -460,6 +461,7 @@ namespace SmartBot.Services.Users
             }
             catch (Exception ex)
             {
+                response.Code = 99;
                 response.Message = ex.Message;
                 response.Data = false;
                 return response;
