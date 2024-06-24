@@ -40,6 +40,8 @@ namespace SmartBot.Services.Scripts
 
         private readonly ICommonRepository<Post> _postRepository;
         private readonly ICommonRepository<PostComment> _postCommentRepository;
+        private readonly ICommonRepository<LogActionScript> _logActionRepository;
+        private readonly ICommonRepository<LogStepAction> _logStepRepository;
 
 
 
@@ -47,12 +49,12 @@ namespace SmartBot.Services.Scripts
         public ScriptService( IMapper mapper, ICommonUoW commonUoW, ICommonRepository<Script> scriptRepository, 
             ICommonRepository<Action> actionRepository,ICommonRepository<ContentFb> contentRepository,
             ICommonRepository<AccountFb> accountRepository, ICommonRepository<ClientCustomer> clientRepository,
-            ICommonRepository<UserClient> userClientRepository,  
+            ICommonRepository<UserClient> userClientRepository, ICommonRepository<LogStepAction> logStepRepository,
             ICommonRepository<DataAccess.Entities.ActionType> actionTypeRepository,ICommonRepository<UsersAccountFb> userAccountRepository, 
             ICommonRepository<Topic> topicRepository,ICommonRepository<ImagePath> imgRepository,
             ICommonRepository<GroupFb> groupRepository,ICommonRepository<Post> postRepository,
             ICommonRepository<PostComment> postCommentRepository, ICommonRepository<ContentTopic> contentTopicRepository,
-            ICommonRepository<User> userRepository)
+            ICommonRepository<User> userRepository, ICommonRepository<LogActionScript> logActionRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
@@ -71,6 +73,8 @@ namespace SmartBot.Services.Scripts
             _postCommentRepository = postCommentRepository;
             _contentTopicRepository = contentTopicRepository;
             _userRepository = userRepository;
+            _logActionRepository = logActionRepository;
+            _logStepRepository = logStepRepository;
         }
         public ResponseBase CreateScript(ScriptDto param)
         {
@@ -514,8 +518,42 @@ namespace SmartBot.Services.Scripts
             ResponseBase response = new ResponseBase();
             try
             {
-                
-                response.Data = "Success";
+
+                var client = _clientRepository.FindAll(x=>x.HardwareId == param.HardwareId).FirstOrDefault();
+                foreach(var action in param.ListActionResult)
+                {
+                    var a = new LogActionScript();
+                    a.Name = action.Name;
+                    a.Description = action.Description;
+                    a.StartTime = action.Start;
+                    a.EndTime = action.End;
+                    a.IdFb = action.IdFB;
+                    a.IdScript = param.IdScript;
+                    a.IdClient = client.Id;
+                    a.IdUser = param.IdUser;
+                    a.NameFb = action.NameFB;
+                    a.Result = action.Result;
+                    a.ResultDetail = action.ResultDetail;
+                    _commonUoW.BeginTransaction();
+                    _logActionRepository.Insert(a);
+                    _commonUoW.Commit();
+                    if(a.Id<=0)
+                    {
+                        continue;
+                    }
+                    var listStep = new List<LogStepAction>();
+                    foreach(var step in action.ListStep)
+                    {
+                        var s = new LogStepAction();
+                        s.IdLogAction = a.Id;
+                        s.StepDetail = step;
+                        s.Result = true;
+                        listStep.Add(s);
+                    }
+                    _commonUoW.BeginTransaction();
+                    _logStepRepository.InsertMultiple(listStep);
+                    _commonUoW.Commit();
+                }    
                 return response;
             }
             catch (Exception ex)
