@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SmartBot.Common.Enums;
+using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Action;
@@ -26,36 +27,66 @@ namespace SmartBot.Services.Action
             _accountRepository = accountRepository;
         }
 
-        public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? IdFb, int? ActionId)
+        public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? idFb, int? actionId)
         {
             ResponseBase response = new ResponseBase();
             try
             {
-                
+                // Tượng trưng cho bảng Actions
+                Dictionary<int, string> actions = new Dictionary<int, string>();
+                actions.Add(1, "Thích");
+                actions.Add(2, "Bình luận");
+                actions.Add(3, "Đăng bài");
+                actions.Add(4, "Chia sẻ");
+                actions.Add(5, "Thả tim");
+
+                // Tượng trưng cho bảng LogActions
                 List<LogActionDto> logActions = new List<LogActionDto>()
                 {
                     new LogActionDto
                     {
+                        IdUser = 2,
                         StartTime = DateTime.Parse("2024-06-19"),
                         EndTime = DateTime.Parse("2024-06-19"),
                         IdFb = 3,
-                        Action = "Tha tim",
+                        Action = actions[1],
                         NameFb = "quanlhjos@gmail.com",
-                        ResultDetail = "Thanh cong",
+                        ResultDetail = "Thành công",
                         Result = true
                     },
                     new LogActionDto
                     {
+                        IdUser = 2,
                         StartTime = DateTime.Parse("2024-06-19"),
                         EndTime = DateTime.Parse("2024-06-19"),
                         IdFb = 4,
-                        Action = "Tha tim",
+                        Action = actions[4],
                         NameFb = "0961082002",
-                        ResultDetail = "That bai",
+                        ResultDetail = "Thất bại",
+                        Result = false
+                    },
+                    new LogActionDto
+                    {
+                        IdUser = 11,
+                        StartTime = DateTime.Parse("2024-07-20"),
+                        EndTime = DateTime.Parse("2024-07-20"),
+                        IdFb = 4,
+                        Action = actions[5],
+                        NameFb = "0961082002",
+                        ResultDetail = "Thất bại",
                         Result = false
                     }
                 };
-                response.Data = logActions;
+
+                var idUser = int.Parse(Token.Authentication(token));
+                var data = logActions.Where(log =>
+                           log.IdUser == idUser &&
+                           (!start.HasValue || log.StartTime >= start.Value) &&
+                           (!end.HasValue || log.EndTime <= end.Value) &&
+                           (!idFb.HasValue || log.IdFb == idFb) &&
+                           (!actionId.HasValue || log.Action == actions[(int)actionId])).ToList();
+
+                response.Data = data;
                 return response;
             }
             catch (Exception ex)

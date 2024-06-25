@@ -4,6 +4,7 @@ namespace SmartBot.DataDto.Action
 {
     public class LogActionDto
     {
+        public int IdUser { get; set; }
         public int IdFb { get; set; }
         public string? NameFb { get; set; }
         public string Action { get; set; }
