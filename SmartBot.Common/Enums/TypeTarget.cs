@@ -21,5 +21,11 @@ namespace SmartBot.Common.Enums
         Comment = 4,
         [Description("Post")]
         Post = 5,
+        [Description("CommentLike")]
+        CommentLike = 41,
+        [Description("CommentShare")]
+        CommentShare = 42,
+        [Description("CommentLikeShare")]
+        CommentLikeShare = 43,
     }
 }

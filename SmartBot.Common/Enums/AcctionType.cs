@@ -48,6 +48,16 @@ namespace SmartBot.Common.Enums
         SearchGroup = 14,
         [Description("SearchPage")]
         SearchPage = 15,
+        [Description("GetPostGroup")]
+        GetPostGroup = 16,
+        [Description("ChangeAvatar")]
+        ChangeAvatar = 90,
+        [Description("ChangeCover")]
+        ChangeCover = 91,
+        [Description("SendFriendRequest")]
+        SendFriendRequest = 92,
+        [Description("AcceptFriendRequest")]
+        AcceptFriendRequest = 93,
     }
     public enum ActionType
     {

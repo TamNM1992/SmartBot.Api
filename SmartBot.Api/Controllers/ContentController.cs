@@ -43,5 +43,11 @@ namespace SmartBot.Api.Controllers
             var item = _contentService.GetContentById(idContent, hwId);
             return item;
         }
+        [HttpGet("multi-content-by-id")]
+        public ResponseBase GetMultiContentById(string idContents, string hwId)
+        {
+            var item = _contentService.GetMultiContentById(idContents, hwId);
+            return item;
+        }
     }
 }

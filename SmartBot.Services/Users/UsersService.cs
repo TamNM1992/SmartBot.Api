@@ -168,11 +168,42 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
-        public ResponseBase CheckUserByToken(string token)
+        public ResponseBase CheckUserByToken(string token, string hwId)
         {
             ResponseBase response = new ResponseBase();
             try
             {
+                var handler = new JwtSecurityTokenHandler();
+                var jwtSecurityToken = handler.ReadJwtToken(token);
+
+                var userId = int.Parse(jwtSecurityToken.Claims.First(x => x.Type == "nameid").Value);
+                var user = _userRepository.GetById(userId);
+                if (user == null)
+                {
+                    response.Code= 2000;
+                    response.Message = "User không tồn tại";
+                    return response;
+                }    
+                var client = _clientCustomerRepository.FindAll(x=>x.HardwareId == hwId).SingleOrDefault();
+                if (client == null)
+                {
+                    response.Code= 2001;
+                    response.Message = "Client không hợp lệ";
+                    return response;
+                }
+                var userClient = _userClientRepository.FindAll(x=>x.IdClient==client.Id && x.IdUser == userId).SingleOrDefault();
+                if (userClient == null)
+                {
+                    response.Code= 2002;
+                    response.Message = "Thiết bị chưa từng được đăng kí, hãy đăng nhập lại";
+                    return response;
+                }
+                if(userClient.Token != token)
+                {
+                    response.Code= 2003;
+                    response.Message = "Token không hợp lệ, hãy đăng nhập lại";
+                    return response;
+                }    
                 return new ResponseBase()
                 {
                     Code = 0,
@@ -180,13 +211,13 @@ namespace SmartBot.Services.Users
                     Data = new LoginDto()
                     {
                         Status = (int)StatusLogin.Success,
+                        IdUser = user.Id,
                     },
                 };
             }
             catch (Exception ex)
             {
                 response.Message = ex.Message;
-                response.Data = false;
                 return response;
             }
         }

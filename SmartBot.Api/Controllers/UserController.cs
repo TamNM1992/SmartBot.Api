@@ -37,9 +37,9 @@ namespace SmartBot.Api.Controllers
         }
 
         [HttpGet("check-token")]
-        public ResponseBase CheckUserByToken(string token)
+        public ResponseBase CheckUserByToken(string token, string hwId)
         {
-            var item = _userService.CheckUserByToken(token);
+            var item = _userService.CheckUserByToken(token,hwId);
             return item;
         }
         [HttpGet("check-license")]

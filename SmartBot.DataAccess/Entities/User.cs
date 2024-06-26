@@ -21,10 +21,9 @@ public partial class User
 
     public DateTime? ExpiryDate { get; set; }
 
+    public virtual ICollection<LogActionScript> LogActionScripts { get; set; } = new List<LogActionScript>();
+
     public virtual ICollection<UserClient> UserClients { get; set; } = new List<UserClient>();
 
-    public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-
     public virtual ICollection<UsersAccountFb> UsersAccountFbs { get; set; } = new List<UsersAccountFb>();
-    public virtual ICollection<Role> IdRoles { get; set; } = new List<Role>();
 }
