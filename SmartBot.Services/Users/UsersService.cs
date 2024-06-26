@@ -1,9 +1,6 @@
-﻿
 using AutoMapper;
+using Azure;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
 using NhaDat24h.Common.Enums;
 using SmartBot.Common.Extention;
 using SmartBot.Common.Helpers;
@@ -12,10 +9,6 @@ using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
 
 namespace SmartBot.Services.Users
 {
@@ -367,11 +360,169 @@ namespace SmartBot.Services.Users
                 return response;
             }
         }
-        public User GetById(int idUser)
+        public ResponseBase GetUserById(int? idUser)
         {
-            var temp = _userRepository.GetById(idUser);
-            return temp;
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var temp = _userRepository.FindSingle(x => x.Id==idUser);
+                if (temp != null)
+                {
+                    var newuser = new UserLoginDto()
+                    {
+                        Id = temp.Id,
+                        UserName = temp.UserName,
+                        Password = temp.Password,
+                        Status = temp.Status,
+                        DateCreated = temp.DateCreated,
+                        DateUpdate = temp.DateUpdate,
+                        ExpiryDate = temp.ExpiryDate,
+                        License = temp.License,
+
+                    };
+                    response.Data = newuser;
+                }
+                return response;
+            }
+            catch(Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase GetUser(string userName, string passWord)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var user = _userRepository.FindSingle(x => x.UserName == userName && x.Password == passWord);
+                if (user == null) 
+                {
+                    response.Message = StatusLogin.UserNotExisting.ToString();
+                    response.Data = false;
+                    response.Code = (int)StatusLogin.UserNotExisting;
+                    return response;
+                }
+
+                if (!user.Password.Equals(passWord))
+                {
+                    response.Message = StatusLogin.PasswordWrong.ToString();
+                    response.Data = false;
+                    response.Code = (int)StatusLogin.PasswordWrong;
+                    return response;
+                }
+
+                string token = Token.GenerateSecurityToken(user.Id, "7");
+                response.Data = token;
+                return response;
+
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase CheckExitUser(string userName)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var getAccUser = _userRepository.FindSingle(x => x.UserName==userName);
+                if (getAccUser != null)
+                {
+                    var newuser = new UserLoginDto()
+                    {
+                        Id = getAccUser.Id,
+                        UserName = getAccUser.UserName,
+                    };
+                    response.Data = newuser;
+                }
+                else
+                    response.Data=false;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase ChangePassword(ChangePasswordDto passwordDto)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                int IdUser = int.Parse(Token.Authentication(passwordDto.Token));
+                User? user = _userRepository.GetById(IdUser);
+                if (user == null)
+                {
+                    response.Data = false;
+                    response.Code = 99;
+                    response.Message = "Not Found user";
+                }
+                else if (!user.Password.Equals(passwordDto.CurrentPassword))
+                {
+                    response.Data = false;
+                    response.Code = 99;
+                    response.Message = "Old password not correct";
+                }
+                else if (passwordDto.NewPassword != passwordDto.ConfirmPassword)
+                {
+                    response.Data = false;
+                    response.Code = 99;
+                    response.Message = "Confirm password not the same new password";
+                }
+                else
+                {
+                    user.Password = passwordDto.ConfirmPassword;
+                    user.DateUpdate = DateTime.Now;
+                    _commonUoW.BeginTransaction();
+                    _userRepository.Update(user);
+                    _commonUoW.Commit();
+                    response.Data = true;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Code = 99;
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase ForgotPassword(string userName, string license)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var user = _userRepository.FindSingle(x => x.UserName == userName && x.License == license);
+                if (user != null)
+                {
+                    var newuser = new UserLoginDto()
+                    {
+                        Id = user.Id,
+                        UserName = user.UserName,
+                        Password = user.Password
+                    };
+                    response.Data = newuser;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
         }
     }
-
 }

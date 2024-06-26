@@ -6,6 +6,10 @@ using SmartBot.Services;
 using SmartBot.Services.Users;
 using SmartBot.Common.Enums;
 using SmartBot.DataAccess.Entities;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.Graph.Models;
+using User = SmartBot.DataAccess.Entities.User;
+using SmartBot.Common.Helpers;
 
 namespace SmartBot.Api.Controllers
 {
@@ -52,9 +56,19 @@ namespace SmartBot.Api.Controllers
             var item = _userService.GetAccountEverLogin(idUser);
             return item;
         }
-        [HttpGet("list-accountFb")]
-        public ResponseBase GetAccountFbEverLogin(int idUser)
+
+        [HttpGet("list-accountClient")]
+        public ResponseBase GetAccountsClient(string token)
         {
+            var idUser = int.Parse(Token.Authentication(token));
+            var item = _userService.GetAccountEverLogin(idUser);
+            return item;
+        }
+
+        [HttpGet("list-accountFb")]
+        public ResponseBase GetAccountFbEverLogin(string token)
+        {
+            var idUser = int.Parse(Token.Authentication(token));
             var item = _userService.GetAccountFbEverLogin(idUser);
             return item;
         }
@@ -64,5 +78,40 @@ namespace SmartBot.Api.Controllers
             var item = _userService.Register(data);
             return item;
         }
+
+        [HttpGet("userlogin")]
+        public ResponseBase GetUser(string userName, string passWord)
+        {
+            var item = _userService.GetUser(userName, passWord);
+            return item;
+        }
+
+        [HttpPut("change-password")]
+        public ResponseBase ChangePassword(ChangePasswordDto passwordDto)
+        {
+            return _userService.ChangePassword(passwordDto);
+        }
+
+        [HttpGet("checkExitUser")]
+        public ResponseBase CheckExitUser(string userName)
+        {
+            var item = _userService.CheckExitUser(userName);
+            return item;
+        }
+
+        [HttpGet("forgot-password")]
+        public ResponseBase ForgotPassword(string userName, string license)
+        {
+            var item = _userService.ForgotPassword(userName, license);
+            return item;
+        }
+
+        [HttpGet("get-user-by-id")]
+        public ResponseBase GetUserById(int idUser)
+        {
+            var item = _userService.GetUserById(idUser);
+            return item;
+        }
+
     }
 }

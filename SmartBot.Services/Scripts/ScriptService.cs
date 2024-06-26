@@ -15,7 +15,7 @@ using SmartBot.DataDto.Script;
 using SmartBot.DataDto.User;
 using System.Data;
 using System.Net;
-using Action = SmartBot.DataAccess.Entities.Action;
+using Actions = SmartBot.DataAccess.Entities.Action;
 
 namespace SmartBot.Services.Scripts
 {
@@ -47,7 +47,7 @@ namespace SmartBot.Services.Scripts
 
 
         public ScriptService( IMapper mapper, ICommonUoW commonUoW, ICommonRepository<Script> scriptRepository, 
-            ICommonRepository<Action> actionRepository,ICommonRepository<ContentFb> contentRepository,
+            ICommonRepository<Actions> actionRepository,ICommonRepository<ContentFb> contentRepository,
             ICommonRepository<AccountFb> accountRepository, ICommonRepository<ClientCustomer> clientRepository,
             ICommonRepository<UserClient> userClientRepository, ICommonRepository<LogStepAction> logStepRepository,
             ICommonRepository<DataAccess.Entities.ActionType> actionTypeRepository,ICommonRepository<UsersAccountFb> userAccountRepository, 
@@ -142,7 +142,7 @@ namespace SmartBot.Services.Scripts
                 _scriptRepository.Insert(script);
                 _commonUoW.Commit();
                 var idScript = script.Id;
-                var listAction = param.ListAction.Select(x => new Action
+                var listAction = param.ListAction.Select(x => new Actions
                 {
                     IdScript = idScript,
                     IdAccountFb = x.IdAccountFb,
