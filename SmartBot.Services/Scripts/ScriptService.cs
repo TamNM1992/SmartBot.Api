@@ -24,7 +24,7 @@ namespace SmartBot.Services.Scripts
         private IMapper _mapper;
         private readonly ICommonUoW _commonUoW;
         private readonly ICommonRepository<Script> _scriptRepository;
-        private readonly ICommonRepository<Action> _actionRepository;
+        private readonly ICommonRepository<Actions> _actionRepository;
         private readonly ICommonRepository<DataAccess.Entities.ActionType> _actionTypeRepository;
         private readonly ICommonRepository<Topic> _topicRepository;
         private readonly ICommonRepository<ContentTopic> _contentTopicRepository;
