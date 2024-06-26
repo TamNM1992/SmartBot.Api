@@ -9,6 +9,7 @@ using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.User;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace SmartBot.Services.Users
 {
