@@ -11,6 +11,8 @@ using SmartBot.Services.Permissions;
 using Microsoft.EntityFrameworkCore;
 using Q101.ServiceCollectionExtensions.ServiceCollectionExtensions;
 using SmartBot.Api.MiddleWare;
+using Microsoft.Extensions.DependencyInjection;
+
 
 var builder = WebApplication.CreateBuilder(args);
 var config = new ConfigurationBuilder()
@@ -40,11 +42,15 @@ builder.Services.Configure<AppSettings>(config.GetSection("AppSettings"));
 // Add services to the container.
 builder.Services.AddHttpClient<IMyTypedClientServices, MyTypedClientServices>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.DateFormatString = "dd/MM/yyyy HH:mm:ss";
+}); ;
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
 
 var app = builder.Build();
 StaticServiceProvider.Provider = app.Services;
@@ -61,8 +67,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-app.UseMiddleware<JwtMiddleware>();
-
 app.UseMiddleware<JwtMiddleware>();
 
 app.MapControllers();

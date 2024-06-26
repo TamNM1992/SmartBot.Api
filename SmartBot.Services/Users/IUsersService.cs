@@ -19,6 +19,7 @@ namespace SmartBot.Services.Users
         public ResponseBase CheckExitUser(string userName);
         public ResponseBase ChangePassword(ChangePasswordDto passwordDto);
         public ResponseBase ForgotPassword(string userName, string license);
+       
 
     }
 }

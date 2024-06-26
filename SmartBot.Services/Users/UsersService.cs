@@ -366,29 +366,27 @@ namespace SmartBot.Services.Users
             ResponseBase response = new ResponseBase();
             try
             {
-                var getuser = _userRepository.FindSingle(x => x.UserName == userName && x.Password == passWord);
-                if (getuser != null)
+                var user = _userRepository.FindSingle(x => x.UserName == userName && x.Password == passWord);
+                if (user == null) 
                 {
-                    var newuser = new UserLoginDto()
-                    {
-                        Id = getuser.Id,
-                        UserName = getuser.UserName,
-                        Password = getuser.Password,
-                        Status = getuser.Status,
-                        DateCreated = getuser.DateCreated,
-                        DateUpdate = getuser.DateUpdate,
-                        ExpiryDate = getuser.ExpiryDate,
-
-                        License = getuser.License,
-                    };
-                    response.Data = newuser;
-                }
-                else
-                {
+                    response.Message = StatusLogin.UserNotExisting.ToString();
                     response.Data = false;
+                    response.Code = (int)StatusLogin.UserNotExisting;
+                    return response;
                 }
+
+                if (!user.Password.Equals(passWord))
+                {
+                    response.Message = StatusLogin.PasswordWrong.ToString();
+                    response.Data = false;
+                    response.Code = (int)StatusLogin.PasswordWrong;
+                    return response;
+                }
+
+                string token = Token.GenerateSecurityToken(user.Id, "7");
+                response.Data = token;
                 return response;
-                
+
             }
             catch (Exception ex)
             {
@@ -430,11 +428,12 @@ namespace SmartBot.Services.Users
             ResponseBase response = new ResponseBase();
             try
             {
-                User? user = _userRepository.GetById(passwordDto.IdUser);
+                int IdUser = int.Parse(Token.Authentication(passwordDto.Token));
+                User? user = _userRepository.GetById(IdUser);
                 if (user == null)
                 {
                     response.Data = false;
-                    response.Code = 404;
+                    response.Code = 99;
                     response.Message = "Not Found user";
                 }
                 else if (!user.Password.Equals(passwordDto.CurrentPassword))
@@ -462,6 +461,7 @@ namespace SmartBot.Services.Users
             }
             catch (Exception ex)
             {
+                response.Code = 99;
                 response.Message = ex.Message;
                 response.Data = false;
                 return response;

@@ -35,6 +35,13 @@ namespace SmartBot.Api.Controllers
             var item = _fbService.GetFaceBookId(fbUserName);
             return item;
         }
+
+        [HttpGet("test-chart")]
+        public ResponseBase TestChart()
+        {
+            var item = _fbService.TestChart();
+            return item;
+        }
     }
 
 
