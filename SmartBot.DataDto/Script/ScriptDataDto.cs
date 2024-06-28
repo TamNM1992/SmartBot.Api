@@ -16,12 +16,13 @@ namespace SmartBot.DataDto.Script
     public class ActionDataDto
     {
         public int Id { get; set; }
-        public AccountDataDto Account { get; set; }
+        public AccountFbDto Account { get; set; }
         public string? Link {  get; set; }
         public byte Style { get; set; }
         public List<int> ListType {  get; set; } 
         public int SequenceNumber { get; set; }
         public ContentDataDto? Content { get; set; }
+        public TargetDataDto? Target { get; set; }
     }
     public class ContentDataDto
     {
@@ -36,5 +37,11 @@ namespace SmartBot.DataDto.Script
         public string FbUser { get; set; }
         public string FbPassword { get; set; }
         public string FbProfileLink {  get; set; }
+    }
+    public class TargetDataDto
+    {
+        public int Type { get; set; }
+        public int IdTarget { get; set; }
+        public string? Link { get; set; }
     }
 }

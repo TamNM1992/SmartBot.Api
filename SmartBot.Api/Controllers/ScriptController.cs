@@ -77,5 +77,11 @@ namespace SmartBot.Api.Controllers
             var item = _ScriptService.GetPostTarget(idTarget, typeTarget);
             return item;
         }
+        [HttpPost("log-script")]
+        public ResponseBase LogScript(LogScriptInputData param)
+        {
+            var item = _ScriptService.LogScript(param);
+            return item;
+        }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph.Models.Security;
 using Microsoft.IdentityModel.Tokens;
 using NhaDat24h.Common.Enums;
+using SmartBot.Common.Enums;
 using SmartBot.Common.Extention;
 using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
@@ -11,6 +12,7 @@ using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.Img;
 using SmartBot.DataDto.Script;
+using SmartBot.DataDto.User;
 using System.Data;
 using System.Net;
 using Actions = SmartBot.DataAccess.Entities.Action;
@@ -23,7 +25,7 @@ namespace SmartBot.Services.Scripts
         private readonly ICommonUoW _commonUoW;
         private readonly ICommonRepository<Script> _scriptRepository;
         private readonly ICommonRepository<Actions> _actionRepository;
-        private readonly ICommonRepository<ActionType> _actionTypeRepository;
+        private readonly ICommonRepository<DataAccess.Entities.ActionType> _actionTypeRepository;
         private readonly ICommonRepository<Topic> _topicRepository;
         private readonly ICommonRepository<ContentTopic> _contentTopicRepository;
 
@@ -38,6 +40,8 @@ namespace SmartBot.Services.Scripts
 
         private readonly ICommonRepository<Post> _postRepository;
         private readonly ICommonRepository<PostComment> _postCommentRepository;
+        private readonly ICommonRepository<LogActionScript> _logActionRepository;
+        private readonly ICommonRepository<LogStepAction> _logStepRepository;
 
 
 
@@ -45,12 +49,12 @@ namespace SmartBot.Services.Scripts
         public ScriptService( IMapper mapper, ICommonUoW commonUoW, ICommonRepository<Script> scriptRepository, 
             ICommonRepository<Actions> actionRepository,ICommonRepository<ContentFb> contentRepository,
             ICommonRepository<AccountFb> accountRepository, ICommonRepository<ClientCustomer> clientRepository,
-            ICommonRepository<UserClient> userClientRepository,  
-            ICommonRepository<ActionType> actionTypeRepository,ICommonRepository<UsersAccountFb> userAccountRepository, 
+            ICommonRepository<UserClient> userClientRepository, ICommonRepository<LogStepAction> logStepRepository,
+            ICommonRepository<DataAccess.Entities.ActionType> actionTypeRepository,ICommonRepository<UsersAccountFb> userAccountRepository, 
             ICommonRepository<Topic> topicRepository,ICommonRepository<ImagePath> imgRepository,
             ICommonRepository<GroupFb> groupRepository,ICommonRepository<Post> postRepository,
             ICommonRepository<PostComment> postCommentRepository, ICommonRepository<ContentTopic> contentTopicRepository,
-            ICommonRepository<User> userRepository)
+            ICommonRepository<User> userRepository, ICommonRepository<LogActionScript> logActionRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
@@ -69,6 +73,8 @@ namespace SmartBot.Services.Scripts
             _postCommentRepository = postCommentRepository;
             _contentTopicRepository = contentTopicRepository;
             _userRepository = userRepository;
+            _logActionRepository = logActionRepository;
+            _logStepRepository = logStepRepository;
         }
         public ResponseBase CreateScript(ScriptDto param)
         {
@@ -184,23 +190,29 @@ namespace SmartBot.Services.Scripts
                     ListActions = x.Actions.Select(y=> new ActionDataDto
                     {
                         Id=y.Id,
-                        Account = new AccountDataDto()
+                        Account = new AccountFbDto()
                         {
-                            Id = y.IdAccountFbNavigation.Id,
-                            FbUser = y.IdAccountFbNavigation.FbUser,
-                            FbPassword = y.IdAccountFbNavigation.FbPassword,
-                            FbProfileLink = y.IdAccountFbNavigation.FbProfileLink,
+                            IdFb = y.IdAccountFbNavigation.Id,
+                            UserName = y.IdAccountFbNavigation.FbUser,
+                            Password = y.IdAccountFbNavigation.FbPassword,
                         },
                         Style = y.Style,
                         
                         SequenceNumber = y.SequenceNumber,
-                        Content = new ContentDataDto()
+                        Content =(y.IdContent>0)? new ContentDataDto()
                         {
                             Id = y.IdContentNavigation.Id,
                             Detail = y.IdContentNavigation.Detail,
                             Type = (byte)y.IdContentNavigation.Type,
+                        }:null,
+                        Target = new TargetDataDto()
+                        {
+                            Type= y.TypeTarget,
+                            IdTarget = y.IdTarget,
+                            Link = y.Link,
                         }
                     }).ToList()
+
                 }).ToList();
                 response.Data = data;
 
@@ -493,6 +505,55 @@ namespace SmartBot.Services.Scripts
                 _contentRepository.Update(content);
                 _commonUoW.Commit();
                 response.Data = "Success";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                return response;
+            }
+        }
+        public ResponseBase LogScript(LogScriptInputData param)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+
+                var client = _clientRepository.FindAll(x=>x.HardwareId == param.HardwareId).FirstOrDefault();
+                foreach(var action in param.ListActionResult)
+                {
+                    var a = new LogActionScript();
+                    a.Name = action.Name;
+                    a.Description = action.Description;
+                    a.StartTime = action.Start;
+                    a.EndTime = action.End;
+                    a.IdFb = action.IdFB;
+                    a.IdScript = param.IdScript;
+                    a.IdClient = client.Id;
+                    a.IdUser = param.IdUser;
+                    a.NameFb = action.NameFB;
+                    a.Result = action.Result;
+                    a.ResultDetail = action.ResultDetail;
+                    _commonUoW.BeginTransaction();
+                    _logActionRepository.Insert(a);
+                    _commonUoW.Commit();
+                    if(a.Id<=0)
+                    {
+                        continue;
+                    }
+                    var listStep = new List<LogStepAction>();
+                    foreach(var step in action.ListStep)
+                    {
+                        var s = new LogStepAction();
+                        s.IdLogAction = a.Id;
+                        s.StepDetail = step;
+                        s.Result = true;
+                        listStep.Add(s);
+                    }
+                    _commonUoW.BeginTransaction();
+                    _logStepRepository.InsertMultiple(listStep);
+                    _commonUoW.Commit();
+                }    
                 return response;
             }
             catch (Exception ex)

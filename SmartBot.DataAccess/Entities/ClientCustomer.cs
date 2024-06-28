@@ -13,5 +13,7 @@ public partial class ClientCustomer
 
     public virtual ICollection<ImagePath> ImagePaths { get; set; } = new List<ImagePath>();
 
+    public virtual ICollection<LogActionScript> LogActionScripts { get; set; } = new List<LogActionScript>();
+
     public virtual ICollection<UserClient> UserClients { get; set; } = new List<UserClient>();
 }
