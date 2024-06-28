@@ -15,17 +15,19 @@ namespace SmartBot.Services.AccountFB
         private readonly ICommonRepository<User> _userRepository;
         private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
         private readonly ICommonRepository<AccountFb> _accountRepository;
+        private readonly ICommonRepository<FanPageFb> _fanpageRepository;
 
         public AccountFbService(IMapper mapper, ICommonUoW commonUoW,
             ICommonRepository<User> userRepository,
             ICommonRepository<UsersAccountFb> userAccountRepository,
-            ICommonRepository<AccountFb> accountRepository)
+            ICommonRepository<AccountFb> accountRepository, ICommonRepository<FanPageFb> fanpageRepository)
         {
             _mapper=mapper;
             _commonUoW=commonUoW;
             _userRepository=userRepository;
             _userAccountRepository=userAccountRepository;
             _accountRepository=accountRepository;
+            _fanpageRepository=fanpageRepository;
         }
 
         public ResponseBase InsertAccountFb(InsertAccountFbDto param)
@@ -165,6 +167,30 @@ namespace SmartBot.Services.AccountFB
                 response.Message = ex.Message;
                 return response;
             }
+        }
+        public ResponseBase CheckMainInfo(string infoName)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var data = _fanpageRepository.FindAll(x => x.Name==infoName).FirstOrDefault();
+                if (data==null)
+                {
+                    response.Message = "Tài khoản không tồn tại";
+                }
+                else
+                {
+                    response.Data= data.MainInfo;
+                }
+                return response;
+
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                return response;
+            }
+
         }
     }
 }

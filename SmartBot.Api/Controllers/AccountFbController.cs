@@ -42,6 +42,12 @@ namespace SmartBot.Api.Controllers
             var item = _fbService.TestChart();
             return item;
         }
+        [HttpGet("main-info")]
+        public ResponseBase CheckMainInfo(string infoName)
+        {
+            var item = _fbService.CheckMainInfo(infoName);
+            return item;
+        }
     }
 
 

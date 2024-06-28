@@ -66,6 +66,12 @@ namespace SmartBot.Api.Controllers
         }
 
         [HttpGet("list-accountFb")]
+        public ResponseBase GetAccountFbEverLogin(int idUser)
+        {
+            var item = _userService.GetAccountFbEverLogin(idUser);
+            return item;
+        }
+        [HttpGet("list-accountFb-token")]
         public ResponseBase GetAccountFbEverLogin(string token)
         {
             var idUser = int.Parse(Token.Authentication(token));
