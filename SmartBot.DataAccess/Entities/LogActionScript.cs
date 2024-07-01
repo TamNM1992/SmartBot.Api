@@ -9,7 +9,7 @@ public partial class LogActionScript
 
     public string Name { get; set; } = null!;
 
-    public string Description { get; set; } = null!;
+    public string? Description { get; set; } = null!;
 
     public DateTime StartTime { get; set; }
 
@@ -25,7 +25,7 @@ public partial class LogActionScript
 
     public string NameFb { get; set; } = null!;
 
-    public string ResultDetail { get; set; } = null!;
+    public string? ResultDetail { get; set; } = null!;
 
     public bool Result { get; set; }
 
