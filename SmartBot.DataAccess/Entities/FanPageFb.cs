@@ -18,6 +18,6 @@ public partial class FanPageFb
     public DateTime DateCreate { get; set; }
 
     public DateTime? DateUpdate { get; set; }
-
+    public bool MainInfo { get; set; }
     public virtual AccountFb IdFbNavigation { get; set; } = null!;
 }

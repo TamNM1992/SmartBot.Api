@@ -1,8 +1,10 @@
 ﻿
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph.Models.Security;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using NhaDat24h.Common.Enums;
 using SmartBot.Common.Enums;
 using SmartBot.Common.Extention;
@@ -518,7 +520,8 @@ namespace SmartBot.Services.Scripts
             ResponseBase response = new ResponseBase();
             try
             {
-
+                string datalog = JsonConvert.SerializeObject(param);
+                FileHelper.WriteFile("D:/LogScript"+ $"/{param.IdScript}/{DateTime.Now.ToString("dd-MM-yyyy HH-mm-ss")}", datalog);
                 var client = _clientRepository.FindAll(x=>x.HardwareId == param.HardwareId).FirstOrDefault();
                 foreach(var action in param.ListActionResult)
                 {

@@ -50,6 +50,8 @@ namespace SmartBot.Common.Enums
         SearchPage = 15,
         [Description("GetPostGroup")]
         GetPostGroup = 16,
+        [Description("LoginFanpage")]
+        LoginFanpage = 17,
         [Description("ChangeAvatar")]
         ChangeAvatar = 90,
         [Description("ChangeCover")]
