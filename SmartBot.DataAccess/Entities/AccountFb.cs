@@ -23,7 +23,11 @@ public partial class AccountFb
 
     public virtual ICollection<ContentFb> ContentFbs { get; set; } = new List<ContentFb>();
 
+    public virtual ICollection<FanPageFb> FanPageFbs { get; set; } = new List<FanPageFb>();
+
     public virtual ICollection<GroupFb> GroupFbs { get; set; } = new List<GroupFb>();
+
+    public virtual ICollection<LogActionScript> LogActionScripts { get; set; } = new List<LogActionScript>();
 
     public virtual ICollection<PageFb> PageFbs { get; set; } = new List<PageFb>();
 

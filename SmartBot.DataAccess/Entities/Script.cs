@@ -16,4 +16,6 @@ public partial class Script
     public string? Name { get; set; }
 
     public virtual ICollection<Action> Actions { get; set; } = new List<Action>();
+
+    public virtual ICollection<LogActionScript> LogActionScripts { get; set; } = new List<LogActionScript>();
 }

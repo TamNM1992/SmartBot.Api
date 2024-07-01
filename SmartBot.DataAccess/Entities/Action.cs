@@ -22,6 +22,7 @@ public partial class Action
     public int IdTarget { get; set; }
 
     public byte TypeTarget { get; set; }
+    public string? Link { get; set; }
 
     public virtual AccountFb IdAccountFbNavigation { get; set; } = null!;
 

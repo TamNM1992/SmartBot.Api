@@ -16,6 +16,7 @@ namespace SmartBot.Services.Scripts
 
         public ResponseBase UpdateContent(UpdateContentParam param);
         public ResponseBase GetPostTarget(int idTarget, int typeTarget);
+        public ResponseBase LogScript(LogScriptInputData param);
 
     }
 }

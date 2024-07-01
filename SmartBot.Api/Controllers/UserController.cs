@@ -37,9 +37,9 @@ namespace SmartBot.Api.Controllers
         }
 
         [HttpGet("check-token")]
-        public ResponseBase CheckUserByToken(string token)
+        public ResponseBase CheckUserByToken(string token, string hwId)
         {
-            var item = _userService.CheckUserByToken(token);
+            var item = _userService.CheckUserByToken(token,hwId);
             return item;
         }
         [HttpGet("check-license")]
@@ -66,6 +66,12 @@ namespace SmartBot.Api.Controllers
         }
 
         [HttpGet("list-accountFb")]
+        public ResponseBase GetAccountFbEverLogin(int idUser)
+        {
+            var item = _userService.GetAccountFbEverLogin(idUser);
+            return item;
+        }
+        [HttpGet("list-accountFb-token")]
         public ResponseBase GetAccountFbEverLogin(string token)
         {
             var idUser = int.Parse(Token.Authentication(token));
