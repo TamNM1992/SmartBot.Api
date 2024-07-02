@@ -23,10 +23,9 @@ namespace SmartBot.Services.Action
         private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
         private readonly ICommonRepository<AccountFb> _accountRepository;
         private readonly ICommonRepository<LogActionScript> _logActionRepository;
-        private readonly ICommonRepository<LogStepAction> _LogStepRepository;
+        private readonly ICommonRepository<ActionType> _actionTypeRepository;
 
-        public ActionsService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<UsersAccountFb> userAccountRepository, ICommonRepository<AccountFb> accountRepository, ICommonRepository<LogActionScript> logActionRepository,
-            ICommonRepository<LogStepAction> LogStepRepository)
+        public ActionsService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<UsersAccountFb> userAccountRepository, ICommonRepository<AccountFb> accountRepository, ICommonRepository<ActionType> actionTypeRepository, ICommonRepository<LogActionScript> logActionRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
@@ -34,12 +33,7 @@ namespace SmartBot.Services.Action
             _userAccountRepository = userAccountRepository;
             _accountRepository = accountRepository;
             _logActionRepository=logActionRepository;
-            _LogStepRepository=LogStepRepository;
-        }
-
-        private List<string> Test(int idAction)
-        {
-            return _LogStepRepository.FindAll(y => y.IdLogAction== idAction).Select(x => x.StepDetail).ToList();
+            _actionTypeRepository = actionTypeRepository;
         }
 
         public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? idFb, int? actionId)
@@ -77,6 +71,23 @@ namespace SmartBot.Services.Action
                 //           (!idFb.HasValue || log.IdFb == idFb) &&
                 //           (!actionId.HasValue || log.Action == actions[(int)actionId])).ToList();
 
+                response.Data = data;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase GetActionType()
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var data = _actionTypeRepository.FindAll();
                 response.Data = data;
                 return response;
             }

@@ -19,5 +19,11 @@ namespace SmartBot.Api.Controllers
         {
             return _service.GetActionHistory(token, start, end, IdFb, ActionId);
         }
+
+        [HttpGet("action-type")]
+        public ResponseBase GetActionType()
+        {
+            return _service.GetActionType();
+        }
     }
 }
