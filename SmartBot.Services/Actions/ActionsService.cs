@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using SmartBot.Common.Enums;
 using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
@@ -17,14 +16,16 @@ namespace SmartBot.Services.Action
         private readonly ICommonRepository<DataAccess.Entities.User> _userRepository;
         private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
         private readonly ICommonRepository<AccountFb> _accountRepository;
+        private readonly ICommonRepository<ActionType> _actionTypeRepository;
 
-        public ActionsService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<UsersAccountFb> userAccountRepository, ICommonRepository<AccountFb> accountRepository)
+        public ActionsService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<UsersAccountFb> userAccountRepository, ICommonRepository<AccountFb> accountRepository, ICommonRepository<ActionType> actionTypeRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
             _userRepository = userRepository;
             _userAccountRepository = userAccountRepository;
             _accountRepository = accountRepository;
+            _actionTypeRepository = actionTypeRepository;
         }
 
         public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? idFb, int? actionId)
@@ -86,6 +87,23 @@ namespace SmartBot.Services.Action
                            (!idFb.HasValue || log.IdFb == idFb) &&
                            (!actionId.HasValue || log.Action == actions[(int)actionId])).ToList();
 
+                response.Data = data;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase GetActionType()
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var data = _actionTypeRepository.FindAll();
                 response.Data = data;
                 return response;
             }
