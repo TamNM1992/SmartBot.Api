@@ -1,12 +1,9 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
+using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.ClassConfigFacebook;
 using SmartBot.DataDto.Common;
-using SmartBot.DataDto.User;
-using System.Data;
-using System.Linq;
 
 namespace SmartBot.Services.ClassConfigFacebook
 {
@@ -14,13 +11,15 @@ namespace SmartBot.Services.ClassConfigFacebook
     {
         private IMapper _mapper;
         private readonly ICommonUoW _commonUoW;
+        private readonly ICommonRepository<ClassData> _classDataRepository;
 
-        public ClassConfigFacebookService( IMapper mapper, ICommonUoW commonUoW)
+        public ClassConfigFacebookService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<ClassData> classDataRepository)
         {
             //  mình gọi thằng authority trong pipeline ra, gắn nó vào thằng _authorityRepository để dùng
 
             _mapper = mapper;
             _commonUoW = commonUoW;
+            _classDataRepository = classDataRepository;
         }
         public ResponseBase GetCommentGroup()
         {
@@ -29,7 +28,7 @@ namespace SmartBot.Services.ClassConfigFacebook
             {
                 return new ResponseBase()
                 {
-                    Code= 0,
+                    Code = 0,
                     Message = "Success",
                     Data = new CommentGroupDataDto()
                     {
@@ -120,7 +119,6 @@ namespace SmartBot.Services.ClassConfigFacebook
                                 }
                             }
                         },
-                        
                     },
 
                 };
@@ -132,7 +130,6 @@ namespace SmartBot.Services.ClassConfigFacebook
                 return response;
             }
         }
-        
         public ResponseBase GetShareGroup()
         {
             ResponseBase response = new ResponseBase();
@@ -140,7 +137,7 @@ namespace SmartBot.Services.ClassConfigFacebook
             {
                 return new ResponseBase()
                 {
-                    Code= 0,
+                    Code = 0,
                     Message = "Success",
                     Data = new ShareGroupDataDto()
                     {
@@ -150,7 +147,7 @@ namespace SmartBot.Services.ClassConfigFacebook
                         {
                             ClassName = "x9f619 x1n2onr6 x1ja2u2z x78zum5 xdt5ytf x193iq5w xeuugli x1r8uery x1iyjqo2 xs83m0k xg83lxy x1h0ha7o x10b6aqq x1yrsyyn",
                             Index = 3,
-                                
+
                         },
                         ButtonSubmit = new ClassFB()
                         {
@@ -309,14 +306,14 @@ namespace SmartBot.Services.ClassConfigFacebook
             {
                 return new ResponseBase()
                 {
-                    Code= 0,
+                    Code = 0,
                     Message = "Success",
                     Data = new CommentConfig()
                     {
                         DelayPreLoad = 2000,
                         DelayWaitingForAction = 1000,
                         DelayWaitingForWriteText = 300,
-                        Content="",
+                        Content = "",
                         ButtonComment = new ClassFB()
                         {
                             ClassName = "x9f619 x1n2onr6 x1ja2u2z x78zum5 xdt5ytf x193iq5w xeuugli x1r8uery x1iyjqo2 xs83m0k xg83lxy x1h0ha7o x10b6aqq x1yrsyyn",
@@ -345,14 +342,14 @@ namespace SmartBot.Services.ClassConfigFacebook
             {
                 return new ResponseBase()
                 {
-                    Code= 0,
+                    Code = 0,
                     Message = "Success",
                     Data = new UpImgConfig()
                     {
                         DelayPreLoad = 2000,
                         DelayWaitingForAction = 1000,
                         DelayWaitingForSendImg = 5000,
-                        PathImg="",
+                        PathImg = "",
                         ButtonImg = new ClassFB()
                         {
                             ClassName = "x1rg5ohu x1mnrxsn x1w0mnb",
@@ -364,6 +361,36 @@ namespace SmartBot.Services.ClassConfigFacebook
                             Index = 0,
                         }
                     },
+
+                };
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+        public ResponseBase GetFbClassName(int type)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var classConfig = _classDataRepository.FindAll(x => x.Type == type).ToList();
+                return new ResponseBase()
+                {
+                    Code = 0,
+                    Message = "Success",
+                    Data = new PostWallDto()
+                    {
+                        DelayTimeLoad = 5000,
+                        DelayAction = 1000,
+                        ClassNames = classConfig.Select(x => new ClassFB
+                        {
+                            ClassName = x.ClassName,
+                            Index = x.ClassIndex
+                        }).ToList(),
+                    }
 
                 };
             }
