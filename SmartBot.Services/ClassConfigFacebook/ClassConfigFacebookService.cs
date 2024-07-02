@@ -371,6 +371,7 @@ namespace SmartBot.Services.ClassConfigFacebook
                 return response;
             }
         }
+
         public ResponseBase GetFbClassName(int type)
         {
             ResponseBase response = new ResponseBase();
@@ -387,6 +388,7 @@ namespace SmartBot.Services.ClassConfigFacebook
                         DelayAction = 1000,
                         ClassNames = classConfig.Select(x => new ClassFB
                         {
+                            Description = x.Description,
                             ClassName = x.ClassName,
                             Index = x.ClassIndex
                         }).ToList(),
