@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace SmartBot.DataAccess.Entities;
 
-namespace SmartBot.DataAccess.Entities;
-
-public partial class ClassDatum
+public partial class ClassData
 {
     public int Id { get; set; }
 

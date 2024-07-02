@@ -15,7 +15,6 @@ namespace SmartBot.Api.Controllers
         private readonly IMyTypedClientServices _client;
         private readonly IClassConfigFacebookService _classConfigFacebookService;
 
-
         public ClassConfigFacebookController(IMapper mapper, IMyTypedClientServices client, IClassConfigFacebookService classConfigFacebookService)
         {
             _mapper = mapper;
@@ -41,5 +40,13 @@ namespace SmartBot.Api.Controllers
             var item = _classConfigFacebookService.GetUpImgConfig();
             return item;
         }
+
+        [HttpGet("fb-config")]
+        public ResponseBase GetPostWallConfig(int type)
+        {
+            var item = _classConfigFacebookService.GetFbClassName(type);
+            return item;
+        }
+
     }
 }
