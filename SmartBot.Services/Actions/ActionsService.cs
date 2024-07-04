@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Action;
 using SmartBot.DataDto.Base;
-
+using System.Globalization;
 
 namespace SmartBot.Services.Action
 {
@@ -26,30 +25,38 @@ namespace SmartBot.Services.Action
             _logActionRepository = logActionRepository;
             _actionTypeRepository = actionTypeRepository;
             _scriptRepository = scriptRepository;
-            _stepActionRepository=stepActionRepository;
+            _stepActionRepository = stepActionRepository;
         }
 
-        public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? idFb, string? actionName)
+        public ResponseBase GetActionHistory(string token, string? startTime, string? endTime, int? idFb, int? actionId)
         {
             ResponseBase response = new ResponseBase();
             try
             {
                 var idUser = int.Parse(Token.Authentication(token));
-                var logActions = _logActionRepository.FindAll(x => x.IdUser == idUser).GroupBy(x => x.IdScript);
 
-                var data = logActions.Select(x => new LogScriptDto
+                DateTime? start = string.IsNullOrEmpty(startTime) ? null : DateTime.ParseExact(startTime, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                DateTime? end = string.IsNullOrEmpty(endTime) ? null : DateTime.ParseExact(endTime, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+                var logActions = _logActionRepository.FindAll(log => log.IdUser == idUser &&
+                                                    (!start.HasValue || log.StartTime >= start.Value) &&
+                                                    (!end.HasValue || log.EndTime <= end.Value) &&
+                                                    (!idFb.HasValue || log.IdFb == idFb.Value));
+
+
+                var data = logActions.GroupBy(x => x.IdScript).Select(x => new LogScriptDto
                 {
-                    ScriptName = x.FirstOrDefault().IdScriptNavigation.Name,
+                    ScriptName = x.First().IdScriptNavigation.Name ?? string.Empty,
                     ListLogAction = logActions.Select(x => new LogActionDto
                     {
-                        Id = x.FirstOrDefault().Id,
-                        Name = x.FirstOrDefault().Name,
-                        StartTime = x.FirstOrDefault().StartTime,
-                        EndTime = x.FirstOrDefault().EndTime,
-                        IdFb = x.FirstOrDefault().IdFb,
-                        NameFb = x.FirstOrDefault().NameFb,
-                        Result = x.FirstOrDefault().Result,
-                        ListLogStep = x.FirstOrDefault().LogStepActions.Select(x => x.StepDetail).ToList()
+                        Id = x.Id,
+                        Name = x.Name,
+                        StartTime = x.StartTime,
+                        EndTime = x.EndTime,
+                        IdFb = x.IdFb,
+                        NameFb = x.NameFb,
+                        Result = x.Result,
+                        ListLogStep = x.LogStepActions.Select(x => x.StepDetail).ToList()
                     }).ToList()
                 }).ToList();
 
@@ -80,16 +87,20 @@ namespace SmartBot.Services.Action
                 return response;
             }
         }
+
         public ResponseBase GetLogActions(int idLogAction)
         {
             ResponseBase response = new ResponseBase();
             try
             {
-                var getStep = _stepActionRepository.FindAll(x => x.IdLogAction==idLogAction).GroupBy(x => x.IdLogAction);
-                var data = getStep.Select(x => new GetStepAction
+                var getStep = _stepActionRepository.FindAll(x => x.IdLogAction == idLogAction)
+                                                   .GroupBy(x => x.IdLogAction);
+
+                var data = getStep.Select(x => new StepActionDto
                 {
-                    IdLogAction=x.FirstOrDefault().IdLogAction,
-                    ListLogStep=x.Select(x => x.StepDetail).ToList()
+                    IdLogAction = x.First().IdLogAction,
+                    ListLogStep = x.Select(x => x.StepDetail).ToList()
+
                 });
                 response.Data = data;
                 return response;

@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using SmartBot.DataDto.Base;
 using SmartBot.Services.Action;
+using System.Globalization;
 
 namespace SmartBot.Api.Controllers
 {
@@ -15,9 +16,11 @@ namespace SmartBot.Api.Controllers
         }
 
         [HttpGet("action-history")]
-        public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? IdFb, string? actionName)
+
+        public ResponseBase GetActionHistory(string token, string? startTime, string? endTime, int? IdFb, int? ActionId)
         {
-            return _service.GetActionHistory(token, start, end, IdFb, actionName);
+            return _service.GetActionHistory(token, startTime, endTime, IdFb, ActionId);
+
         }
 
         [HttpGet("action-type")]
@@ -26,7 +29,8 @@ namespace SmartBot.Api.Controllers
             return _service.GetActionType();
         }
 
-        [HttpGet("get-log-action")]
+        [HttpGet("log-action")]
+
         public ResponseBase GetLogActions(int idLogaction)
         {
             return _service.GetLogActions(idLogaction);

@@ -1,12 +1,9 @@
-﻿
-
 namespace SmartBot.DataDto.Action
 {
     public class LogScriptDto
     {
         public string ScriptName { get; set; } = string.Empty;
         public List<LogActionDto>? ListLogAction { get; set; }
-        
     }
     public class LogActionDto
     {
@@ -20,7 +17,7 @@ namespace SmartBot.DataDto.Action
         public List<string>? ListLogStep { get; set; }
     }
 
-    public class GetStepAction
+    public class StepActionDto
     {
         public int IdLogAction { get; set; }
         public List<string>? ListLogStep { get; set; }
