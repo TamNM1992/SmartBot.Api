@@ -15,15 +15,21 @@ namespace SmartBot.Api.Controllers
         }
 
         [HttpGet("action-history")]
-        public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? IdFb, int? ActionId)
+        public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? IdFb, string? actionName)
         {
-            return _service.GetActionHistory(token, start, end, IdFb, ActionId);
+            return _service.GetActionHistory(token, start, end, IdFb, actionName);
         }
 
         [HttpGet("action-type")]
         public ResponseBase GetActionType()
         {
             return _service.GetActionType();
+        }
+
+        [HttpGet("get-log-action")]
+        public ResponseBase GetLogActions(int idLogaction)
+        {
+            return _service.GetLogActions(idLogaction);
         }
     }
 }

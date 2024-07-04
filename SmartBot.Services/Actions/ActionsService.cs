@@ -16,18 +16,20 @@ namespace SmartBot.Services.Action
         private readonly ICommonRepository<LogActionScript> _logActionRepository;
         private readonly ICommonRepository<ActionType> _actionTypeRepository;
         private readonly ICommonRepository<Script> _scriptRepository;
+        private readonly ICommonRepository<LogStepAction> _stepActionRepository;
 
         public ActionsService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<ActionType> actionTypeRepository,
-            ICommonRepository<LogActionScript> logActionRepository, ICommonRepository<Script> scriptRepository)
+            ICommonRepository<LogActionScript> logActionRepository, ICommonRepository<Script> scriptRepository, ICommonRepository<LogStepAction> stepActionRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
             _logActionRepository = logActionRepository;
             _actionTypeRepository = actionTypeRepository;
             _scriptRepository = scriptRepository;
+            _stepActionRepository=stepActionRepository;
         }
 
-        public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? idFb, int? actionId)
+        public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? idFb, string? actionName)
         {
             ResponseBase response = new ResponseBase();
             try
@@ -68,6 +70,27 @@ namespace SmartBot.Services.Action
             try
             {
                 var data = _actionTypeRepository.FindAll();
+                response.Data = data;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+        public ResponseBase GetLogActions(int idLogAction)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var getStep = _stepActionRepository.FindAll(x => x.IdLogAction==idLogAction).GroupBy(x => x.IdLogAction);
+                var data = getStep.Select(x => new GetStepAction
+                {
+                    IdLogAction=x.FirstOrDefault().IdLogAction,
+                    ListLogStep=x.Select(x => x.StepDetail).ToList()
+                });
                 response.Data = data;
                 return response;
             }

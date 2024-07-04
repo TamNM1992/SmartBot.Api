@@ -19,4 +19,10 @@ namespace SmartBot.DataDto.Action
         public bool Result { get; set; }
         public List<string>? ListLogStep { get; set; }
     }
+
+    public class GetStepAction
+    {
+        public int IdLogAction { get; set; }
+        public List<string>? ListLogStep { get; set; }
+    }
 }
