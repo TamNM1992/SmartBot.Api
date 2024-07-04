@@ -1,16 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Graph.Models;
-using SmartBot.Common.Enums;
 using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Action;
 using SmartBot.DataDto.Base;
-using SmartBot.DataDto.Script;
-using System.Runtime.CompilerServices;
-using static Azure.Core.HttpHeader;
-using User = SmartBot.DataAccess.Entities.User;
+
 
 namespace SmartBot.Services.Action
 {
@@ -18,22 +13,18 @@ namespace SmartBot.Services.Action
     {
         private IMapper _mapper;
         private readonly ICommonUoW _commonUoW;
-
-        private readonly ICommonRepository<DataAccess.Entities.User> _userRepository;
-        private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
-        private readonly ICommonRepository<AccountFb> _accountRepository;
         private readonly ICommonRepository<LogActionScript> _logActionRepository;
         private readonly ICommonRepository<ActionType> _actionTypeRepository;
+        private readonly ICommonRepository<Script> _scriptRepository;
 
-        public ActionsService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<UsersAccountFb> userAccountRepository, ICommonRepository<AccountFb> accountRepository, ICommonRepository<ActionType> actionTypeRepository, ICommonRepository<LogActionScript> logActionRepository)
+        public ActionsService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<ActionType> actionTypeRepository,
+            ICommonRepository<LogActionScript> logActionRepository, ICommonRepository<Script> scriptRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
-            _userRepository = userRepository;
-            _userAccountRepository = userAccountRepository;
-            _accountRepository = accountRepository;
-            _logActionRepository=logActionRepository;
+            _logActionRepository = logActionRepository;
             _actionTypeRepository = actionTypeRepository;
+            _scriptRepository = scriptRepository;
         }
 
         public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? idFb, int? actionId)
@@ -42,34 +33,23 @@ namespace SmartBot.Services.Action
             try
             {
                 var idUser = int.Parse(Token.Authentication(token));
-                var logAc = _logActionRepository.FindAll(x => x.IdUser == idUser)
-                                                .Include(x => x.IdScriptNavigation)
-                                                .Include(x => x.LogStepActions);
+                var logActions = _logActionRepository.FindAll(x => x.IdUser == idUser).GroupBy(x => x.IdScript);
 
-
-                var data = new LogScriptDto
+                var data = logActions.Select(x => new LogScriptDto
                 {
-                    ScriptName = logAc.FirstOrDefault().IdScriptNavigation.Name,
-                    ListLogAction = logAc.Select(x => new LogActionDto
+                    ScriptName = x.FirstOrDefault().IdScriptNavigation.Name,
+                    ListLogAction = logActions.Select(x => new LogActionDto
                     {
-                        Id = x.Id,
-                        Name = x.Name,
-                        StartTime = x.StartTime,
-                        EndTime = x.EndTime,
-                        IdFb = x.IdFb,
-                        NameFb = x.NameFb,
-                        Result = x.Result,
-                        ListLogStep = x.LogStepActions.Select(x => x.StepDetail).ToList()
+                        Id = x.FirstOrDefault().Id,
+                        Name = x.FirstOrDefault().Name,
+                        StartTime = x.FirstOrDefault().StartTime,
+                        EndTime = x.FirstOrDefault().EndTime,
+                        IdFb = x.FirstOrDefault().IdFb,
+                        NameFb = x.FirstOrDefault().NameFb,
+                        Result = x.FirstOrDefault().Result,
+                        ListLogStep = x.FirstOrDefault().LogStepActions.Select(x => x.StepDetail).ToList()
                     }).ToList()
-                };
-
-
-                //var data = logActions.Where(log =>
-                //           log.IdUser == idUser &&
-                //           (!start.HasValue || log.StartTime >= start.Value) &&
-                //           (!end.HasValue || log.EndTime <= end.Value) &&
-                //           (!idFb.HasValue || log.IdFb == idFb) &&
-                //           (!actionId.HasValue || log.Action == actions[(int)actionId])).ToList();
+                }).ToList();
 
                 response.Data = data;
                 return response;

@@ -14,7 +14,7 @@ namespace SmartBot.Api.Controllers
             _service = service;
         }
 
-        [HttpGet("history")]
+        [HttpGet("action-history")]
         public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? IdFb, int? ActionId)
         {
             return _service.GetActionHistory(token, start, end, IdFb, ActionId);
