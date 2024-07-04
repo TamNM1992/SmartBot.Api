@@ -100,6 +100,7 @@ namespace SmartBot.Services.Action
                 {
                     IdLogAction = x.First().IdLogAction,
                     ListLogStep = x.Select(x => x.StepDetail).ToList()
+
                 });
                 response.Data = data;
                 return response;
