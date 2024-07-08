@@ -21,7 +21,7 @@ public partial class User
 
     public DateTime? ExpiryDate { get; set; }
 
-    public virtual ICollection<LogActionScript> LogActionScripts { get; set; } = new List<LogActionScript>();
+    public virtual ICollection<LogScript> LogScripts { get; set; } = new List<LogScript>();
 
     public virtual ICollection<UserClient> UserClients { get; set; } = new List<UserClient>();
 

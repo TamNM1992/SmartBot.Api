@@ -19,10 +19,15 @@ public partial class Action
 
     public DateTime DateUpdate { get; set; }
 
-    public int IdTarget { get; set; }
+    public int? IdTarget { get; set; }
 
     public byte TypeTarget { get; set; }
+
     public string? Link { get; set; }
+
+    public int? NumberGet { get; set; }
+
+    public string? KeyWord { get; set; }
 
     public virtual AccountFb IdAccountFbNavigation { get; set; } = null!;
 

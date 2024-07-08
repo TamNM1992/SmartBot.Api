@@ -42,6 +42,7 @@ namespace SmartBot.Services.Scripts
 
         private readonly ICommonRepository<Post> _postRepository;
         private readonly ICommonRepository<PostComment> _postCommentRepository;
+        private readonly ICommonRepository<LogScript> _logScriptRepository;
         private readonly ICommonRepository<LogActionScript> _logActionRepository;
         private readonly ICommonRepository<LogStepAction> _logStepRepository;
 
@@ -56,7 +57,8 @@ namespace SmartBot.Services.Scripts
             ICommonRepository<Topic> topicRepository,ICommonRepository<ImagePath> imgRepository,
             ICommonRepository<GroupFb> groupRepository,ICommonRepository<Post> postRepository,
             ICommonRepository<PostComment> postCommentRepository, ICommonRepository<ContentTopic> contentTopicRepository,
-            ICommonRepository<User> userRepository, ICommonRepository<LogActionScript> logActionRepository)
+            ICommonRepository<User> userRepository, ICommonRepository<LogActionScript> logActionRepository,
+            ICommonRepository<LogScript> logScriptRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
@@ -77,6 +79,7 @@ namespace SmartBot.Services.Scripts
             _userRepository = userRepository;
             _logActionRepository = logActionRepository;
             _logStepRepository = logStepRepository;
+            _logScriptRepository = logScriptRepository;
         }
         public ResponseBase CreateScript(ScriptDto param)
         {
@@ -199,8 +202,10 @@ namespace SmartBot.Services.Scripts
                             Password = y.IdAccountFbNavigation.FbPassword,
                         },
                         Style = y.Style,
-                        
+                        Link = y.Link,
                         SequenceNumber = y.SequenceNumber,
+                        NumberGet = y.NumberGet,
+                        KeyWord = y.KeyWord,
                         Content =(y.IdContent>0)? new ContentDataDto()
                         {
                             Id = y.IdContentNavigation.Id,
@@ -211,11 +216,11 @@ namespace SmartBot.Services.Scripts
                         {
                             Type= y.TypeTarget,
                             IdTarget = y.IdTarget,
-                            Link = y.Link,
                         }
                     }).ToList()
 
                 }).ToList();
+
                 response.Data = data;
 
                 return response;
@@ -523,7 +528,28 @@ namespace SmartBot.Services.Scripts
                 string datalog = JsonConvert.SerializeObject(param);
                 FileHelper.WriteFile("D:/LogScript"+ $"/{param.IdScript}/{DateTime.Now.ToString("dd-MM-yyyy HH-mm-ss")}", datalog);
                 var client = _clientRepository.FindAll(x=>x.HardwareId == param.HardwareId).FirstOrDefault();
-                foreach(var action in param.ListActionResult)
+                if(client == null)
+                {
+                    response.Message = "Client không tồn tại";
+                    return response;
+                }
+                var logScript = new LogScript
+                {
+                    StartTime = param.StartTime,
+                    EndTime = param.EndTime,
+                    IdScript = param.IdScript,
+                    IdUser = param.IdUser,
+                    IdClient = client.Id,
+                };
+                _commonUoW.BeginTransaction();
+                _logScriptRepository.Insert(logScript);
+                _commonUoW.Commit();
+                if(logScript.Id<=0)
+                {
+                    response.Message = "Insert fail";
+                    return response;
+                }    
+                foreach (var action in param.ListActionResult)
                 {
                     var a = new LogActionScript();
                     a.Name = action.Name;
@@ -531,12 +557,12 @@ namespace SmartBot.Services.Scripts
                     a.StartTime = action.Start;
                     a.EndTime = action.End;
                     a.IdFb = action.IdFB;
-                    a.IdScript = param.IdScript;
-                    a.IdClient = client.Id;
-                    a.IdUser = param.IdUser;
                     a.NameFb = action.NameFB;
                     a.Result = action.Result;
+                    a.IdLogScript=logScript.Id;
                     a.ResultDetail = action.ResultDetail;
+                    a.IdScript = param.IdScript;
+
                     _commonUoW.BeginTransaction();
                     _logActionRepository.Insert(a);
                     _commonUoW.Commit();

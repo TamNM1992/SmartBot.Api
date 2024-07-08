@@ -11,6 +11,8 @@ namespace SmartBot.DataDto.Script
         public int IdUser { get; set; }
         public int IdScript { get; set; }
         public string HardwareId { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
         public List<ActionResultDto> ListActionResult { get; set; }
     }
     public class ActionResultDto

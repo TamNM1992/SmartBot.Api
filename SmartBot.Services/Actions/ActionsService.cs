@@ -28,7 +28,7 @@ namespace SmartBot.Services.Action
             _stepActionRepository = stepActionRepository;
         }
 
-        public ResponseBase GetActionHistory(string token, string? startTime, string? endTime, int? idFb, int? actionId)
+        public ResponseBase GetActionHistory(string token, int currentPage, int itemsPerPage, string? startTime, string? endTime, int? idFb, int? actionId)
         {
             ResponseBase response = new ResponseBase();
             try
@@ -57,8 +57,8 @@ namespace SmartBot.Services.Action
                         NameFb = x.NameFb,
                         Result = x.Result,
                         ListLogStep = x.LogStepActions.Select(x => x.StepDetail).ToList()
-                    }).ToList()
-                }).ToList();
+                    }).OrderByDescending(x=>x.StartTime).ToList()
+                }).Skip((currentPage-1)*itemsPerPage).Take(itemsPerPage).ToList();
 
                 response.Data = data;
                 return response;

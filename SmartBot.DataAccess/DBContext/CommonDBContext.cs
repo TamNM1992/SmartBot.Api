@@ -10,7 +10,117 @@ namespace SmartBot.DataAccess.DBContext
         public CommonDBContext(DbContextOptions options) : base(options)
         {
         }
-        public virtual DbSet<AccountFb> AccountFbs { get; set; }
+    public virtual DbSet<AccountFb> AccountFbs { get; set; }
+
+    public virtual DbSet<Action> Actions { get; set; }
+
+    public virtual DbSet<ActionType> ActionTypes { get; set; }
+
+    public virtual DbSet<ClassDatum> ClassData { get; set; }
+
+    public virtual DbSet<ClientCustomer> ClientCustomers { get; set; }
+
+    public virtual DbSet<ContentFb> ContentFbs { get; set; }
+
+    public virtual DbSet<ContentTopic> ContentTopics { get; set; }
+
+    public virtual DbSet<District> Districts { get; set; }
+
+    public virtual DbSet<FanPageFb> FanPageFbs { get; set; }
+
+    public virtual DbSet<GroupFb> GroupFbs { get; set; }
+
+    public virtual DbSet<ImagePath> ImagePaths { get; set; }
+
+    public virtual DbSet<ImageTopic> ImageTopics { get; set; }
+
+    public virtual DbSet<LogActionScript> LogActionScripts { get; set; }
+
+    public virtual DbSet<LogScript> LogScripts { get; set; }
+
+    public virtual DbSet<LogStepAction> LogStepActions { get; set; }
+
+    public virtual DbSet<PageFb> PageFbs { get; set; }
+
+    public virtual DbSet<Post> Posts { get; set; }
+
+    public virtual DbSet<PostComment> PostComments { get; set; }
+
+    public virtual DbSet<Province> Provinces { get; set; }
+
+    public virtual DbSet<Script> Scripts { get; set; }
+
+    public virtual DbSet<Topic> Topics { get; set; }
+
+    public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<UserClient> UserClients { get; set; }
+
+    public virtual DbSet<UsersAccountFb> UsersAccountFbs { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AccountFb>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_FaceBookAccount");
+
+            entity.ToTable("AccountFB");
+
+            entity.Property(e => e.DateLogin).HasColumnType("datetime");
+            entity.Property(e => e.FbPassword).HasMaxLength(20);
+            entity.Property(e => e.FbProfileLink)
+                .HasMaxLength(512)
+                .IsUnicode(false);
+            entity.Property(e => e.FbUser).HasMaxLength(50);
+            entity.Property(e => e.KeySearch).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Action>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_ActionLike");
+
+            entity.ToTable("Action");
+
+            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
+            entity.Property(e => e.IdAccountFb).HasColumnName("IdAccountFB");
+            entity.Property(e => e.KeyWord).HasMaxLength(500);
+            entity.Property(e => e.Link).HasMaxLength(1000);
+
+            entity.HasOne(d => d.IdAccountFbNavigation).WithMany(p => p.Actions)
+                .HasForeignKey(d => d.IdAccountFb)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ActionLike_AccountFB");
+
+            entity.HasOne(d => d.IdContentNavigation).WithMany(p => p.Actions)
+                .HasForeignKey(d => d.IdContent)
+                .HasConstraintName("FK_Action_ContentFB");
+
+            entity.HasOne(d => d.IdScriptNavigation).WithMany(p => p.Actions)
+                .HasForeignKey(d => d.IdScript)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ActionLike_Script");
+        });
+
+        modelBuilder.Entity<ActionType>(entity =>
+        {
+            entity.ToTable("ActionType");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.TypeName).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<ClassDatum>(entity =>
+        {
+            entity.Property(e => e.ClassName)
+                .HasMaxLength(1000)
+                .IsUnicode(false);
+            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<ClientCustomer>(entity =>
+        {
+            entity.ToTable("ClientCustomer");
 
         public virtual DbSet<Action> Actions { get; set; }
 
@@ -50,7 +160,58 @@ namespace SmartBot.DataAccess.DBContext
 
         public virtual DbSet<Topic> Topics { get; set; }
 
-        public virtual DbSet<User> Users { get; set; }
+        modelBuilder.Entity<LogActionScript>(entity =>
+        {
+            entity.ToTable("LogActionScript");
+
+            entity.Property(e => e.Description).HasMaxLength(200);
+            entity.Property(e => e.EndTime).HasColumnType("datetime");
+            entity.Property(e => e.IdFb).HasColumnName("IdFB");
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.NameFb)
+                .HasMaxLength(200)
+                .HasColumnName("NameFB");
+            entity.Property(e => e.ResultDetail).HasMaxLength(100);
+            entity.Property(e => e.StartTime).HasColumnType("datetime");
+
+            entity.HasOne(d => d.IdFbNavigation).WithMany(p => p.LogActionScripts)
+                .HasForeignKey(d => d.IdFb)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LogActionScript_AccountFB");
+
+            entity.HasOne(d => d.IdLogScriptNavigation).WithMany(p => p.LogActionScripts)
+                .HasForeignKey(d => d.IdLogScript)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LogActionScript_LogScript");
+        });
+
+        modelBuilder.Entity<LogScript>(entity =>
+        {
+            entity.ToTable("LogScript");
+
+            entity.Property(e => e.EndTime).HasColumnType("datetime");
+            entity.Property(e => e.StartTime).HasColumnType("datetime");
+
+            entity.HasOne(d => d.IdClientNavigation).WithMany(p => p.LogScripts)
+                .HasForeignKey(d => d.IdClient)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LogScript_ClientCustomer");
+
+            entity.HasOne(d => d.IdScriptNavigation).WithMany(p => p.LogScripts)
+                .HasForeignKey(d => d.IdScript)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LogScript_Script");
+
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.LogScripts)
+                .HasForeignKey(d => d.IdUser)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LogScript_Users");
+        });
+
+        modelBuilder.Entity<LogStepAction>(entity =>
+        {
+            entity.ToTable("LogStepAction");
+
 
         public virtual DbSet<UserClient> UserClients { get; set; }
 
