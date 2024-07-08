@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
-using SmartBot.Common.Enums;
 using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Action;
 using SmartBot.DataDto.Base;
-using User = SmartBot.DataAccess.Entities.User;
+using System.Globalization;
 
 namespace SmartBot.Services.Action
 {
@@ -13,79 +12,96 @@ namespace SmartBot.Services.Action
     {
         private IMapper _mapper;
         private readonly ICommonUoW _commonUoW;
+        private readonly ICommonRepository<LogActionScript> _logActionRepository;
+        private readonly ICommonRepository<ActionType> _actionTypeRepository;
+        private readonly ICommonRepository<Script> _scriptRepository;
+        private readonly ICommonRepository<LogStepAction> _stepActionRepository;
 
-        private readonly ICommonRepository<DataAccess.Entities.User> _userRepository;
-        private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
-        private readonly ICommonRepository<AccountFb> _accountRepository;
-
-        public ActionsService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<UsersAccountFb> userAccountRepository, ICommonRepository<AccountFb> accountRepository)
+        public ActionsService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<ActionType> actionTypeRepository,
+            ICommonRepository<LogActionScript> logActionRepository, ICommonRepository<Script> scriptRepository, ICommonRepository<LogStepAction> stepActionRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
-            _userRepository = userRepository;
-            _userAccountRepository = userAccountRepository;
-            _accountRepository = accountRepository;
+            _logActionRepository = logActionRepository;
+            _actionTypeRepository = actionTypeRepository;
+            _scriptRepository = scriptRepository;
+            _stepActionRepository = stepActionRepository;
         }
 
-        public ResponseBase GetActionHistory(string token, DateTime? start, DateTime? end, int? idFb, int? actionId)
+        public ResponseBase GetActionHistory(string token, int currentPage, int itemsPerPage, string? startTime, string? endTime, int? idFb, int? actionId)
         {
             ResponseBase response = new ResponseBase();
             try
             {
-                // Tượng trưng cho bảng Actions
-                Dictionary<int, string> actions = new Dictionary<int, string>();
-                actions.Add(1, "Thích");
-                actions.Add(2, "Bình luận");
-                actions.Add(3, "Đăng bài");
-                actions.Add(4, "Chia sẻ");
-                actions.Add(5, "Thả tim");
-
-                // Tượng trưng cho bảng LogActions
-                List<LogActionDto> logActions = new List<LogActionDto>()
-                {
-                    new LogActionDto
-                    {
-                        IdUser = 2,
-                        StartTime = DateTime.Parse("2024-06-19"),
-                        EndTime = DateTime.Parse("2024-06-19"),
-                        IdFb = 3,
-                        Action = actions[1],
-                        NameFb = "quanlhjos@gmail.com",
-                        ResultDetail = "Thành công",
-                        Result = true
-                    },
-                    new LogActionDto
-                    {
-                        IdUser = 2,
-                        StartTime = DateTime.Parse("2024-06-19"),
-                        EndTime = DateTime.Parse("2024-06-19"),
-                        IdFb = 4,
-                        Action = actions[4],
-                        NameFb = "0961082002",
-                        ResultDetail = "Thất bại",
-                        Result = false
-                    },
-                    new LogActionDto
-                    {
-                        IdUser = 11,
-                        StartTime = DateTime.Parse("2024-07-20"),
-                        EndTime = DateTime.Parse("2024-07-20"),
-                        IdFb = 4,
-                        Action = actions[5],
-                        NameFb = "0961082002",
-                        ResultDetail = "Thất bại",
-                        Result = false
-                    }
-                };
-
                 var idUser = int.Parse(Token.Authentication(token));
-                var data = logActions.Where(log =>
-                           log.IdUser == idUser &&
-                           (!start.HasValue || log.StartTime >= start.Value) &&
-                           (!end.HasValue || log.EndTime <= end.Value) &&
-                           (!idFb.HasValue || log.IdFb == idFb) &&
-                           (!actionId.HasValue || log.Action == actions[(int)actionId])).ToList();
 
+                DateTime? start = string.IsNullOrEmpty(startTime) ? null : DateTime.ParseExact(startTime, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                DateTime? end = string.IsNullOrEmpty(endTime) ? null : DateTime.ParseExact(endTime, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+                var logActions = _logActionRepository.FindAll(log => log.IdUser == idUser &&
+                                                    (!start.HasValue || log.StartTime >= start.Value) &&
+                                                    (!end.HasValue || log.EndTime <= end.Value) &&
+                                                    (!idFb.HasValue || log.IdFb == idFb.Value));
+
+
+                var data = logActions.GroupBy(x => x.IdScript).Select(x => new LogScriptDto
+                {
+                    ScriptName = x.First().IdScriptNavigation.Name ?? string.Empty,
+                    ListLogAction = logActions.Select(x => new LogActionDto
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        StartTime = x.StartTime,
+                        EndTime = x.EndTime,
+                        IdFb = x.IdFb,
+                        NameFb = x.NameFb,
+                        Result = x.Result,
+                        ListLogStep = x.LogStepActions.Select(x => x.StepDetail).ToList()
+                    }).OrderByDescending(x=>x.StartTime).ToList()
+                }).Skip((currentPage-1)*itemsPerPage).Take(itemsPerPage).ToList();
+
+                response.Data = data;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase GetActionType()
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var data = _actionTypeRepository.FindAll();
+                response.Data = data;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Data = false;
+                return response;
+            }
+        }
+
+        public ResponseBase GetLogActions(int idLogAction)
+        {
+            ResponseBase response = new ResponseBase();
+            try
+            {
+                var getStep = _stepActionRepository.FindAll(x => x.IdLogAction == idLogAction)
+                                                   .GroupBy(x => x.IdLogAction);
+
+                var data = getStep.Select(x => new StepActionDto
+                {
+                    IdLogAction = x.First().IdLogAction,
+                    ListLogStep = x.Select(x => x.StepDetail).ToList()
+
+                });
                 response.Data = data;
                 return response;
             }
