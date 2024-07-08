@@ -2,7 +2,11 @@ namespace SmartBot.DataDto.Action
 {
     public class LogScriptDto
     {
-        public string ScriptName { get; set; } = string.Empty;
+        public int Id { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public int IdScript { get; set; }
+        public string NameScript { get; set; }   
         public List<LogActionDto>? ListLogAction { get; set; }
     }
     public class LogActionDto
