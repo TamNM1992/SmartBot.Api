@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using SmartBot.Common.Helpers;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
@@ -16,9 +17,10 @@ namespace SmartBot.Services.Action
         private readonly ICommonRepository<ActionType> _actionTypeRepository;
         private readonly ICommonRepository<Script> _scriptRepository;
         private readonly ICommonRepository<LogStepAction> _stepActionRepository;
+        private readonly ICommonRepository<LogScript> _logScriptRepository;
 
         public ActionsService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<ActionType> actionTypeRepository,
-            ICommonRepository<LogActionScript> logActionRepository, ICommonRepository<Script> scriptRepository, ICommonRepository<LogStepAction> stepActionRepository)
+            ICommonRepository<LogActionScript> logActionRepository, ICommonRepository<Script> scriptRepository, ICommonRepository<LogStepAction> stepActionRepository, ICommonRepository<LogScript> logScriptRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
@@ -26,6 +28,7 @@ namespace SmartBot.Services.Action
             _actionTypeRepository = actionTypeRepository;
             _scriptRepository = scriptRepository;
             _stepActionRepository = stepActionRepository;
+            _logScriptRepository=logScriptRepository;
         }
 
         public ResponseBase GetActionHistory(string token, int currentPage, int itemsPerPage, string? startTime, string? endTime, int? idFb, int? actionId)
@@ -38,25 +41,31 @@ namespace SmartBot.Services.Action
                 DateTime? start = string.IsNullOrEmpty(startTime) ? null : DateTime.ParseExact(startTime, "dd/MM/yyyy", CultureInfo.InvariantCulture);
                 DateTime? end = string.IsNullOrEmpty(endTime) ? null : DateTime.ParseExact(endTime, "dd/MM/yyyy", CultureInfo.InvariantCulture);
 
-                var logActions = _logActionRepository.FindAll(log => log.IdUser == idUser &&
+                var logScript = _logScriptRepository.FindAll(log => log.IdUser == idUser &&
                                                     (!start.HasValue || log.StartTime >= start.Value) &&
-                                                    (!end.HasValue || log.EndTime <= end.Value) &&
-                                                    (!idFb.HasValue || log.IdFb == idFb.Value));
+                                                    (!end.HasValue || log.EndTime <= end.Value))
+                                                    .Include(x => x.IdScriptNavigation)
+                                                    .Include(x=>x.LogActionScripts)
+                                                    .ThenInclude(x=>x.LogStepActions);
+                
 
-
-                var data = logActions.GroupBy(x => x.IdScript).Select(x => new LogScriptDto
+                var data = logScript.Select(x => new LogScriptDto
                 {
-                    ScriptName = x.First().IdScriptNavigation.Name ?? string.Empty,
-                    ListLogAction = logActions.Select(x => new LogActionDto
+                    Id = x.Id,
+                    StartTime = x.StartTime,
+                    EndTime = x.EndTime,
+                    NameScript = x.IdScriptNavigation.Name ?? string.Empty,
+                    IdScript = x.IdScript,
+                    ListLogAction = x.LogActionScripts.Select(y => new LogActionDto
                     {
-                        Id = x.Id,
-                        Name = x.Name,
-                        StartTime = x.StartTime,
-                        EndTime = x.EndTime,
-                        IdFb = x.IdFb,
-                        NameFb = x.NameFb,
-                        Result = x.Result,
-                        ListLogStep = x.LogStepActions.Select(x => x.StepDetail).ToList()
+                        Id = y.Id,
+                        Name = y.Name,
+                        StartTime = y.StartTime,
+                        EndTime = y.EndTime,
+                        IdFb = y.IdFb,
+                        NameFb = y.NameFb,
+                        Result = y.Result,
+                        ListLogStep = y.LogStepActions.Select(x => x.StepDetail).ToList()
                     }).OrderByDescending(x=>x.StartTime).ToList()
                 }).Skip((currentPage-1)*itemsPerPage).Take(itemsPerPage).ToList();
 
