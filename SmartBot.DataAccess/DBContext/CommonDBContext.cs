@@ -37,6 +37,8 @@ namespace SmartBot.DataAccess.DBContext
 
     public virtual DbSet<LogActionScript> LogActionScripts { get; set; }
 
+    public virtual DbSet<LogScript> LogScripts { get; set; }
+
     public virtual DbSet<LogStepAction> LogStepActions { get; set; }
 
     public virtual DbSet<PageFb> PageFbs { get; set; }
@@ -82,6 +84,7 @@ namespace SmartBot.DataAccess.DBContext
 
             entity.Property(e => e.DateUpdate).HasColumnType("datetime");
             entity.Property(e => e.IdAccountFb).HasColumnName("IdAccountFB");
+            entity.Property(e => e.KeyWord).HasMaxLength(500);
             entity.Property(e => e.Link).HasMaxLength(1000);
 
             entity.HasOne(d => d.IdAccountFbNavigation).WithMany(p => p.Actions)
@@ -103,6 +106,7 @@ namespace SmartBot.DataAccess.DBContext
         {
             entity.ToTable("ActionType");
 
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.TypeName).HasMaxLength(50);
         });
 
@@ -250,25 +254,38 @@ namespace SmartBot.DataAccess.DBContext
             entity.Property(e => e.ResultDetail).HasMaxLength(100);
             entity.Property(e => e.StartTime).HasColumnType("datetime");
 
-            entity.HasOne(d => d.IdClientNavigation).WithMany(p => p.LogActionScripts)
-                .HasForeignKey(d => d.IdClient)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_LogActionScript_ClientCustomer");
-
             entity.HasOne(d => d.IdFbNavigation).WithMany(p => p.LogActionScripts)
                 .HasForeignKey(d => d.IdFb)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_LogActionScript_AccountFB");
 
-            entity.HasOne(d => d.IdScriptNavigation).WithMany(p => p.LogActionScripts)
+            entity.HasOne(d => d.IdLogScriptNavigation).WithMany(p => p.LogActionScripts)
+                .HasForeignKey(d => d.IdLogScript)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LogActionScript_LogScript");
+        });
+
+        modelBuilder.Entity<LogScript>(entity =>
+        {
+            entity.ToTable("LogScript");
+
+            entity.Property(e => e.EndTime).HasColumnType("datetime");
+            entity.Property(e => e.StartTime).HasColumnType("datetime");
+
+            entity.HasOne(d => d.IdClientNavigation).WithMany(p => p.LogScripts)
+                .HasForeignKey(d => d.IdClient)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LogScript_ClientCustomer");
+
+            entity.HasOne(d => d.IdScriptNavigation).WithMany(p => p.LogScripts)
                 .HasForeignKey(d => d.IdScript)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_LogActionScript_Script");
+                .HasConstraintName("FK_LogScript_Script");
 
-            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.LogActionScripts)
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.LogScripts)
                 .HasForeignKey(d => d.IdUser)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_LogActionScript_Users");
+                .HasConstraintName("FK_LogScript_Users");
         });
 
         modelBuilder.Entity<LogStepAction>(entity =>

@@ -19,8 +19,9 @@ namespace SmartBot.DataDto.Script
         public AccountFbDto Account { get; set; }
         public string? Link {  get; set; }
         public byte Style { get; set; }
-        public List<int> ListType {  get; set; } 
         public int SequenceNumber { get; set; }
+        public int? NumberGet { get; set; }
+        public string?KeyWord { get; set; }
         public ContentDataDto? Content { get; set; }
         public TargetDataDto? Target { get; set; }
     }
@@ -40,8 +41,7 @@ namespace SmartBot.DataDto.Script
     }
     public class TargetDataDto
     {
-        public int Type { get; set; }
-        public int IdTarget { get; set; }
-        public string? Link { get; set; }
+        public byte Type { get; set; }
+        public int? IdTarget { get; set; }
     }
 }
