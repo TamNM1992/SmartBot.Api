@@ -1,7 +1,4 @@
-﻿
-
-
-using SmartBot.DataDto.Base;
+﻿using SmartBot.DataDto.Base;
 
 namespace SmartBot.Services.ClassConfigFacebook
 {
@@ -10,6 +7,6 @@ namespace SmartBot.Services.ClassConfigFacebook
         public ResponseBase GetCommentGroup();
         public ResponseBase GetCommentConfig();
         public ResponseBase GetUpImgConfig();
-
+        public ResponseBase GetFbClassName(int type);
     }
 }
