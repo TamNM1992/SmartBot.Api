@@ -48,10 +48,14 @@ namespace SmartBot.Common.Enums
         SearchGroup = 14,
         [Description("SearchPage")]
         SearchPage = 15,
+        [Description("GetPostWall")]
+        GetPostWall = 30,
         [Description("GetPostGroup")]
-        GetPostGroup = 16,
+        GetPostGroup = 31,
         [Description("LoginFanpage")]
         LoginFanpage = 17,
+        [Description("SwitchMain")]
+        SwitchMain = 18,
         [Description("ChangeAvatar")]
         ChangeAvatar = 90,
         [Description("ChangeCover")]
