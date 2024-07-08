@@ -7,6 +7,7 @@ namespace SmartBot.DataAccess.DBContext
 {
     public partial class CommonDBContext : PDataContext
     {
+
         public CommonDBContext(DbContextOptions options) : base(options)
         {
         }
@@ -122,43 +123,122 @@ namespace SmartBot.DataAccess.DBContext
         {
             entity.ToTable("ClientCustomer");
 
-        public virtual DbSet<Action> Actions { get; set; }
+            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
+            entity.Property(e => e.HardwareId)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
 
-        public virtual DbSet<ActionType> ActionTypes { get; set; }
+        modelBuilder.Entity<ContentFb>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_CommentFB");
 
-        public virtual DbSet<ClassData> ClassData { get; set; }
+            entity.ToTable("ContentFB");
 
-        public virtual DbSet<ClientCustomer> ClientCustomers { get; set; }
+            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
 
-        public virtual DbSet<ContentFb> ContentFbs { get; set; }
+            entity.HasOne(d => d.IdFaceBookNavigation).WithMany(p => p.ContentFbs)
+                .HasForeignKey(d => d.IdFaceBook)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CommentFB_AccountFB");
+        });
 
-        public virtual DbSet<ContentTopic> ContentTopics { get; set; }
+        modelBuilder.Entity<ContentTopic>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_CommentTopic");
 
-        public virtual DbSet<District> Districts { get; set; }
+            entity.ToTable("ContentTopic");
 
-        public virtual DbSet<FanPageFb> FanPageFbs { get; set; }
+            entity.HasOne(d => d.IdContentNavigation).WithMany(p => p.ContentTopics)
+                .HasForeignKey(d => d.IdContent)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CommentTopic_CommentFB");
 
-        public virtual DbSet<GroupFb> GroupFbs { get; set; }
+            entity.HasOne(d => d.IdTopicNavigation).WithMany(p => p.ContentTopics)
+                .HasForeignKey(d => d.IdTopic)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CommentTopic_Topic");
+        });
 
-        public virtual DbSet<ImagePath> ImagePaths { get; set; }
+        modelBuilder.Entity<District>(entity =>
+        {
+            entity.ToTable("District");
 
-        public virtual DbSet<ImageTopic> ImageTopics { get; set; }
+            entity.Property(e => e.KeyWord).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(50);
 
-        public virtual DbSet<LogActionScript> LogActionScripts { get; set; }
+            entity.HasOne(d => d.IdProvinceNavigation).WithMany(p => p.Districts)
+                .HasForeignKey(d => d.IdProvince)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_District_Province");
+        });
 
-        public virtual DbSet<LogStepAction> LogStepActions { get; set; }
+        modelBuilder.Entity<FanPageFb>(entity =>
+        {
+            entity.ToTable("FanPageFB");
 
-        public virtual DbSet<PageFb> PageFbs { get; set; }
+            entity.Property(e => e.DateCreate).HasColumnType("datetime");
+            entity.Property(e => e.DateUpdate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IdFb).HasColumnName("IdFB");
+            entity.Property(e => e.Link).HasMaxLength(500);
+            entity.Property(e => e.Name).HasMaxLength(500);
 
-        public virtual DbSet<Post> Posts { get; set; }
+            entity.HasOne(d => d.IdFbNavigation).WithMany(p => p.FanPageFbs)
+                .HasForeignKey(d => d.IdFb)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_FanPageFB_AccountFB");
+        });
 
-        public virtual DbSet<PostComment> PostComments { get; set; }
+        modelBuilder.Entity<GroupFb>(entity =>
+        {
+            entity.ToTable("GroupFB");
 
-        public virtual DbSet<Province> Provinces { get; set; }
+            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(256);
+            entity.Property(e => e.Type).HasMaxLength(100);
+            entity.Property(e => e.Url)
+                .HasMaxLength(500)
+                .IsUnicode(false);
 
-        public virtual DbSet<Script> Scripts { get; set; }
+            entity.HasOne(d => d.IdFaceBookNavigation).WithMany(p => p.GroupFbs)
+                .HasForeignKey(d => d.IdFaceBook)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_GroupFB_AccountFB");
+        });
 
-        public virtual DbSet<Topic> Topics { get; set; }
+        modelBuilder.Entity<ImagePath>(entity =>
+        {
+            entity.ToTable("ImagePath");
+
+            entity.Property(e => e.Path).HasMaxLength(1000);
+
+            entity.HasOne(d => d.IdClientNavigation).WithMany(p => p.ImagePaths)
+                .HasForeignKey(d => d.IdClient)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ImagePath_ClientCustomer");
+
+            entity.HasOne(d => d.IdContentNavigation).WithMany(p => p.ImagePaths)
+                .HasForeignKey(d => d.IdContent)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ImagePath_ContentFB");
+        });
+
+        modelBuilder.Entity<ImageTopic>(entity =>
+        {
+            entity.ToTable("ImageTopic");
+
+            entity.HasOne(d => d.IdImageNavigation).WithMany(p => p.ImageTopics)
+                .HasForeignKey(d => d.IdImage)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ImageTopic_ImagePath");
+
+            entity.HasOne(d => d.IdTopicNavigation).WithMany(p => p.ImageTopics)
+                .HasForeignKey(d => d.IdTopic)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ImageTopic_Topic");
+        });
 
         modelBuilder.Entity<LogActionScript>(entity =>
         {
@@ -212,371 +292,146 @@ namespace SmartBot.DataAccess.DBContext
         {
             entity.ToTable("LogStepAction");
 
+            entity.Property(e => e.StepDetail).HasMaxLength(2000);
 
-        public virtual DbSet<UserClient> UserClients { get; set; }
+            entity.HasOne(d => d.IdLogActionNavigation).WithMany(p => p.LogStepActions)
+                .HasForeignKey(d => d.IdLogAction)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LogStepAction_LogActionScript");
+        });
 
-        public virtual DbSet<UsersAccountFb> UsersAccountFbs { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        modelBuilder.Entity<PageFb>(entity =>
         {
-            modelBuilder.Entity<AccountFb>(entity =>
-            {
-                entity.HasKey(e => e.Id).HasName("PK_FaceBookAccount");
-
-                entity.ToTable("AccountFB");
-
-                entity.Property(e => e.DateLogin).HasColumnType("datetime");
-                entity.Property(e => e.FbPassword).HasMaxLength(20);
-                entity.Property(e => e.FbProfileLink)
-                    .HasMaxLength(512)
-                    .IsUnicode(false);
-                entity.Property(e => e.FbUser).HasMaxLength(50);
-                entity.Property(e => e.KeySearch).HasMaxLength(50);
-            });
-
-            modelBuilder.Entity<Action>(entity =>
-            {
-                entity.HasKey(e => e.Id).HasName("PK_ActionLike");
-
-                entity.ToTable("Action");
-
-                entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-                entity.Property(e => e.IdAccountFb).HasColumnName("IdAccountFB");
-                entity.Property(e => e.Link).HasMaxLength(1000);
-
-                entity.HasOne(d => d.IdAccountFbNavigation).WithMany(p => p.Actions)
-                    .HasForeignKey(d => d.IdAccountFb)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ActionLike_AccountFB");
-
-                entity.HasOne(d => d.IdContentNavigation).WithMany(p => p.Actions)
-                    .HasForeignKey(d => d.IdContent)
-                    .HasConstraintName("FK_Action_ContentFB");
-
-                entity.HasOne(d => d.IdScriptNavigation).WithMany(p => p.Actions)
-                    .HasForeignKey(d => d.IdScript)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ActionLike_Script");
-            });
-
-            modelBuilder.Entity<ActionType>(entity =>
-            {
-                entity.ToTable("ActionType");
-
-                entity.Property(e => e.TypeName).HasMaxLength(50);
-            });
-
-            modelBuilder.Entity<ClassData>(entity =>
-            {
-                entity.ToTable("ClassData");
-
-                entity.Property(e => e.ClassName)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-                entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-                entity.Property(e => e.Description).HasMaxLength(100);
-            });
-
-            modelBuilder.Entity<ClientCustomer>(entity =>
-            {
-                entity.ToTable("ClientCustomer");
-
-                entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-                entity.Property(e => e.HardwareId)
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-            });
-
-            modelBuilder.Entity<ContentFb>(entity =>
-            {
-                entity.HasKey(e => e.Id).HasName("PK_CommentFB");
-
-                entity.ToTable("ContentFB");
-
-                entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-
-                entity.HasOne(d => d.IdFaceBookNavigation).WithMany(p => p.ContentFbs)
-                    .HasForeignKey(d => d.IdFaceBook)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_CommentFB_AccountFB");
-            });
-
-            modelBuilder.Entity<ContentTopic>(entity =>
-            {
-                entity.HasKey(e => e.Id).HasName("PK_CommentTopic");
-
-                entity.ToTable("ContentTopic");
-
-                entity.HasOne(d => d.IdContentNavigation).WithMany(p => p.ContentTopics)
-                    .HasForeignKey(d => d.IdContent)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_CommentTopic_CommentFB");
-
-                entity.HasOne(d => d.IdTopicNavigation).WithMany(p => p.ContentTopics)
-                    .HasForeignKey(d => d.IdTopic)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_CommentTopic_Topic");
-            });
-
-            modelBuilder.Entity<District>(entity =>
-            {
-                entity.ToTable("District");
-
-                entity.Property(e => e.KeyWord).HasMaxLength(100);
-                entity.Property(e => e.Name).HasMaxLength(50);
-
-                entity.HasOne(d => d.IdProvinceNavigation).WithMany(p => p.Districts)
-                    .HasForeignKey(d => d.IdProvince)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_District_Province");
-            });
-
-            modelBuilder.Entity<FanPageFb>(entity =>
-            {
-                entity.ToTable("FanPageFB");
-
-                entity.Property(e => e.DateCreate).HasColumnType("datetime");
-                entity.Property(e => e.DateUpdate)
-                    .HasDefaultValueSql("(getdate())")
-                    .HasColumnType("datetime");
-                entity.Property(e => e.IdFb).HasColumnName("IdFB");
-                entity.Property(e => e.Link).HasMaxLength(500);
-                entity.Property(e => e.Name).HasMaxLength(500);
-
-                entity.HasOne(d => d.IdFbNavigation).WithMany(p => p.FanPageFbs)
-                    .HasForeignKey(d => d.IdFb)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_FanPageFB_AccountFB");
-            });
-
-            modelBuilder.Entity<GroupFb>(entity =>
-            {
-                entity.ToTable("GroupFB");
-
-                entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-                entity.Property(e => e.Name).HasMaxLength(256);
-                entity.Property(e => e.Type).HasMaxLength(100);
-                entity.Property(e => e.Url)
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
-
-                entity.HasOne(d => d.IdFaceBookNavigation).WithMany(p => p.GroupFbs)
-                    .HasForeignKey(d => d.IdFaceBook)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_GroupFB_AccountFB");
-            });
-
-            modelBuilder.Entity<ImagePath>(entity =>
-            {
-                entity.ToTable("ImagePath");
-
-                entity.Property(e => e.Path).HasMaxLength(1000);
-
-                entity.HasOne(d => d.IdClientNavigation).WithMany(p => p.ImagePaths)
-                    .HasForeignKey(d => d.IdClient)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ImagePath_ClientCustomer");
-
-                entity.HasOne(d => d.IdContentNavigation).WithMany(p => p.ImagePaths)
-                    .HasForeignKey(d => d.IdContent)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ImagePath_ContentFB");
-            });
-
-            modelBuilder.Entity<ImageTopic>(entity =>
-            {
-                entity.ToTable("ImageTopic");
-
-                entity.HasOne(d => d.IdImageNavigation).WithMany(p => p.ImageTopics)
-                    .HasForeignKey(d => d.IdImage)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ImageTopic_ImagePath");
-
-                entity.HasOne(d => d.IdTopicNavigation).WithMany(p => p.ImageTopics)
-                    .HasForeignKey(d => d.IdTopic)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ImageTopic_Topic");
-            });
-
-            modelBuilder.Entity<LogActionScript>(entity =>
-            {
-                entity.ToTable("LogActionScript");
-
-                entity.Property(e => e.Description).HasMaxLength(200);
-                entity.Property(e => e.EndTime).HasColumnType("datetime");
-                entity.Property(e => e.IdFb).HasColumnName("IdFB");
-                entity.Property(e => e.Name).HasMaxLength(200);
-                entity.Property(e => e.NameFb)
-                    .HasMaxLength(200)
-                    .HasColumnName("NameFB");
-                entity.Property(e => e.ResultDetail).HasMaxLength(100);
-                entity.Property(e => e.StartTime).HasColumnType("datetime");
-
-                entity.HasOne(d => d.IdClientNavigation).WithMany(p => p.LogActionScripts)
-                    .HasForeignKey(d => d.IdClient)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_LogActionScript_ClientCustomer");
-
-                entity.HasOne(d => d.IdFbNavigation).WithMany(p => p.LogActionScripts)
-                    .HasForeignKey(d => d.IdFb)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_LogActionScript_AccountFB");
-
-                entity.HasOne(d => d.IdScriptNavigation).WithMany(p => p.LogActionScripts)
-                    .HasForeignKey(d => d.IdScript)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_LogActionScript_Script");
-
-                entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.LogActionScripts)
-                    .HasForeignKey(d => d.IdUser)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_LogActionScript_Users");
-            });
-
-            modelBuilder.Entity<LogStepAction>(entity =>
-            {
-                entity.ToTable("LogStepAction");
-
-                entity.Property(e => e.StepDetail).HasMaxLength(2000);
-
-                entity.HasOne(d => d.IdLogActionNavigation).WithMany(p => p.LogStepActions)
-                    .HasForeignKey(d => d.IdLogAction)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_LogStepAction_LogActionScript");
-            });
-
-            modelBuilder.Entity<PageFb>(entity =>
-            {
-                entity.ToTable("PageFB");
-
-                entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-                entity.Property(e => e.Description).HasMaxLength(1000);
-                entity.Property(e => e.Distance).HasMaxLength(100);
-                entity.Property(e => e.Name).HasMaxLength(200);
-                entity.Property(e => e.NumPostPerDay).HasMaxLength(100);
-                entity.Property(e => e.Price).HasMaxLength(100);
-                entity.Property(e => e.Rate).HasMaxLength(100);
-                entity.Property(e => e.Status).HasMaxLength(100);
-                entity.Property(e => e.Type).HasMaxLength(100);
-                entity.Property(e => e.Url)
-                    .HasMaxLength(512)
-                    .IsUnicode(false);
-
-                entity.HasOne(d => d.IdFaceBookNavigation).WithMany(p => p.PageFbs)
-                    .HasForeignKey(d => d.IdFaceBook)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_PageFB_AccountFB");
-            });
-
-            modelBuilder.Entity<Post>(entity =>
-            {
-                entity.HasKey(e => e.Id).HasName("PK_PostGroup");
-
-                entity.ToTable("Post");
-
-                entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-                entity.Property(e => e.Url).HasMaxLength(1000);
-
-                entity.HasOne(d => d.IdAccountNavigation).WithMany(p => p.Posts)
-                    .HasForeignKey(d => d.IdAccount)
-                    .HasConstraintName("FK_Post_AccountFB");
-
-                entity.HasOne(d => d.IdGroupNavigation).WithMany(p => p.Posts)
-                    .HasForeignKey(d => d.IdGroup)
-                    .HasConstraintName("FK_Post_GroupFB");
-
-                entity.HasOne(d => d.IdPageNavigation).WithMany(p => p.Posts)
-                    .HasForeignKey(d => d.IdPage)
-                    .HasConstraintName("FK_Post_PageFB");
-            });
-
-            modelBuilder.Entity<PostComment>(entity =>
-            {
-                entity.ToTable("PostComment");
-
-                entity.HasOne(d => d.IdPostNavigation).WithMany(p => p.PostComments)
-                    .HasForeignKey(d => d.IdPost)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_PostComment_Post");
-            });
-
-            modelBuilder.Entity<Province>(entity =>
-            {
-                entity.ToTable("Province");
-
-                entity.Property(e => e.KeyWord).HasMaxLength(100);
-                entity.Property(e => e.Name).HasMaxLength(50);
-            });
-
-            modelBuilder.Entity<Script>(entity =>
-            {
-                entity.ToTable("Script");
-
-                entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-                entity.Property(e => e.Name).HasMaxLength(500);
-            });
-
-            modelBuilder.Entity<Topic>(entity =>
-            {
-                entity.ToTable("Topic");
-
-                entity.Property(e => e.KeyWord).HasMaxLength(50);
-                entity.Property(e => e.Topic1)
-                    .HasMaxLength(50)
-                    .HasColumnName("Topic");
-            });
-
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.Property(e => e.DateCreated).HasColumnType("datetime");
-                entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-                entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
-                entity.Property(e => e.License).HasMaxLength(100);
-                entity.Property(e => e.Password).HasMaxLength(20);
-                entity.Property(e => e.UserName).HasMaxLength(100);
-            });
-
-            modelBuilder.Entity<UserClient>(entity =>
-            {
-                entity.ToTable("UserClient");
-
-                entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-                entity.Property(e => e.Token)
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
-
-                entity.HasOne(d => d.IdClientNavigation).WithMany(p => p.UserClients)
-                    .HasForeignKey(d => d.IdClient)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UserClient_ClientCustomer");
-
-                entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.UserClients)
-                    .HasForeignKey(d => d.IdUser)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UserClient_Users");
-            });
-
-            modelBuilder.Entity<UsersAccountFb>(entity =>
-            {
-                entity.ToTable("UsersAccountFB");
-
-                entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-                entity.Property(e => e.IdAccountFb).HasColumnName("IdAccountFB");
-
-                entity.HasOne(d => d.IdAccountFbNavigation).WithMany(p => p.UsersAccountFbs)
-                    .HasForeignKey(d => d.IdAccountFb)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UsersAccountFB_AccountFB");
-
-                entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.UsersAccountFbs)
-                    .HasForeignKey(d => d.IdUser)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UsersAccountFB_Users");
-            });
-
-            OnModelCreatingPartial(modelBuilder);
-        }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+            entity.ToTable("PageFB");
+
+            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.Distance).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.NumPostPerDay).HasMaxLength(100);
+            entity.Property(e => e.Price).HasMaxLength(100);
+            entity.Property(e => e.Rate).HasMaxLength(100);
+            entity.Property(e => e.Status).HasMaxLength(100);
+            entity.Property(e => e.Type).HasMaxLength(100);
+            entity.Property(e => e.Url)
+                .HasMaxLength(512)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.IdFaceBookNavigation).WithMany(p => p.PageFbs)
+                .HasForeignKey(d => d.IdFaceBook)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PageFB_AccountFB");
+        });
+
+        modelBuilder.Entity<Post>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_PostGroup");
+
+            entity.ToTable("Post");
+
+            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
+            entity.Property(e => e.Url).HasMaxLength(1000);
+
+            entity.HasOne(d => d.IdAccountNavigation).WithMany(p => p.Posts)
+                .HasForeignKey(d => d.IdAccount)
+                .HasConstraintName("FK_Post_AccountFB");
+
+            entity.HasOne(d => d.IdGroupNavigation).WithMany(p => p.Posts)
+                .HasForeignKey(d => d.IdGroup)
+                .HasConstraintName("FK_Post_GroupFB");
+
+            entity.HasOne(d => d.IdPageNavigation).WithMany(p => p.Posts)
+                .HasForeignKey(d => d.IdPage)
+                .HasConstraintName("FK_Post_PageFB");
+        });
+
+        modelBuilder.Entity<PostComment>(entity =>
+        {
+            entity.ToTable("PostComment");
+
+            entity.HasOne(d => d.IdPostNavigation).WithMany(p => p.PostComments)
+                .HasForeignKey(d => d.IdPost)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PostComment_Post");
+        });
+
+        modelBuilder.Entity<Province>(entity =>
+        {
+            entity.ToTable("Province");
+
+            entity.Property(e => e.KeyWord).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Script>(entity =>
+        {
+            entity.ToTable("Script");
+
+            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<Topic>(entity =>
+        {
+            entity.ToTable("Topic");
+
+            entity.Property(e => e.KeyWord).HasMaxLength(50);
+            entity.Property(e => e.Topic1)
+                .HasMaxLength(50)
+                .HasColumnName("Topic");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.Property(e => e.DateCreated).HasColumnType("datetime");
+            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
+            entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
+            entity.Property(e => e.License).HasMaxLength(100);
+            entity.Property(e => e.Password).HasMaxLength(20);
+            entity.Property(e => e.UserName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<UserClient>(entity =>
+        {
+            entity.ToTable("UserClient");
+
+            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
+            entity.Property(e => e.Token)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.IdClientNavigation).WithMany(p => p.UserClients)
+                .HasForeignKey(d => d.IdClient)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserClient_ClientCustomer");
+
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.UserClients)
+                .HasForeignKey(d => d.IdUser)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserClient_Users");
+        });
+
+        modelBuilder.Entity<UsersAccountFb>(entity =>
+        {
+            entity.ToTable("UsersAccountFB");
+
+            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
+            entity.Property(e => e.IdAccountFb).HasColumnName("IdAccountFB");
+
+            entity.HasOne(d => d.IdAccountFbNavigation).WithMany(p => p.UsersAccountFbs)
+                .HasForeignKey(d => d.IdAccountFb)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersAccountFB_AccountFB");
+
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.UsersAccountFbs)
+                .HasForeignKey(d => d.IdUser)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersAccountFB_Users");
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
