@@ -178,7 +178,7 @@ namespace SmartBot.Services.Scripts
             {
                 var client = _clientRepository.FindAll(x=>x.HardwareId == hardwareId).SingleOrDefault();
                 var userClient = _userClientRepository.FindAll(x=>x.IdUser == idUser&&x.IdClient == client.Id).SingleOrDefault();
-                var script = _scriptRepository.FindAll(x => x.IdUserClient == userClient.Id)
+                var script = _scriptRepository.FindAll()
                                               .Include(x => x.Actions).ThenInclude(x => x.IdAccountFbNavigation)
                                               .Include(x => x.Actions).ThenInclude(x => x.IdContentNavigation);
 
