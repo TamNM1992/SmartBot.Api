@@ -26,6 +26,7 @@ namespace SmartBot.DataDto.Script
         public string? NameFB { get; set; }
         public string? ResultDetail { get; set; }
         public bool Result { get; set; }
+        public byte Style { get; set; }
         public List<string> ListStep { get; set; }
         public int SequenceNumber { get; set; }
 

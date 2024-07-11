@@ -28,7 +28,7 @@ namespace SmartBot.Services.Action
             _actionTypeRepository = actionTypeRepository;
             _scriptRepository = scriptRepository;
             _stepActionRepository = stepActionRepository;
-            _logScriptRepository=logScriptRepository;
+            _logScriptRepository = logScriptRepository;
         }
 
         public ResponseBase GetActionHistory(string token, int currentPage, int itemsPerPage, string? startTime, string? endTime, int? idFb, int? actionId)
@@ -39,15 +39,15 @@ namespace SmartBot.Services.Action
                 var idUser = int.Parse(Token.Authentication(token));
 
                 DateTime? start = string.IsNullOrEmpty(startTime) ? null : DateTime.ParseExact(startTime, "dd/MM/yyyy", CultureInfo.InvariantCulture);
-                DateTime? end = string.IsNullOrEmpty(endTime) ? null : DateTime.ParseExact(endTime, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                DateTime? end = string.IsNullOrEmpty(endTime) ? null : DateTime.ParseExact(endTime, "dd/MM/yyyy", CultureInfo.InvariantCulture).AddDays(1);
 
                 var logScript = _logScriptRepository.FindAll(log => log.IdUser == idUser &&
-                                                    (!start.HasValue || log.StartTime >= start.Value) &&
-                                                    (!end.HasValue || log.EndTime <= end.Value))
+                                                            (!start.HasValue || log.StartTime >= start.Value) &&
+                                                            (!end.HasValue || log.EndTime < end.Value))
                                                     .Include(x => x.IdScriptNavigation)
-                                                    .Include(x=>x.LogActionScripts)
-                                                    .ThenInclude(x=>x.LogStepActions);
-                
+                                                    .Include(x => x.LogActionScripts)
+                                                    .ThenInclude(x => x.LogStepActions);
+
 
                 var data = logScript.Select(x => new LogScriptDto
                 {
@@ -65,9 +65,10 @@ namespace SmartBot.Services.Action
                         IdFb = y.IdFb,
                         NameFb = y.NameFb,
                         Result = y.Result,
+                        Style = y.Style,
                         ListLogStep = y.LogStepActions.Select(x => x.StepDetail).ToList()
-                    }).OrderByDescending(x=>x.StartTime).ToList()
-                }).Skip((currentPage-1)*itemsPerPage).Take(itemsPerPage).ToList();
+                    }).Where(y => (!idFb.HasValue || idFb == y.IdFb)).ToList()
+                }).OrderByDescending(x => x.StartTime);
 
                 response.Data = data;
                 return response;
