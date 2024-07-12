@@ -1,4 +1,3 @@
-﻿
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -49,13 +48,13 @@ namespace SmartBot.Services.Scripts
 
 
 
-        public ScriptService( IMapper mapper, ICommonUoW commonUoW, ICommonRepository<Script> scriptRepository, 
-            ICommonRepository<Actions> actionRepository,ICommonRepository<ContentFb> contentRepository,
+        public ScriptService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<Script> scriptRepository,
+            ICommonRepository<Actions> actionRepository, ICommonRepository<ContentFb> contentRepository,
             ICommonRepository<AccountFb> accountRepository, ICommonRepository<ClientCustomer> clientRepository,
             ICommonRepository<UserClient> userClientRepository, ICommonRepository<LogStepAction> logStepRepository,
-            ICommonRepository<DataAccess.Entities.ActionType> actionTypeRepository,ICommonRepository<UsersAccountFb> userAccountRepository, 
-            ICommonRepository<Topic> topicRepository,ICommonRepository<ImagePath> imgRepository,
-            ICommonRepository<GroupFb> groupRepository,ICommonRepository<Post> postRepository,
+            ICommonRepository<DataAccess.Entities.ActionType> actionTypeRepository, ICommonRepository<UsersAccountFb> userAccountRepository,
+            ICommonRepository<Topic> topicRepository, ICommonRepository<ImagePath> imgRepository,
+            ICommonRepository<GroupFb> groupRepository, ICommonRepository<Post> postRepository,
             ICommonRepository<PostComment> postCommentRepository, ICommonRepository<ContentTopic> contentTopicRepository,
             ICommonRepository<User> userRepository, ICommonRepository<LogActionScript> logActionRepository,
             ICommonRepository<LogScript> logScriptRepository)
@@ -87,21 +86,21 @@ namespace SmartBot.Services.Scripts
             try
             {
                 var user = _userRepository.GetById(param.IdUser);
-                if(user == null)
+                if (user == null)
                 {
                     response.Message = "User not existing";
                     response.Code = 99;
                     return response;
                 }
-                if(param.ListAction == null && !param.ListAction.Any())
+                if (param.ListAction == null && !param.ListAction.Any())
                 {
                     response.Message = "No action, invalid";
                     response.Code = 98;
                     return response;
-                }    
-                var client = _clientRepository.FindAll(x=>x.HardwareId==param.HardwareId).SingleOrDefault();
+                }
+                var client = _clientRepository.FindAll(x => x.HardwareId == param.HardwareId).SingleOrDefault();
                 var clientid = 0;
-                if(client == null)
+                if (client == null)
                 {
                     var newclient = new ClientCustomer()
                     {
@@ -111,15 +110,15 @@ namespace SmartBot.Services.Scripts
                     _commonUoW.BeginTransaction();
                     _clientRepository.Insert(newclient);
                     _commonUoW.Commit();
-                    clientid=newclient.Id;
+                    clientid = newclient.Id;
                 }
                 else
                 {
                     clientid = client.Id;
-                }    
-                var userclient = _userClientRepository.FindAll(x=>x.IdUser==user.Id && x.IdClient==clientid).SingleOrDefault();
+                }
+                var userclient = _userClientRepository.FindAll(x => x.IdUser == user.Id && x.IdClient == clientid).SingleOrDefault();
                 var userclientId = 0;
-                if(userclient == null)
+                if (userclient == null)
                 {
                     var newUserClient = new UserClient()
                     {
@@ -129,20 +128,20 @@ namespace SmartBot.Services.Scripts
                     _commonUoW.BeginTransaction();
                     _userClientRepository.Insert(newUserClient);
                     _commonUoW.Commit();
-                    userclientId=newUserClient.Id;
-                }    
+                    userclientId = newUserClient.Id;
+                }
                 else
                 {
-                    userclientId=userclient.Id;
+                    userclientId = userclient.Id;
                 }
                 var script = new Script()
                 {
                     Name = param.Name,
                     IdUserClient = userclientId,
-                    DateUpdate= DateTime.UtcNow,
+                    DateUpdate = DateTime.UtcNow,
                     Status = 0,
                 };
-                
+
                 _commonUoW.BeginTransaction();
                 _scriptRepository.Insert(script);
                 _commonUoW.Commit();
@@ -176,25 +175,26 @@ namespace SmartBot.Services.Scripts
             ResponseBase response = new ResponseBase();
             try
             {
-                var client = _clientRepository.FindAll(x=>x.HardwareId == hardwareId).SingleOrDefault();
-                var userClient = _userClientRepository.FindAll(x=>x.IdUser == idUser&&x.IdClient == client.Id).SingleOrDefault();
+                var client = _clientRepository.FindAll(x => x.HardwareId == hardwareId).SingleOrDefault();
+                var userClient = _userClientRepository.FindAll(x => x.IdUser == idUser && x.IdClient == client.Id).SingleOrDefault();
+                
                 var script = _scriptRepository.FindAll()
                                               .Include(x => x.Actions).ThenInclude(x => x.IdAccountFbNavigation)
                                               .Include(x => x.Actions).ThenInclude(x => x.IdContentNavigation);
 
-                if (script==null)
+                if (script == null)
                 {
                     response.Message = "Chưa có kịch bản , hãy tạo trước nhé";
-                    response.Code=99;
+                    response.Code = 99;
                     return response;
-                }    
-                var data = script.Select(x=> new ScriptDataDto
+                }
+                var data = script.Select(x => new ScriptDataDto
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    ListActions = x.Actions.Select(y=> new ActionDataDto
+                    ListActions = x.Actions.Select(y => new ActionDataDto
                     {
-                        Id=y.Id,
+                        Id = y.Id,
                         Account = new AccountFbDto()
                         {
                             IdFb = y.IdAccountFbNavigation.Id,
@@ -206,15 +206,15 @@ namespace SmartBot.Services.Scripts
                         SequenceNumber = y.SequenceNumber,
                         NumberGet = y.NumberGet,
                         KeyWord = y.KeyWord,
-                        Content =(y.IdContent>0)? new ContentDataDto()
+                        Content = (y.IdContent > 0) ? new ContentDataDto()
                         {
                             Id = y.IdContentNavigation.Id,
                             Detail = y.IdContentNavigation.Detail,
                             Type = (byte)y.IdContentNavigation.Type,
-                        }:null,
+                        } : null,
                         Target = new TargetDataDto()
                         {
-                            Type= y.TypeTarget,
+                            Type = y.TypeTarget,
                             IdTarget = y.IdTarget,
                         }
                     }).ToList()
@@ -236,16 +236,16 @@ namespace SmartBot.Services.Scripts
             ResponseBase response = new ResponseBase();
             try
             {
-                var listacc = _userAccountRepository.FindAll(x=>x.IdUser==idUser)
-                                                    .Include(x=>x.IdAccountFbNavigation);
-                if(listacc == null)
+                var listacc = _userAccountRepository.FindAll(x => x.IdUser == idUser)
+                                                    .Include(x => x.IdAccountFbNavigation);
+                if (listacc == null)
                 {
                     response.Message = "List acc null";
                     return response;
                 }
                 var data = listacc.Select(x => new AccountDataDto
                 {
-                    Id=x.IdAccountFbNavigation.Id,
+                    Id = x.IdAccountFbNavigation.Id,
                     FbUser = x.IdAccountFbNavigation.FbUser,
                     FbPassword = x.IdAccountFbNavigation.FbPassword,
                     FbProfileLink = x.IdAccountFbNavigation.FbProfileLink,
@@ -260,18 +260,18 @@ namespace SmartBot.Services.Scripts
                 return response;
             }
         }
-        public ResponseBase GetContentByActionDetail(int idUser, int idAccountFB,string hardwareId)
+        public ResponseBase GetContentByActionDetail(int idUser, int idAccountFB, string hardwareId)
         {
             ResponseBase response = new ResponseBase();
             try
             {
-                var content = _contentRepository.FindAll(x => x.IdFaceBook==idAccountFB)
+                var content = _contentRepository.FindAll(x => x.IdFaceBook == idAccountFB)
                                                 .Include(x => x.ContentTopics)
                                                 .ThenInclude(y => y.IdTopicNavigation);
 
                 var data = content.Select(x => new ContentScriptDto
                 {
-                    Id=x.Id,
+                    Id = x.Id,
                     Detail = x.Detail,
                     ListTopic = x.ContentTopics.Select(y => y.IdTopicNavigation.Topic1).ToList(),
                 }).ToList();
@@ -285,21 +285,21 @@ namespace SmartBot.Services.Scripts
                 return response;
             }
         }
-        public ResponseBase GetTargetByActionDetail(int idUser, int idAccountFB,int typeAction)//0-all 1-acc 2-page 3-group
+        public ResponseBase GetTargetByActionDetail(int idUser, int idAccountFB, int typeAction)//0-all 1-acc 2-page 3-group
         {
             ResponseBase response = new ResponseBase();
             var data = new TargetScriptDto();
             try
             {
-                if(typeAction==1||typeAction==0)
+                if (typeAction == 1 || typeAction == 0)
                 {
                     data.ListAccount = new List<AccountTargetDto>();
 
-                    var listacc = _userAccountRepository.FindAll(x=>x.IdUser==idUser)
+                    var listacc = _userAccountRepository.FindAll(x => x.IdUser == idUser)
                                                     .Include(x => x.IdAccountFbNavigation);
-                    if(listacc.Any() )
+                    if (listacc.Any())
                     {
-                        data.ListAccount = listacc.Select(x=>x.IdAccountFbNavigation).Select(x=> new AccountTargetDto
+                        data.ListAccount = listacc.Select(x => x.IdAccountFbNavigation).Select(x => new AccountTargetDto
                         {
                             Id = x.Id,
                             FbUser = x.FbUser,
@@ -307,11 +307,11 @@ namespace SmartBot.Services.Scripts
                             KeySearch = x.KeySearch,
                             Type = "Account"
                         }).ToList();
-                        
+
                     }
-                    
+
                 }
-                if (typeAction==2||typeAction==0)
+                if (typeAction == 2 || typeAction == 0)
                 {
                     data.ListPage = new List<PageTargetDto>();
                     //var listpage = _fbpageRepository.FindAll(x => x.IdFaceBook==idAccountFB)
@@ -326,11 +326,11 @@ namespace SmartBot.Services.Scripts
                     //        Type = "Page"
 
                     //    }).ToList();
-                        
+
                     //}
 
                 }
-                if (typeAction==3||typeAction==0)
+                if (typeAction == 3 || typeAction == 0)
                 {
                     data.ListGroup = new List<GroupTargetDto>();
                     //var listgroup = _fbgroupRepository.FindAll(x=>x.IdFaceBook==idAccountFB)
@@ -345,7 +345,7 @@ namespace SmartBot.Services.Scripts
                     //        Type = "Group"
                     //    }).ToList() ;
                     //}
-                    
+
                 }
 
                 response.Data = data;
@@ -357,34 +357,34 @@ namespace SmartBot.Services.Scripts
                 return response;
             }
         }
-        public ResponseBase GetContentById(int idContent, string hardwareId )
+        public ResponseBase GetContentById(int idContent, string hardwareId)
         {
             ResponseBase response = new ResponseBase();
             try
             {
                 var content = _contentRepository.GetById(idContent);
-                if(content == null )
+                if (content == null)
                 {
                     response.Message = "Not existing";
                     return response;
                 }
-                var topics = _contentTopicRepository.FindAll(x=>x.IdContent==idContent).Include(x=>x.IdTopicNavigation);
+                var topics = _contentTopicRepository.FindAll(x => x.IdContent == idContent).Include(x => x.IdTopicNavigation);
                 var img = new ImgDto();
-                if(content.Img==true)
+                if (content.Img == true)
                 {
-                    var client = _clientRepository.FindSingle(x=>x.HardwareId==hardwareId);
-                    img = _imgRepository.FindAll(x => x.IdContent==idContent&&x.IdClient==client.Id).Select(x=>new ImgDto
+                    var client = _clientRepository.FindSingle(x => x.HardwareId == hardwareId);
+                    img = _imgRepository.FindAll(x => x.IdContent == idContent && x.IdClient == client.Id).Select(x => new ImgDto
                     {
                         Id = x.Id,
                         Path = x.Path,
                     }).FirstOrDefault();
                 }
-                var data =new ContentScriptDto()
+                var data = new ContentScriptDto()
                 {
-                    Id=content.Id,
+                    Id = content.Id,
                     Detail = content.Detail,
-                    ListTopic = (topics.Any()?topics.Select(x=>x.IdTopicNavigation.Topic1).ToList():new List<string>()),
-                    Img =img,
+                    ListTopic = (topics.Any() ? topics.Select(x => x.IdTopicNavigation.Topic1).ToList() : new List<string>()),
+                    Img = img,
                 };
 
                 response.Data = data;
@@ -396,23 +396,23 @@ namespace SmartBot.Services.Scripts
                 return response;
             }
         }
-        public ResponseBase GetPostTarget(int idTarget,int typeTarget)
+        public ResponseBase GetPostTarget(int idTarget, int typeTarget)
         {
             ResponseBase response = new ResponseBase();
             try
             {
                 var data = new List<PostInTargetDto>();
-                var post = _postRepository.FindAll(x => ((typeTarget==1) ? x.IdAccount==idTarget : (typeTarget==2) ? x.IdPage==idTarget : x.IdGroup==idTarget));
-                if(post != null && post.Any())
+                var post = _postRepository.FindAll(x => ((typeTarget == 1) ? x.IdAccount == idTarget : (typeTarget == 2) ? x.IdPage == idTarget : x.IdGroup == idTarget));
+                if (post != null && post.Any())
                 {
-                    data = post.Select(x=> new PostInTargetDto
+                    data = post.Select(x => new PostInTargetDto
                     {
-                        Id =x.Id,
+                        Id = x.Id,
                         Content = x.Content,
                         Url = x.Url,
                         Type = typeTarget,
                     }).ToList();
-                }    
+                }
                 response.Data = data;
                 return response;
             }
@@ -428,15 +428,15 @@ namespace SmartBot.Services.Scripts
             try
             {
                 var post = _postRepository.GetById(idPost);
-                if(post == null)
+                if (post == null)
                 {
                     response.Message = "Not existing";
                     return response;
                 }
                 var data = new PostDetailDto
                 {
-                    Id=post.Id,
-                    Content=post.Content,
+                    Id = post.Id,
+                    Content = post.Content,
                 };
                 response.Data = data;
                 return response;
@@ -452,13 +452,13 @@ namespace SmartBot.Services.Scripts
             ResponseBase response = new ResponseBase();
             try
             {
-                var client = _clientRepository.FindAll(x=>x.HardwareId==param.HwId).FirstOrDefault();
+                var client = _clientRepository.FindAll(x => x.HardwareId == param.HwId).FirstOrDefault();
                 var clientId = 0;
-                if(client == null)
+                if (client == null)
                 {
                     var newclient = new ClientCustomer()
                     {
-                        HardwareId=param.HwId,
+                        HardwareId = param.HwId,
                         DateUpdate = DateTime.Now,
                     };
                     _commonUoW.BeginTransaction();
@@ -473,13 +473,13 @@ namespace SmartBot.Services.Scripts
                 var content = _contentRepository.GetById(param.IdContent);
                 content.Detail = param.Detail;
                 content.DateUpdate = DateTime.Now;
-                if (param.PathImg!=null&& param.PathImg.Any())
+                if (param.PathImg != null && param.PathImg.Any())
                 {
-                    content.Img=true;
-                    if (param.IdImg>0)
+                    content.Img = true;
+                    if (param.IdImg > 0)
                     {
                         var img = _imgRepository.GetById(param.IdImg);
-                        img.Path  =param.PathImg;
+                        img.Path = param.PathImg;
                         _commonUoW.BeginTransaction();
                         _imgRepository.Update(img);
                         _commonUoW.Commit();
@@ -489,25 +489,25 @@ namespace SmartBot.Services.Scripts
                         var newimg = new ImagePath()
                         {
                             IdClient = clientId,
-                            IdContent= param.IdContent,
+                            IdContent = param.IdContent,
                             Path = param.PathImg,
                         };
                         _commonUoW.BeginTransaction();
                         _imgRepository.Insert(newimg);
                         _commonUoW.Commit();
-                    }    
+                    }
                 }
                 else
                 {
-                    content.Img=false;
-                    if (param.IdImg>0)
+                    content.Img = false;
+                    if (param.IdImg > 0)
                     {
                         var img = _imgRepository.GetById(param.IdImg);
                         _commonUoW.BeginTransaction();
                         _imgRepository.Remove(img);
                         _commonUoW.Commit();
                     }
-                }    
+                }
                 _commonUoW.BeginTransaction();
                 _contentRepository.Update(content);
                 _commonUoW.Commit();
@@ -526,9 +526,9 @@ namespace SmartBot.Services.Scripts
             try
             {
                 string datalog = JsonConvert.SerializeObject(param);
-                FileHelper.WriteFile("D:/LogScript"+ $"/{param.IdScript}/{DateTime.Now.ToString("dd-MM-yyyy HH-mm-ss")}", datalog);
-                var client = _clientRepository.FindAll(x=>x.HardwareId == param.HardwareId).FirstOrDefault();
-                if(client == null)
+                FileHelper.WriteFile("D:/LogScript" + $"/{param.IdScript}/{DateTime.Now.ToString("dd-MM-yyyy HH-mm-ss")}", datalog);
+                var client = _clientRepository.FindAll(x => x.HardwareId == param.HardwareId).FirstOrDefault();
+                if (client == null)
                 {
                     response.Message = "Client không tồn tại";
                     return response;
@@ -544,11 +544,11 @@ namespace SmartBot.Services.Scripts
                 _commonUoW.BeginTransaction();
                 _logScriptRepository.Insert(logScript);
                 _commonUoW.Commit();
-                if(logScript.Id<=0)
+                if (logScript.Id <= 0)
                 {
                     response.Message = "Insert fail";
                     return response;
-                }    
+                }
                 foreach (var action in param.ListActionResult)
                 {
                     var a = new LogActionScript();
@@ -559,19 +559,19 @@ namespace SmartBot.Services.Scripts
                     a.IdFb = action.IdFB;
                     a.NameFb = action.NameFB;
                     a.Result = action.Result;
-                    a.IdLogScript=logScript.Id;
+                    a.IdLogScript = logScript.Id;
                     a.ResultDetail = action.ResultDetail;
                     a.IdScript = param.IdScript;
-
+                    a.Style = action.Style;
                     _commonUoW.BeginTransaction();
                     _logActionRepository.Insert(a);
                     _commonUoW.Commit();
-                    if(a.Id<=0)
+                    if (a.Id <= 0)
                     {
                         continue;
                     }
                     var listStep = new List<LogStepAction>();
-                    foreach(var step in action.ListStep)
+                    foreach (var step in action.ListStep)
                     {
                         var s = new LogStepAction();
                         s.IdLogAction = a.Id;
@@ -582,7 +582,7 @@ namespace SmartBot.Services.Scripts
                     _commonUoW.BeginTransaction();
                     _logStepRepository.InsertMultiple(listStep);
                     _commonUoW.Commit();
-                }    
+                }
                 return response;
             }
             catch (Exception ex)
@@ -592,5 +592,5 @@ namespace SmartBot.Services.Scripts
             }
         }
     }
-    
+
 }

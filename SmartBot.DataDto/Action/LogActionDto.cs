@@ -18,6 +18,7 @@ namespace SmartBot.DataDto.Action
         public int IdFb { get; set; }
         public string NameFb { get; set; } = null!;
         public bool Result { get; set; }
+        public byte Style { get; set; }
         public List<string>? ListLogStep { get; set; }
     }
 
