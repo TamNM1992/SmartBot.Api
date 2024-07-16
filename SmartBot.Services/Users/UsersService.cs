@@ -17,15 +17,20 @@ namespace SmartBot.Services.Users
     {
         private IMapper _mapper;
         private readonly ICommonUoW _commonUoW;
+        private readonly ICommonRepository<ClientCustomer> _clientCustomerRepository;
         private readonly ICommonRepository<User> _userRepository;
+        private readonly ICommonRepository<UserClient> _userClientRepository;
         private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
 
 
-        public UserService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<UsersAccountFb> userAccountRepository)
+        public UserService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<User> userRepository, ICommonRepository<ClientCustomer> clientCustomerRepository,
+            ICommonRepository<UserClient> userClientRepository, ICommonRepository<UsersAccountFb> userAccountRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
             _userRepository = userRepository;
+            _clientCustomerRepository = clientCustomerRepository;
+            _userClientRepository = userClientRepository;
             _userAccountRepository = userAccountRepository;
         }
         public ResponseBase CheckUserByAccount(string userName, string password, string hardwareId)
@@ -51,26 +56,11 @@ namespace SmartBot.Services.Users
                 }
                 else
                 {
-                    if (user.HardwareId != hardwareId)
-                    {
-                        return new ResponseBase()
-                        {
-                            Code = 98,
-                            Message = StatusLogin.ClientWrong.ToString(),
-                            Data = new LoginDto()
-                            {
-                                Status = (int)StatusLogin.ClientWrong,
-                                Token = "",
-                                IdUser = 0
-                            },
-
-                        };
-                    }
                     if (user.Password != password)
                     {
                         return new ResponseBase()
                         {
-                            Code = 97,
+                            Code = 98,
                             Message = StatusLogin.PasswordWrong.ToString(),
                             Data = new LoginDto()
                             {
@@ -85,7 +75,7 @@ namespace SmartBot.Services.Users
                     {
                         return new ResponseBase()
                         {
-                            Code = 96,
+                            Code = 97,
                             Message = "Tài khoản chưa được kích hoạt, vui lòng nhập license",
                             Data = new LoginDto()
                             {
@@ -100,7 +90,7 @@ namespace SmartBot.Services.Users
                     {
                         return new ResponseBase()
                         {
-                            Code = 95,
+                            Code = 96,
                             Message = "Tài khoản đã hết hạn dùng",
                             Data = new LoginDto()
                             {
@@ -112,18 +102,52 @@ namespace SmartBot.Services.Users
                         };
                     }
                 }
-                
+                var idClient = 0;
+                var client = _clientCustomerRepository.FindAll(x => x.HardwareId == hardwareId).FirstOrDefault();
+                if (client == null)
+                {
+                    var newClient = new ClientCustomer()
+                    {
+                        HardwareId = hardwareId,
+                        DateUpdate = DateTime.Now,
+                    };
+                    _commonUoW.BeginTransaction();
+                    _clientCustomerRepository.Insert(newClient);
+                    _commonUoW.Commit();
+                    idClient = newClient.Id;
+                }
+                else
+                {
+                    idClient = client.Id;
+                }
+                var userclient = _userClientRepository.FindAll(x => x.IdUser == user.Id && x.IdClient == idClient).FirstOrDefault();
                 string token = "";
+                if (userclient == null)
+                {
+                    var newuserclient = new UserClient()
+                    {
+                        IdUser = user.Id,
+                        IdClient = idClient,
+                        DateUpdate = DateTime.Now,
+                        Status = 1,
+                        Token = Token.GenerateSecurityToken(user.Id, "7"),
+                    };
+                    token = newuserclient.Token;
+                    _commonUoW.BeginTransaction();
+                    _userClientRepository.Insert(newuserclient);
+                    _commonUoW.Commit();
+                }
+                else
+                {
+                    userclient.DateUpdate = DateTime.Now;
+                    userclient.Token = Token.GenerateSecurityToken(user.Id, "7");
 
-                user.DateUpdate = DateTime.Now;
-                user.Token = Token.GenerateSecurityToken(user.Id, "7");
+                    _commonUoW.BeginTransaction();
+                    _userClientRepository.Update(userclient);
+                    _commonUoW.Commit();
+                    token = userclient.Token;
 
-                _commonUoW.BeginTransaction();
-                _userRepository.Update(user);
-                _commonUoW.Commit();
-                token = user.Token;
-
-                
+                }
 
                 return new ResponseBase()
                 {
@@ -154,14 +178,33 @@ namespace SmartBot.Services.Users
                 var jwtSecurityToken = handler.ReadJwtToken(token);
 
                 var userId = int.Parse(jwtSecurityToken.Claims.First(x => x.Type == "nameid").Value);
-                var user = _userRepository.FindAll(x=>x.Id==userId&&x.HardwareId==hwId).FirstOrDefault();
+                var user = _userRepository.GetById(userId);
                 if (user == null)
                 {
                     response.Code= 2000;
                     response.Message = "User không tồn tại";
                     return response;
                 }    
- 
+                var client = _clientCustomerRepository.FindAll(x=>x.HardwareId == hwId).SingleOrDefault();
+                if (client == null)
+                {
+                    response.Code= 2001;
+                    response.Message = "Client không hợp lệ";
+                    return response;
+                }
+                var userClient = _userClientRepository.FindAll(x=>x.IdClient==client.Id && x.IdUser == userId).SingleOrDefault();
+                if (userClient == null)
+                {
+                    response.Code= 2002;
+                    response.Message = "Thiết bị chưa từng được đăng kí, hãy đăng nhập lại";
+                    return response;
+                }
+                if(userClient.Token != token)
+                {
+                    response.Code= 2003;
+                    response.Message = "Token không hợp lệ, hãy đăng nhập lại";
+                    return response;
+                }    
                 return new ResponseBase()
                 {
                     Code = 0,

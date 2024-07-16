@@ -1,14 +1,12 @@
 ﻿
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Graph.Models;
 using SmartBot.DataAccess.Entities;
 using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Base;
 using SmartBot.DataDto.Contents;
 using SmartBot.DataDto.Img;
 using static System.Net.Mime.MediaTypeNames;
-using User = SmartBot.DataAccess.Entities.User;
 
 namespace SmartBot.Services.Content
 {
@@ -19,40 +17,42 @@ namespace SmartBot.Services.Content
         private readonly ICommonRepository<ContentFb> _contentRepository;
         private readonly ICommonRepository<AccountFb> _accFbRepository;
         private readonly ICommonRepository<UsersAccountFb> _userAccfbRepository;
+        private readonly ICommonRepository<ClientCustomer> _clientRepository;
+        private readonly ICommonRepository<UserClient> _userclientRepository;
         private readonly ICommonRepository<ImagePath> _imgRepository;
-        private readonly ICommonRepository<User> _userRepository;
 
 
 
 
         public ContentService( IMapper mapper, ICommonUoW commonUoW, ICommonRepository<ContentFb> contentRepository,
             ICommonRepository<AccountFb> accFbRepository, ICommonRepository<UsersAccountFb> userAccfbRepository,
-            ICommonRepository<ImagePath> imgRepository, ICommonRepository<User> userRepository)
+            ICommonRepository<ClientCustomer> clientRepository, ICommonRepository<UserClient> userclientRepository,
+            ICommonRepository<ImagePath> imgRepository)
         {
             _mapper = mapper;
             _commonUoW = commonUoW;
             _contentRepository = contentRepository;
             _accFbRepository = accFbRepository;
             _userAccfbRepository= userAccfbRepository;
+            _clientRepository = clientRepository;
+            _userclientRepository=userclientRepository;
             _imgRepository=imgRepository;
-            _userRepository=userRepository;
         }
         public ResponseBase GetListContentByType(int idUser, string hwId,byte type)
         {
             ResponseBase response = new ResponseBase();
             try
             {
-                var user = _userRepository.FindAll(x=>x.Id==idUser&&x.HardwareId==hwId).FirstOrDefault();
-                if(user == null)
-                {
-                    response.Message="Thông tin user không hợp lệ";
-                    return response;
-                }
                 var data = new List<ContentDto>();
-
+                var client = _clientRepository.FindAll(x=>x.HardwareId==hwId).SingleOrDefault();
+                int idclient = 0;
+                if (client != null)
+                {
+                    idclient = client.Id;
+                }
                 var listAcc = _userAccfbRepository.FindAll(x => x.IdUser==idUser).Select(x=>x.IdAccountFb);
                 var contents = _contentRepository.FindAll(x => listAcc.Contains(x.IdFaceBook)&&((type==0)?x.Id>0:x.Type==type) )
-                                                 .Include(x=>x.ImagePaths.Where(y=>y.IdUser==idUser));
+                                                 .Include(x=>x.ImagePaths.Where(y=>y.IdClient==idclient));
                 if(contents.Any() )
                 {
                     data = contents.Select(x => new ContentDto
@@ -81,18 +81,13 @@ namespace SmartBot.Services.Content
             ResponseBase response = new ResponseBase();
             try
             {
-                var user = _userRepository.FindAll(x => x.Id==param.IdUser&&x.HardwareId==param.HwId).FirstOrDefault();
-                if (user == null)
-                {
-                    response.Message="Thông tin user không hợp lệ";
-                    return response;
-                }
                 var fbuser = _userAccfbRepository.FindAll(x=>x.IdUser==param.IdUser).FirstOrDefault();
                 if(fbuser==null)
                 {
                     response.Message = "Chưa có tài khoản FB nào, hãy đăng nhập 1 tài khoản FB trước";
                     return response;
                 }
+                var clientId = _clientRepository.FindAll(x=>x.HardwareId==param.HwId).SingleOrDefault().Id;
 
                 var newContent = new ContentFb
                 {
@@ -109,7 +104,7 @@ namespace SmartBot.Services.Content
                 {
                     var newimg = new ImagePath
                     {
-                        IdUser = param.IdUser,
+                        IdClient = clientId,
                         IdContent = newContent.Id,
                         Path = param.ImgPath,
                     };
@@ -133,22 +128,17 @@ namespace SmartBot.Services.Content
             ResponseBase response = new ResponseBase();
             try
             {
-                var user = _userRepository.FindAll(x=>x.HardwareId==hwId).FirstOrDefault();
-                if (user == null)
-                {
-                    response.Message="Thông tin user không hợp lệ";
-                    return response;
-                }
                 var data = new ContentDto();
+                var client = _clientRepository.FindAll(x=>x.HardwareId == hwId).SingleOrDefault();
                 var content = _contentRepository.GetById(idContent);
                 data.Id = content.Id;
                 data.Detail = content.Detail;
                 if(content.Img==true)
                 {
-                    var listimg = _imgRepository.FindAll(x => x.IdContent == idContent&&x.IdUser==user.Id);
+                    var listimg = _imgRepository.FindAll(x => x.IdContent == idContent&&x.IdClient==client.Id);
                     if (listimg!=null && listimg.Any())
                     {
-                        data.ListImg = _imgRepository.FindAll(x => x.IdContent == idContent&&x.IdUser==user.Id)
+                        data.ListImg = _imgRepository.FindAll(x => x.IdContent == idContent&&x.IdClient==client.Id)
                                                     .Select(x => new ImgDto
                                                     {
                                                         Id = x.Id,
@@ -171,21 +161,16 @@ namespace SmartBot.Services.Content
             ResponseBase response = new ResponseBase();
             try
             {
-                var user = _userRepository.FindAll(x => x.HardwareId==hwId).FirstOrDefault();
-                if (user == null)
-                {
-                    response.Message="Thông tin user không hợp lệ";
-                    return response;
-                }
                 var listid = idContents.Split(',').Select(x=> int.Parse(x)).ToList();
                 var data = new List<ContentDto>();
+                var client = _clientRepository.FindAll(x => x.HardwareId == hwId).SingleOrDefault();
                 var contents = _contentRepository.FindAll(x=> listid.Contains(x.Id)).Include(x=>x.ImagePaths);
 
                 data = contents.Select(x=> new ContentDto
                 {
                     Id= x.Id,
                     Detail=x.Detail,
-                    ListImg = (x.Img==true)?x.ImagePaths.Where(y=>y.IdUser==user.Id).Select(x => new ImgDto
+                    ListImg = (x.Img==true)?x.ImagePaths.Where(y=>y.IdClient==client.Id).Select(x => new ImgDto
                     {
                         Id = x.Id,
                         Path = x.Path,

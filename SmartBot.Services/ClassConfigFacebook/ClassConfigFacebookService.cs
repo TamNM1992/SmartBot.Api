@@ -11,9 +11,9 @@ namespace SmartBot.Services.ClassConfigFacebook
     {
         private IMapper _mapper;
         private readonly ICommonUoW _commonUoW;
-        private readonly ICommonRepository<ClassDatum> _classDataRepository;
+        private readonly ICommonRepository<ClassData> _classDataRepository;
 
-        public ClassConfigFacebookService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<ClassDatum> classDataRepository)
+        public ClassConfigFacebookService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<ClassData> classDataRepository)
         {
             //  mình gọi thằng authority trong pipeline ra, gắn nó vào thằng _authorityRepository để dùng
 

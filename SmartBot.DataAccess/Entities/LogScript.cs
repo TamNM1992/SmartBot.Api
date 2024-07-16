@@ -15,6 +15,10 @@ public partial class LogScript
 
     public int IdUser { get; set; }
 
+    public int IdClient { get; set; }
+
+    public virtual ClientCustomer IdClientNavigation { get; set; } = null!;
+
     public virtual Script IdScriptNavigation { get; set; } = null!;
 
     public virtual User IdUserNavigation { get; set; } = null!;
