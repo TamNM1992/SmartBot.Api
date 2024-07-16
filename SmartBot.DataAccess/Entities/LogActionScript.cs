@@ -26,7 +26,8 @@ public partial class LogActionScript
     public int IdLogScript { get; set; }
 
     public int IdScript { get; set; }
-    public byte Style { get; set; }
+
+    public byte? Style { get; set; }
 
     public virtual AccountFb IdFbNavigation { get; set; } = null!;
 

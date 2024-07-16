@@ -21,9 +21,13 @@ public partial class User
 
     public DateTime? ExpiryDate { get; set; }
 
-    public virtual ICollection<LogScript> LogScripts { get; set; } = new List<LogScript>();
+    public string? HardwareId { get; set; }
+    public string? Token { get; set; }
 
-    public virtual ICollection<UserClient> UserClients { get; set; } = new List<UserClient>();
+
+    public virtual ICollection<ImagePath> ImagePaths { get; set; } = new List<ImagePath>();
+
+    public virtual ICollection<LogScript> LogScripts { get; set; } = new List<LogScript>();
 
     public virtual ICollection<UsersAccountFb> UsersAccountFbs { get; set; } = new List<UsersAccountFb>();
 }

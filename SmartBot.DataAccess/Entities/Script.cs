@@ -7,7 +7,7 @@ public partial class Script
 {
     public int Id { get; set; }
 
-    public int IdUserClient { get; set; }
+    public int IdUser { get; set; }
 
     public DateTime DateUpdate { get; set; }
 

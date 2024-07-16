@@ -65,7 +65,7 @@ namespace SmartBot.Services.Action
                         IdFb = y.IdFb,
                         NameFb = y.NameFb,
                         Result = y.Result,
-                        Style = y.Style,
+                        Style = (byte)y.Style,
                         ListLogStep = y.LogStepActions.Select(x => x.StepDetail).ToList()
                     }).Where(y => (!idFb.HasValue || idFb == y.IdFb)).ToList()
                 }).OrderByDescending(x => x.StartTime);

@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Models;
 using Microsoft.Graph.Models.Security;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -17,6 +18,8 @@ using SmartBot.DataDto.User;
 using System.Data;
 using System.Net;
 using Actions = SmartBot.DataAccess.Entities.Action;
+using Post = SmartBot.DataAccess.Entities.Post;
+using User = SmartBot.DataAccess.Entities.User;
 
 namespace SmartBot.Services.Scripts
 {
@@ -33,9 +36,7 @@ namespace SmartBot.Services.Scripts
         private readonly ICommonRepository<ImagePath> _imgRepository;
         private readonly ICommonRepository<ContentFb> _contentRepository;
         private readonly ICommonRepository<AccountFb> _accountRepository;
-        private readonly ICommonRepository<ClientCustomer> _clientRepository;
         private readonly ICommonRepository<User> _userRepository;
-        private readonly ICommonRepository<UserClient> _userClientRepository;
         private readonly ICommonRepository<UsersAccountFb> _userAccountRepository;
         private readonly ICommonRepository<GroupFb> _groupRepository;
 
@@ -50,8 +51,7 @@ namespace SmartBot.Services.Scripts
 
         public ScriptService(IMapper mapper, ICommonUoW commonUoW, ICommonRepository<Script> scriptRepository,
             ICommonRepository<Actions> actionRepository, ICommonRepository<ContentFb> contentRepository,
-            ICommonRepository<AccountFb> accountRepository, ICommonRepository<ClientCustomer> clientRepository,
-            ICommonRepository<UserClient> userClientRepository, ICommonRepository<LogStepAction> logStepRepository,
+            ICommonRepository<AccountFb> accountRepository,  ICommonRepository<LogStepAction> logStepRepository,
             ICommonRepository<DataAccess.Entities.ActionType> actionTypeRepository, ICommonRepository<UsersAccountFb> userAccountRepository,
             ICommonRepository<Topic> topicRepository, ICommonRepository<ImagePath> imgRepository,
             ICommonRepository<GroupFb> groupRepository, ICommonRepository<Post> postRepository,
@@ -65,8 +65,6 @@ namespace SmartBot.Services.Scripts
             _actionRepository = actionRepository;
             _contentRepository = contentRepository;
             _accountRepository = accountRepository;
-            _clientRepository = clientRepository;
-            _userClientRepository = userClientRepository;
             _actionTypeRepository = actionTypeRepository;
             _userAccountRepository = userAccountRepository;
             _topicRepository = topicRepository;
@@ -85,11 +83,10 @@ namespace SmartBot.Services.Scripts
             ResponseBase response = new ResponseBase();
             try
             {
-                var user = _userRepository.GetById(param.IdUser);
+                var user = _userRepository.FindAll(x => x.Id==param.IdUser&&x.HardwareId==param.HardwareId).FirstOrDefault();
                 if (user == null)
                 {
-                    response.Message = "User not existing";
-                    response.Code = 99;
+                    response.Message="Thông tin user không hợp lệ";
                     return response;
                 }
                 if (param.ListAction == null && !param.ListAction.Any())
@@ -98,46 +95,12 @@ namespace SmartBot.Services.Scripts
                     response.Code = 98;
                     return response;
                 }
-                var client = _clientRepository.FindAll(x => x.HardwareId == param.HardwareId).SingleOrDefault();
                 var clientid = 0;
-                if (client == null)
-                {
-                    var newclient = new ClientCustomer()
-                    {
-                        HardwareId = param.HardwareId,
-                        DateUpdate = DateTime.UtcNow,
-                    };
-                    _commonUoW.BeginTransaction();
-                    _clientRepository.Insert(newclient);
-                    _commonUoW.Commit();
-                    clientid = newclient.Id;
-                }
-                else
-                {
-                    clientid = client.Id;
-                }
-                var userclient = _userClientRepository.FindAll(x => x.IdUser == user.Id && x.IdClient == clientid).SingleOrDefault();
-                var userclientId = 0;
-                if (userclient == null)
-                {
-                    var newUserClient = new UserClient()
-                    {
-                        IdUser = user.Id,
-                        IdClient = clientid,
-                    };
-                    _commonUoW.BeginTransaction();
-                    _userClientRepository.Insert(newUserClient);
-                    _commonUoW.Commit();
-                    userclientId = newUserClient.Id;
-                }
-                else
-                {
-                    userclientId = userclient.Id;
-                }
+
                 var script = new Script()
                 {
                     Name = param.Name,
-                    IdUserClient = userclientId,
+                    IdUser = user.Id,
                     DateUpdate = DateTime.UtcNow,
                     Status = 0,
                 };
@@ -175,8 +138,13 @@ namespace SmartBot.Services.Scripts
             ResponseBase response = new ResponseBase();
             try
             {
-                var client = _clientRepository.FindAll(x => x.HardwareId == hardwareId).SingleOrDefault();
-                var userClient = _userClientRepository.FindAll(x => x.IdUser == idUser && x.IdClient == client.Id).SingleOrDefault();
+                var user = _userRepository.FindAll(x => x.Id==idUser&&x.HardwareId==hardwareId).FirstOrDefault();
+                if (user == null)
+                {
+                    response.Message="Thông tin user không hợp lệ";
+                    return response;
+                }
+
                 
                 var script = _scriptRepository.FindAll()
                                               .Include(x => x.Actions).ThenInclude(x => x.IdAccountFbNavigation)
@@ -362,6 +330,12 @@ namespace SmartBot.Services.Scripts
             ResponseBase response = new ResponseBase();
             try
             {
+                var user = _userRepository.FindAll(x => x.HardwareId==hardwareId).FirstOrDefault();
+                if (user == null)
+                {
+                    response.Message="Thông tin user không hợp lệ";
+                    return response;
+                }
                 var content = _contentRepository.GetById(idContent);
                 if (content == null)
                 {
@@ -372,8 +346,8 @@ namespace SmartBot.Services.Scripts
                 var img = new ImgDto();
                 if (content.Img == true)
                 {
-                    var client = _clientRepository.FindSingle(x => x.HardwareId == hardwareId);
-                    img = _imgRepository.FindAll(x => x.IdContent == idContent && x.IdClient == client.Id).Select(x => new ImgDto
+
+                    img = _imgRepository.FindAll(x => x.IdContent == idContent && x.IdUser == user.Id).Select(x => new ImgDto
                     {
                         Id = x.Id,
                         Path = x.Path,
@@ -452,24 +426,13 @@ namespace SmartBot.Services.Scripts
             ResponseBase response = new ResponseBase();
             try
             {
-                var client = _clientRepository.FindAll(x => x.HardwareId == param.HwId).FirstOrDefault();
-                var clientId = 0;
-                if (client == null)
+                var user = _userRepository.FindAll(x => x.Id==param.IdUser&&x.HardwareId==param.HwId).FirstOrDefault();
+                if (user == null)
                 {
-                    var newclient = new ClientCustomer()
-                    {
-                        HardwareId = param.HwId,
-                        DateUpdate = DateTime.Now,
-                    };
-                    _commonUoW.BeginTransaction();
-                    _clientRepository.Insert(newclient);
-                    _commonUoW.Commit();
-                    clientId = newclient.Id;
+                    response.Message="Thông tin user không hợp lệ";
+                    return response;
                 }
-                else
-                {
-                    clientId = client.Id;
-                }
+
                 var content = _contentRepository.GetById(param.IdContent);
                 content.Detail = param.Detail;
                 content.DateUpdate = DateTime.Now;
@@ -488,7 +451,7 @@ namespace SmartBot.Services.Scripts
                     {
                         var newimg = new ImagePath()
                         {
-                            IdClient = clientId,
+                            IdUser = user.Id,
                             IdContent = param.IdContent,
                             Path = param.PathImg,
                         };
@@ -525,21 +488,21 @@ namespace SmartBot.Services.Scripts
             ResponseBase response = new ResponseBase();
             try
             {
-                string datalog = JsonConvert.SerializeObject(param);
-                FileHelper.WriteFile("D:/LogScript" + $"/{param.IdScript}/{DateTime.Now.ToString("dd-MM-yyyy HH-mm-ss")}", datalog);
-                var client = _clientRepository.FindAll(x => x.HardwareId == param.HardwareId).FirstOrDefault();
-                if (client == null)
+                var user = _userRepository.FindAll(x => x.Id==param.IdUser&&x.HardwareId==param.HardwareId).FirstOrDefault();
+                if (user == null)
                 {
-                    response.Message = "Client không tồn tại";
+                    response.Message="Thông tin user không hợp lệ";
                     return response;
                 }
+                string datalog = JsonConvert.SerializeObject(param);
+                FileHelper.WriteFile("D:/LogScript" + $"/{param.IdScript}/{DateTime.Now.ToString("dd-MM-yyyy HH-mm-ss")}", datalog);
+
                 var logScript = new LogScript
                 {
                     StartTime = param.StartTime,
                     EndTime = param.EndTime,
                     IdScript = param.IdScript,
                     IdUser = param.IdUser,
-                    IdClient = client.Id,
                 };
                 _commonUoW.BeginTransaction();
                 _logScriptRepository.Insert(logScript);

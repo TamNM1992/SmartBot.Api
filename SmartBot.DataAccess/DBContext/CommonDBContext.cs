@@ -15,11 +15,11 @@ namespace SmartBot.DataAccess.DBContext
 
     public virtual DbSet<Action> Actions { get; set; }
 
+    public virtual DbSet<ActionMultiClient> ActionMultiClients { get; set; }
+
     public virtual DbSet<ActionType> ActionTypes { get; set; }
 
     public virtual DbSet<ClassDatum> ClassData { get; set; }
-
-    public virtual DbSet<ClientCustomer> ClientCustomers { get; set; }
 
     public virtual DbSet<ContentFb> ContentFbs { get; set; }
 
@@ -51,11 +51,11 @@ namespace SmartBot.DataAccess.DBContext
 
     public virtual DbSet<Script> Scripts { get; set; }
 
+    public virtual DbSet<ScriptMultiClient> ScriptMultiClients { get; set; }
+
     public virtual DbSet<Topic> Topics { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-
-    public virtual DbSet<UserClient> UserClients { get; set; }
 
     public virtual DbSet<UsersAccountFb> UsersAccountFbs { get; set; }
 
@@ -102,6 +102,16 @@ namespace SmartBot.DataAccess.DBContext
                 .HasConstraintName("FK_ActionLike_Script");
         });
 
+        modelBuilder.Entity<ActionMultiClient>(entity =>
+        {
+            entity.ToTable("ActionMultiClient");
+
+            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
+            entity.Property(e => e.EndTime).HasColumnType("datetime");
+            entity.Property(e => e.KeyWord).HasMaxLength(500);
+            entity.Property(e => e.Link).HasMaxLength(1000);
+        });
+
         modelBuilder.Entity<ActionType>(entity =>
         {
             entity.ToTable("ActionType");
@@ -117,16 +127,6 @@ namespace SmartBot.DataAccess.DBContext
                 .IsUnicode(false);
             entity.Property(e => e.DateUpdate).HasColumnType("datetime");
             entity.Property(e => e.Description).HasMaxLength(100);
-        });
-
-        modelBuilder.Entity<ClientCustomer>(entity =>
-        {
-            entity.ToTable("ClientCustomer");
-
-            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-            entity.Property(e => e.HardwareId)
-                .HasMaxLength(100)
-                .IsUnicode(false);
         });
 
         modelBuilder.Entity<ContentFb>(entity =>
@@ -214,15 +214,15 @@ namespace SmartBot.DataAccess.DBContext
 
             entity.Property(e => e.Path).HasMaxLength(1000);
 
-            entity.HasOne(d => d.IdClientNavigation).WithMany(p => p.ImagePaths)
-                .HasForeignKey(d => d.IdClient)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ImagePath_ClientCustomer");
-
             entity.HasOne(d => d.IdContentNavigation).WithMany(p => p.ImagePaths)
                 .HasForeignKey(d => d.IdContent)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ImagePath_ContentFB");
+
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.ImagePaths)
+                .HasForeignKey(d => d.IdUser)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ImagePath_Users");
         });
 
         modelBuilder.Entity<ImageTopic>(entity =>
@@ -271,11 +271,6 @@ namespace SmartBot.DataAccess.DBContext
 
             entity.Property(e => e.EndTime).HasColumnType("datetime");
             entity.Property(e => e.StartTime).HasColumnType("datetime");
-
-            entity.HasOne(d => d.IdClientNavigation).WithMany(p => p.LogScripts)
-                .HasForeignKey(d => d.IdClient)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_LogScript_ClientCustomer");
 
             entity.HasOne(d => d.IdScriptNavigation).WithMany(p => p.LogScripts)
                 .HasForeignKey(d => d.IdScript)
@@ -371,6 +366,13 @@ namespace SmartBot.DataAccess.DBContext
             entity.Property(e => e.Name).HasMaxLength(500);
         });
 
+        modelBuilder.Entity<ScriptMultiClient>(entity =>
+        {
+            entity.ToTable("ScriptMultiClient");
+
+            entity.Property(e => e.Name).HasMaxLength(50);
+        });
+
         modelBuilder.Entity<Topic>(entity =>
         {
             entity.ToTable("Topic");
@@ -386,29 +388,14 @@ namespace SmartBot.DataAccess.DBContext
             entity.Property(e => e.DateCreated).HasColumnType("datetime");
             entity.Property(e => e.DateUpdate).HasColumnType("datetime");
             entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
+            entity.Property(e => e.HardwareId)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.License).HasMaxLength(100);
             entity.Property(e => e.Password).HasMaxLength(20);
             entity.Property(e => e.UserName).HasMaxLength(100);
-        });
+            entity.Property(e => e.Token).HasMaxLength(500);
 
-        modelBuilder.Entity<UserClient>(entity =>
-        {
-            entity.ToTable("UserClient");
-
-            entity.Property(e => e.DateUpdate).HasColumnType("datetime");
-            entity.Property(e => e.Token)
-                .HasMaxLength(500)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.IdClientNavigation).WithMany(p => p.UserClients)
-                .HasForeignKey(d => d.IdClient)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UserClient_ClientCustomer");
-
-            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.UserClients)
-                .HasForeignKey(d => d.IdUser)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UserClient_Users");
         });
 
         modelBuilder.Entity<UsersAccountFb>(entity =>
