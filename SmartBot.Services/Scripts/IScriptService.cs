@@ -6,6 +6,8 @@ namespace SmartBot.Services.Scripts
 {
     public interface IScriptService
     {
+        public ResponseBase ImportScript(List<ScriptImportExcelDto> param);
+
         public ResponseBase CreateScript(ScriptDto param);
         public ResponseBase GetScriptByUserClient(int idUser, string hardwareId);
         public ResponseBase GetListAccountForScript(int idUser);

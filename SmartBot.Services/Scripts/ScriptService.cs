@@ -85,6 +85,32 @@ namespace SmartBot.Services.Scripts
             ResponseBase response = new ResponseBase();
             try
             {
+                var actionDic = new Dictionary<byte, string>()
+                {
+                    {1,"PostWall" },
+                    {2,"PostGroup" },
+                    {3,"Like" },
+                    {4,"Tim" },
+                    {5,"Thương thương" },
+                    {6,"Haha" },
+                    {7,"Wow" },
+                    {8,"Buồn" },
+                    {9,"Tức" },
+                    {10,"Share Wall" },
+                    {12,"Comment" },
+                    {14,"SearchGroup" },
+                    {15,"SearchPage" },
+                    {30,"Lấy bài đăng trong wall" },
+                    {31,"Lấy bài đăng trong group" },
+                    {17,"Chuyển sang fanpage" },
+                    {18,"Về trang chính" },
+                    {90,"Đổi avatar" },
+                    {91,"Đổi ảnh bìa" },
+                    {92,"Gửi kết bạn" },
+                    {93,"Đồng ý kết bạn" },
+                    {95,"ẩn ban" },
+                };
+
                 var result = "";
                 if(param == null || !param.Any()) { response.Message = "Data Empty"; }
                 foreach (var script in param)
@@ -98,7 +124,6 @@ namespace SmartBot.Services.Scripts
                         return response;
                     }    
                     var client = _clientRepository.FindAll(x=>x.HardwareId == script.HwId).FirstOrDefault();
-                    var clientId = 0;
                     if(client == null)
                     {
                         result +="CLient không tồn tại";
@@ -180,8 +205,59 @@ namespace SmartBot.Services.Scripts
                             }    
 
                         }
+                        newAction.Style = actionDic.SingleOrDefault(x => x.Value.Trim().ToLower()== action.Action.Trim().ToLower()).Key;
+                        if (action.Content!=null || action.ImgPath !=null)
+                        {
+                            var newContent = new ContentFb
+                            {
+                                Detail = (action.Content!=null&&action.Content.Any()) ? action.Content : "",
+                                IdFaceBook = newAction.IdAccountFb,
+                                DateUpdate = DateTime.Now,
+                                Type =1,
+                                Img = (action.ImgPath!=null&&action.ImgPath.Any()) ? true : false,
+
+                            };
+                            try
+                            {
+                                _commonUoW.BeginTransaction();
+                                _contentRepository.Insert(newContent);
+                                _commonUoW.Commit();
+                                newAction.IdContent = newContent.Id;
+                                if (action.ImgPath!=null)
+                                {
+                                    var newImg = new ImagePath()
+                                    {
+                                        Path = action.ImgPath.Trim(),
+                                        IdClient = client.Id,
+                                        IdContent = newContent.Id,
+                                    };
+                                    _commonUoW.BeginTransaction();
+                                    _imgRepository.Insert(newImg);
+                                    _commonUoW.Commit();
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        newAction.TypeTarget= 0;
+                        if (action.TargetType =="Post ở hành động trước")
+                            newAction.TypeTarget= 6;
+                        if (action.TargetType =="Group từ hành động trước")
+                            newAction.TypeTarget= 7;
+                        newAction.Link = action.Link;
+                        newAction.StepNumber = action.TargetActionIndex;
+                        newAction.KeyWord = action.Keyword;
+                        newAction.NumberGet = action.NumberGet;
+                        newAction.DateUpdate= DateTime.Now;
+                        ListAction.Add(newAction);
                     }
+                    _commonUoW.BeginTransaction();
+                    _actionRepository.InsertMultiple(ListAction);
+                    _commonUoW.Commit();
                 }
+                response.Message = result;
                 return response;
             }
             catch (Exception ex)
