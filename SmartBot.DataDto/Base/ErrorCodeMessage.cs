@@ -12,6 +12,7 @@
 		public static readonly KeyValuePair<int, string> InsertFail = new KeyValuePair<int, string>(6, "Insert fail");
 		public static readonly KeyValuePair<int, string> WroongMethod = new KeyValuePair<int, string>(7, "Wroong method");
 		public static readonly KeyValuePair<int, string> Existing = new KeyValuePair<int, string>(8, "Existing");
+
         #endregion
     }
 

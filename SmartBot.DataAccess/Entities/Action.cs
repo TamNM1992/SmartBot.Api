@@ -19,7 +19,7 @@ public partial class Action
 
     public DateTime DateUpdate { get; set; }
 
-    public int? IdTarget { get; set; }
+    public int? StepNumber { get; set; }
 
     public byte TypeTarget { get; set; }
 
