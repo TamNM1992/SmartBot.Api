@@ -23,6 +23,12 @@ namespace SmartBot.Api.Controllers
             _client = client;
             _ScriptService = ScriptService;
         }
+        [HttpPost("import-script")]
+        public ResponseBase ImportScript(List<ScriptImportExcelDto> param)
+        {
+            var item = _ScriptService.ImportScript(param);
+            return item;
+        }
         [HttpPost("script")]
         public ResponseBase CreateScript(ScriptDto param)
         {
