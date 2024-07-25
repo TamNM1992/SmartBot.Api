@@ -6,6 +6,7 @@ using SmartBot.DataAccess.Interface;
 using SmartBot.DataDto.Action;
 using SmartBot.DataDto.Base;
 using System.Globalization;
+using System.Linq;
 
 namespace SmartBot.Services.Action
 {
@@ -70,8 +71,7 @@ namespace SmartBot.Services.Action
                     })
                     .Where(y => (!idFb.HasValue || idFb == y.IdFb))
                     .ToList()
-                }).OrderByDescending(x => x.StartTime);
-
+                }).OrderByDescending(x => x.StartTime).Skip((currentPage-1)*itemsPerPage).Take(itemsPerPage);
                 response.Data = data;
                 return response;
             }
