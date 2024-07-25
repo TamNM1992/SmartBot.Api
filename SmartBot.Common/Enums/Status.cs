@@ -17,6 +17,8 @@ namespace NhaDat24h.Common.Enums
         [Description("Password wrong")]
         PasswordWrong = 5,
         [Description("Token expired")]
-        TokenExpired = 6
+        TokenExpired = 6,
+        [Description("Client wrong")]
+        ClientWrong = 7
     }
 }
