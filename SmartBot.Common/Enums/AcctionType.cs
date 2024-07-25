@@ -64,6 +64,10 @@ namespace SmartBot.Common.Enums
         SendFriendRequest = 92,
         [Description("AcceptFriendRequest")]
         AcceptFriendRequest = 93,
+        [Description("SwitchLanguage")]
+        SwitchLanguage = 94,
+        [Description("HiddenFriendList")]
+        HiddenFriendList = 95,
     }
     public enum ActionType
     {
