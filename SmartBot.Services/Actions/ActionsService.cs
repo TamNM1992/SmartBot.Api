@@ -71,7 +71,8 @@ namespace SmartBot.Services.Action
                     })
                     .Where(y => (!idFb.HasValue || idFb == y.IdFb))
                     .ToList()
-                }).OrderByDescending(x => x.StartTime).Skip((currentPage-1)*itemsPerPage).Take(itemsPerPage);
+                }).OrderByDescending(x => x.StartTime).Skip((currentPage-1)*itemsPerPage).Take(itemsPerPage).Where(x=>x.ListLogAction.Count>0);
+                
                 response.Data = data;
                 return response;
             }

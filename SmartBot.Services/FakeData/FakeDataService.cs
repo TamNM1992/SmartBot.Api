@@ -35,122 +35,122 @@ namespace SmartBot.Services.FakeData
                     {
                         new FakeDataDto()
                         {
-                            label = "Tháng 1",
-                            data= new DTset
+                            Label = "Tháng 1",
+                            Data= new DTset
                             {
-                                dataset1=_random.Next(50,200),
-                                dataset2=_random.Next(50,200),
-                                dataset3=65,
+                                Dataset1=_random.Next(50,200),
+                                Dataset2=_random.Next(50,200),
+                                Dataset3=65,
                             }
                         },
                         new FakeDataDto()
                         {
-                            label = "Tháng 2",
-                            data= new DTset
+                            Label = "Tháng 2",
+                            Data= new DTset
                             {
-                                dataset1=_random.Next(50,200),
-                                dataset2=_random.Next(50,200),
-                                dataset3=65,
+                                Dataset1=_random.Next(50,200),
+                                Dataset2=_random.Next(50,200),
+                                Dataset3=65,
                             }
                         },
                         new FakeDataDto()
                         {
-                            label = "Tháng 3",
-                            data= new DTset
+                            Label = "Tháng 3",
+                            Data= new DTset
                             {
-                                dataset1=_random.Next(50,200),
-                                dataset2=_random.Next(50,200),
-                                dataset3=65,
+                                Dataset1=_random.Next(50,200),
+                                Dataset2=_random.Next(50,200),
+                                Dataset3=65,
                             }
                         },
                         new FakeDataDto()
                         {
-                            label = "Tháng 4",
-                            data= new DTset
+                            Label = "Tháng 4",
+                            Data= new DTset
                             {
-                                dataset1=_random.Next(50,200),
-                                dataset2=_random.Next(50,200),
-                                dataset3=65,
+                                Dataset1=_random.Next(50,200),
+                                Dataset2=_random.Next(50,200),
+                                Dataset3=65,
                             }
                         },
                         new FakeDataDto()
                         {
-                            label = "Tháng 5",
-                            data= new DTset
+                            Label = "Tháng 5",
+                            Data= new DTset
                             {
-                                dataset1=_random.Next(50,200),
-                                dataset2=_random.Next(50,200),
-                                dataset3=65,
+                                Dataset1=_random.Next(50,200),
+                                Dataset2=_random.Next(50,200),
+                                Dataset3=65,
                             }
                         },
                         new FakeDataDto()
                         {
-                            label = "Tháng 6",
-                            data= new DTset
+                            Label = "Tháng 6",
+                            Data= new DTset
                             {
-                                dataset1=_random.Next(50,200),
-                                dataset2=_random.Next(50,200),
-                                dataset3=65,
+                                Dataset1=_random.Next(50,200),
+                                Dataset2=_random.Next(50,200),
+                                Dataset3=65,
                             }
                         },
                         new FakeDataDto()
                         {
-                            label = "Tháng 7",
-                            data= new DTset
+                            Label = "Tháng 7",
+                            Data= new DTset
                             {
-                                dataset1=_random.Next(50,200),
-                                dataset2=_random.Next(50,200),
-                                dataset3=65,
+                                Dataset1=_random.Next(50,200),
+                                Dataset2=_random.Next(50,200),
+                                Dataset3=65,
                             }
                         },
                         new FakeDataDto()
                         {
-                            label = "Tháng 8",
-                            data= new DTset
+                            Label = "Tháng 8",
+                            Data= new DTset
                             {
-                                dataset1=_random.Next(50,200),
-                                dataset2=_random.Next(50,200),
-                                dataset3=65,
+                                Dataset1=_random.Next(50,200),
+                                Dataset2=_random.Next(50,200),
+                                Dataset3=65,
                             }
                         },
                         new FakeDataDto()
                         {
-                            label = "Tháng 9",
-                            data= new DTset
+                            Label = "Tháng 9",
+                            Data= new DTset
                             {
-                                dataset1=_random.Next(50,200),
-                                dataset2=_random.Next(50,200),
-                                dataset3=65,
+                                Dataset1=_random.Next(50,200),
+                                Dataset2=_random.Next(50,200),
+                                Dataset3=65,
                             }
                         },
                         new FakeDataDto()
                         {
-                            label = "Tháng 10",
-                            data= new DTset
+                            Label = "Tháng 10",
+                            Data= new DTset
                             {
-                                dataset1=_random.Next(50,200),
-                                dataset2=_random.Next(50,200),
-                                dataset3=65,
+                                Dataset1=_random.Next(50,200),
+                                Dataset2=_random.Next(50,200),
+                                Dataset3=65,
                             }
                         },
                         new FakeDataDto()
                         {
-                            label = "Tháng 11",
-                            data= new DTset
+                            Label = "Tháng 11",
+                            Data= new DTset
                             {
-                                dataset1=_random.Next(50,200),
-                                dataset2=_random.Next(50,200),
-                                dataset3=65,
+                                Dataset1=_random.Next(50,200),
+                                Dataset2=_random.Next(50,200),
+                                Dataset3=65,
                             }
                         },
                         new FakeDataDto()
                         {
-                            label = "Tháng 12",
-                            data= new DTset
+                            Label = "Tháng 12",
+                            Data= new DTset
                             {
-                                dataset1=_random.Next(50,200),
-                                dataset2=_random.Next(50,200),
-                                dataset3=65,
+                                Dataset1=_random.Next(50,200),
+                                Dataset2=_random.Next(50,200),
+                                Dataset3=65,
                             }
                         },
                     },

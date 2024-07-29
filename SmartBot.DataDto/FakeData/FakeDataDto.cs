@@ -8,15 +8,15 @@ namespace SmartBot.DataDto.FakeData
 {
     public class FakeDataDto
     {
-        public string label { get; set; } = null;
-        public DTset data { get; set; }
+        public string? Label { get; set; } = null;
+        public DTset? Data { get; set; }
 
     }
 
     public class DTset
     { 
-        public int dataset1 { get; set; }
-        public int dataset2 { get; set; }
-        public int dataset3 { get; set; }
+        public int Dataset1 { get; set; }
+        public int Dataset2 { get; set; }
+        public int Dataset3 { get; set; }
     } 
 }
