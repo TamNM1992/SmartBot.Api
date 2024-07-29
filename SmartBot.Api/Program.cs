@@ -50,7 +50,7 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
+builder.Services.AddSingleton<Random>();
 
 var app = builder.Build();
 StaticServiceProvider.Provider = app.Services;
